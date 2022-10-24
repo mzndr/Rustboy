@@ -1,6 +1,6 @@
 use std::process;
 mod instructions;
-mod types;
+pub mod types;
 use types::{Cpu, Register, Registers, WRAM_SIZE};
 
 
@@ -15,7 +15,12 @@ use types::{Cpu, Register, Registers, WRAM_SIZE};
 
 /// Reads from wram at pc and increases pc.
 fn read(cpu: &mut Cpu, address: u16) -> u8 {
-    return cpu.wram[address as usize];
+    let u_addr = address as usize;
+    if u_addr >= WRAM_SIZE {
+        println!("Memory access at 0x{:x} out of bounds.", address);
+        process::exit(-1);
+    }
+    return cpu.wram[u_addr];
 }
 
 fn read_at_pc_and_increase(cpu: &mut Cpu) -> u8 {

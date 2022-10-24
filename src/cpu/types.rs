@@ -4,12 +4,13 @@ pub const WRAM_SIZE: usize = 0x20 * 0x400;
 pub type WRam = [u8; WRAM_SIZE];
 
 /** Registers **/
-#[derive(Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct Register {
     pub r0: u8,
     pub r1: u8,
 }
 
+#[derive(Debug, Copy, Clone)]
 pub struct Registers {
     pub af: Register,
     pub bc: Register,
@@ -19,6 +20,7 @@ pub struct Registers {
     pub pc: u16,
 }
 
+#[derive(Debug, Copy, Clone)]
 pub struct Cpu {
     pub registers: Registers,
     pub wram: WRam,
