@@ -17,7 +17,11 @@ use types::{Cpu, Register, Registers, WRAM_SIZE};
 fn read(cpu: &mut Cpu, address: u16) -> u8 {
     let u_addr = address as usize;
     if u_addr >= WRAM_SIZE {
-        println!("Memory access at 0x{:x} out of bounds.", address);
+        println!(
+            "Memory access at 0x{:x} out of bounds. Valid address space: (0x0000-0x{:x}).",
+            address, 
+            WRAM_SIZE - 1
+        );
         process::exit(-1);
     }
     return cpu.wram[u_addr];
@@ -28,8 +32,6 @@ fn read_at_pc_and_increase(cpu: &mut Cpu) -> u8 {
     cpu.registers.pc += 1;
     return val;
 }
-
-/** Opcode functions **/
 
 /// Unknown instruction.
 /// TODO: Dump cpu state to log file.
