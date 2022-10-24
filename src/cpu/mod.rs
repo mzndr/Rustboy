@@ -19,7 +19,7 @@ fn read(cpu: &mut Cpu, address: u16) -> u8 {
 }
 
 fn read_at_pc_and_increase(cpu: &mut Cpu) -> u8 {
-    let val = cpu.wram[cpu.registers.pc as usize];
+    let val = read(cpu,cpu.registers.pc);
     cpu.registers.pc += 1;
     return val;
 }
@@ -32,8 +32,6 @@ fn opcode_unknown(opcode: u8, cpu: &mut Cpu) -> u8 {
     println!("Unknown instruction {opcode}!");
     return 0;
 }
-
-/** Public functions **/
 
 /// Initialize cpu memory
 pub fn init_cpu() -> Cpu {
@@ -57,6 +55,9 @@ pub fn execute_current_instruction(cpu: &mut Cpu) -> u8 {
     let cycled_needed = match instruction {
         0x00 => instructions::instruction_0x00(),
         0x03 => instructions::instruction_0x03(cpu),
+        0x13 => instructions::instruction_0x13(cpu),
+        0x23 => instructions::instruction_0x23(cpu),
+        0x33 => instructions::instruction_0x33(cpu),
         _ => opcode_unknown(instruction, cpu),
     };
 
