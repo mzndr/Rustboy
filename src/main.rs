@@ -1,8 +1,7 @@
 mod cpu;
-use crate::cpu::init_cpu;
-use crate::cpu::clock_cycle;
+use cpu::{init_cpu, execute_current_instruction};
 
 fn main() {
     let mut cpu = init_cpu();
-    clock_cycle(&mut cpu);
+    execute_current_instruction(&mut cpu);
 }
