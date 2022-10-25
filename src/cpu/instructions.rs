@@ -1,43 +1,34 @@
-use super::types::{Cpu, Register};
+use super::Cpu;
+
+pub const OPCODES: [(fn(&mut Cpu), u8); 0x001]  = [
+    (nop, 255),         // 0x00
+];
+
+/// OPCode: 0x00 
 /// Mnenonic: NOP 
-pub fn instruction_0x00() -> u8 {
-    nop();
-    return 0x04;
+pub fn nop(cpu: &mut Cpu) {
 }
 
 /// Mnenonic: INC BC 
-pub fn instruction_0x03(cpu: &mut Cpu) -> u8 {
-    let u = u16::from(cpu.registers.bc) + 1;
-    cpu.registers.bc = Register::from(u);
-    return 0x08;
+pub fn inc_bc(cpu: &mut Cpu) {
+    let u = cpu.registers.get_bc() + 1;
+    cpu.registers.set_bc(u);
 }
 
 /// Mnenonic: INC DE
-pub fn instruction_0x13(cpu: &mut Cpu) -> u8 {
-    let u = u16::from(cpu.registers.de) + 1;
-    cpu.registers.bc = Register::from(u);
-    return 0x08;
+pub fn inc_de(cpu: &mut Cpu) {
+    let u = cpu.registers.get_de() + 1;
+    cpu.registers.set_de(u);
 }
 
 /// Mnenonic: INC HL
-pub fn instruction_0x23(cpu: &mut Cpu) -> u8 {
-    let u = u16::from(cpu.registers.hl) + 1;
-    cpu.registers.bc = Register::from(u);
-    return 0x08;
+pub fn inc_hl(cpu: &mut Cpu) {
+    let u = cpu.registers.get_hl() + 1;
+    cpu.registers.set_hl(u);
 }
 
 /// Mnenonic: INC SP
-pub fn instruction_0x33(cpu: &mut Cpu) -> u8 {
-    let u = u16::from(cpu.registers.sp) + 1;
-    cpu.registers.bc = Register::from(u);
-    return 0x08;
-}
-
-
-
-/** Instruction Implementations **/
-
-/// No Operation.
-fn nop() {
-    println!("nop");
+pub fn inc_sp(cpu: &mut Cpu) {
+    let u = cpu.registers.get_sp() + 1;
+    cpu.registers.set_sp(u);
 }
