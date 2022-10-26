@@ -89,11 +89,14 @@ impl Cpu {
     /// For specifications see: https://www.pastraiser.com/cpu/gameboy/gameboy_opcodes.html
     fn execute_current_instruction(&mut self) -> u8 {
         let instruction = self.read_at_pc_and_increase();
-        let cycled_needed = match instruction {
-            0x00 => instructions::nop(self),
-            _ => self.opcode_unknown(instruction),
-        };
+        let instruction_info = instructions::INSTRUCTIONS[instruction as usize];
 
+        let f = instruction_info.1;
+        let mnemonic = instruction_info.2;
+        println!("Executing {mnemonic}");
+        let cycled_needed = f(self);
+
+        // Something went wrong when no cycles were needed.
         if cycled_needed == 0 {
             process::exit(-1);
         }
