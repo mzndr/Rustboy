@@ -2,8 +2,10 @@ use std::process;
 
 use super::Cpu;
 pub type InstructionInfo = (u8, fn(&mut Cpu) -> u8, &'static str);
-pub const INSTRUCTIONS: [InstructionInfo; 0x5] = [
+/// INST DEST, SRC
+pub const INSTRUCTIONS: [InstructionInfo; 0x6] = [
     (0x00, nop, "NOP"), 
+    (0x01, ld_bc, "LD BC, d16"), 
 
     (0x13, inc_bc, "INC BC"),
     (0x23, inc_de, "INC DE"),
@@ -24,6 +26,14 @@ pub fn decode_instruction(opcode: u8) -> InstructionInfo {
 /// Mnenonic: NOP 
 pub fn nop(_cpu: &mut Cpu) -> u8 {
     return 1;
+}
+
+/// OPCode: 0x01 
+/// Mnenonic: LD BC, d16 
+pub fn ld_bc(cpu: &mut Cpu) -> u8 {
+    let val = cpu.read_u16_at_pc_and_increase();
+    cpu.registers.set_bc(val);
+    return 3;
 }
 
 /// OPCode: 0x13 

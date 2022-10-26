@@ -1,5 +1,5 @@
 use std::process;
-use crate::helpers;
+use crate::helpers::{self, merge_u8s};
 mod instructions;
 
 
@@ -53,11 +53,18 @@ impl Cpu {
         return self.wram[u_addr];
     }
 
-    /// Reads from wram at pc and increases pc.
-    fn read_at_pc_and_increase(&mut self) -> u8 {
+    /// Reads a byte from wram at pc and increases pc by one.
+    fn read_u8_at_pc_and_increase(&mut self) -> u8 {
         let val = self.read(self.registers.pc);
         self.registers.pc += 1;
         return val;
+    }
+
+    /// Reads two bytes from wram at pc and increases pc by two.
+    fn read_u16_at_pc_and_increase(&mut self) -> u16 {
+        let a = self.read_u8_at_pc_and_increase();
+        let b = self.read_u8_at_pc_and_increase();
+        return helpers::merge_u8s(a, b);
     }
 
     /// Unknown instruction.
@@ -100,7 +107,7 @@ impl Cpu {
     /// Handles an instruction according to specifications.
     /// For specifications see: https://www.pastraiser.com/cpu/gameboy/gameboy_opcodes.html
     fn execute_current_instruction(&mut self) -> u8 {
-        let instruction = self.read_at_pc_and_increase();
+        let instruction = self.read_u8_at_pc_and_increase();
         let instruction_info = instructions::decode_instruction(instruction);
 
         let f = instruction_info.1;
@@ -213,5 +220,3 @@ impl Registers {
     pub fn set_pc(&mut self, val: u16) { self.pc = val; }
 
 }
-
-
