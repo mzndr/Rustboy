@@ -1,3 +1,5 @@
+use std::process;
+
 use super::Cpu;
 pub type InstructionInfo = (u8, fn(&mut Cpu) -> u8, &'static str);
 pub const INSTRUCTIONS: [InstructionInfo; 0x5] = [
@@ -9,6 +11,14 @@ pub const INSTRUCTIONS: [InstructionInfo; 0x5] = [
     (0x43, inc_sp, "INC SP"),
     
 ];
+
+pub fn decode_instruction(opcode: u8) -> InstructionInfo {
+    if opcode > INSTRUCTIONS.len() as u8 {
+        println!("Unknown instruction 0x{:x}!", opcode);
+        process::exit(-1);
+    }
+    return INSTRUCTIONS[opcode as usize];
+}
 
 /// OPCode: 0x00 
 /// Mnenonic: NOP 

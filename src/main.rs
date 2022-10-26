@@ -1,6 +1,7 @@
 mod cpu;
 use crate::cpu::Cpu;
 use std::{time::{self, Instant}, thread };
+use std::{fs, path};
 use time::Duration;
 
 const CLOCK_SPEED: u16 = 4100;
@@ -10,6 +11,11 @@ pub mod helpers;
 
 fn main() {
     let mut cpu = Cpu::new();
+    let tetris = fs::read(
+        path::Path::new("../files/roms/Tetris.gb")
+    ).unwrap();
+
+    cpu.load_rom(tetris);
     clock_loop(&mut cpu);
 }
 

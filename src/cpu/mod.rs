@@ -67,6 +67,15 @@ impl Cpu {
         return 0;
     }
 
+    /// Needs to be changed for bigger games, since they
+    /// are too big to fit into ram, so banking has to be 
+    /// implemented.
+    pub fn load_rom(&mut self, rom: Vec<u8>) {
+        for (address, byte) in rom.iter().enumerate() {
+            self.wram[address] = *byte;
+        }
+    }
+
     /// Initialize cpu memory
     pub fn new() -> Cpu {
         return Cpu {
@@ -92,7 +101,7 @@ impl Cpu {
     /// For specifications see: https://www.pastraiser.com/cpu/gameboy/gameboy_opcodes.html
     fn execute_current_instruction(&mut self) -> u8 {
         let instruction = self.read_at_pc_and_increase();
-        let instruction_info = instructions::INSTRUCTIONS[instruction as usize];
+        let instruction_info = instructions::decode_instruction(instruction);
 
         let f = instruction_info.1;
         let pc = self.registers.get_pc();
