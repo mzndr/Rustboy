@@ -32,6 +32,8 @@ pub struct Registers {
 #[derive(Debug, Copy, Clone)]
 pub struct Cpu {
     pub registers: Registers,
+
+    busy_for: u8,
     wram: WRam,
 }
 
@@ -82,6 +84,7 @@ impl Cpu {
 
             },
             wram: [0x00; WRAM_SIZE],
+            busy_for: 0x00,
         };
     }
 
@@ -92,8 +95,9 @@ impl Cpu {
         let instruction_info = instructions::INSTRUCTIONS[instruction as usize];
 
         let f = instruction_info.1;
+        let pc = self.registers.get_pc();
         let mnemonic = instruction_info.2;
-        println!("Executing {mnemonic}");
+        println!("[0x{:x}] Executing {mnemonic}", pc);
         let cycled_needed = f(self);
 
         // Something went wrong when no cycles were needed.
@@ -104,8 +108,13 @@ impl Cpu {
         return cycled_needed;
     }
 
+    // Execute a machine cycle.
     pub fn cycle(&mut self) {
-        self.execute_current_instruction();
+        if self.busy_for == 0 {
+            self.busy_for = self.execute_current_instruction();
+        } else {
+            self.busy_for -= 1;
+        }
     }
 
 
