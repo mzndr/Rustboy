@@ -1,12 +1,9 @@
 use super::Cpu;
 
-pub const OPCODES: [(fn(&mut Cpu), u8); 0x001]  = [
-    (nop, 255),         // 0x00
-];
-
 /// OPCode: 0x00 
 /// Mnenonic: NOP 
-pub fn nop(cpu: &mut Cpu) {
+pub fn nop(cpu: &mut Cpu) -> u8 {
+    return 0x01;
 }
 
 /// OPCode: 0x13 

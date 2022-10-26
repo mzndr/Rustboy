@@ -15,7 +15,7 @@ type WRam = [u8; WRAM_SIZE];
 
 
 #[derive(Debug, Copy, Clone)]
-struct Registers {
+pub struct Registers {
     a: u8,
     f: u8,
     b: u8,
@@ -87,24 +87,29 @@ impl Cpu {
 
     /// Handles an instruction according to specifications.
     /// For specifications see: https://www.pastraiser.com/cpu/gameboy/gameboy_opcodes.html
-    pub fn execute_current_instruction(&mut self) -> u8 {
+    fn execute_current_instruction(&mut self) -> u8 {
         let instruction = self.read_at_pc_and_increase();
         let cycled_needed = match instruction {
+            0x00 => instructions::nop(self),
             _ => self.opcode_unknown(instruction),
         };
 
-        if !cycled_needed == 0 {
+        if cycled_needed == 0 {
             process::exit(-1);
         }
 
         return cycled_needed;
     }
 
+    pub fn cycle(&mut self) {
+        self.execute_current_instruction();
+    }
+
 
 }
 
 impl Registers {
-    pub fn get_a(&self) -> u8 { return self.a; }
+    pub fn get_a(&mut self) -> u8 { return self.a; }
     pub fn set_a(&mut self, val: u8) { self.a = val; }
 
     pub fn get_f(&self) -> u8 { return self.f; }
@@ -117,7 +122,8 @@ impl Registers {
         ); 
     }
 
-    pub fn set_af(&self, val: u16) {
+
+    pub fn set_af(&mut self, val: u16) { 
         let split = helpers::split_u16(val);
         self.a = split.0;
         self.f = split.1;
@@ -136,7 +142,7 @@ impl Registers {
         ); 
     }
 
-    pub fn set_bc(&self, val: u16) {
+    pub fn set_bc(&mut self, val: u16) {
         let split = helpers::split_u16(val);
         self.b = split.0;
         self.c = split.1;
@@ -155,7 +161,7 @@ impl Registers {
         ); 
     }
 
-    pub fn set_de(&self, val: u16) {
+    pub fn set_de(&mut self, val: u16) {
         let split = helpers::split_u16(val);
         self.d = split.0;
         self.e = split.1;
@@ -174,16 +180,16 @@ impl Registers {
         ); 
     }
 
-    pub fn set_hl(&self, val: u16) {
+    pub fn set_hl(&mut self, val: u16) {
         let split = helpers::split_u16(val);
         self.h = split.0;
         self.l = split.1; }
 
-    pub fn get_sp(&self) -> u16 { return self.sp; }
-    pub fn set_sp(&self, val: u16) { self.sp = val; }
+    pub fn get_sp(&mut self) -> u16 { return self.sp; }
+    pub fn set_sp(&mut self, val: u16) { self.sp = val; }
 
-    pub fn get_pc(&self) -> u16 { return self.pc; }
-    pub fn set_pc(&self, val: u16) { self.pc = val; }
+    pub fn get_pc(&mut self) -> u16 { return self.pc; }
+    pub fn set_pc(&mut self, val: u16) { self.pc = val; }
 
 }
 
