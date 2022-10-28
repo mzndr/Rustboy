@@ -1,7 +1,9 @@
 use crate::helpers;
 use std::process;
+
+use self::registers::Registers;
 mod instructions;
-mod registers;
+pub mod registers;
 
 /**
 * Emulating the LR35902 CPU
@@ -13,9 +15,9 @@ mod registers;
 const WRAM_SIZE: usize = 0x20 * 0x400;
 type WRam = [u8; WRAM_SIZE];
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug ,Copy, Clone, PartialEq)]
 pub struct Cpu {
-    pub registers: registers::Registers,
+    pub registers: Registers,
 
     busy_for: u8,
     wram: WRam,
@@ -39,7 +41,7 @@ impl Cpu {
     /// Reads a byte from wram at pc and increases pc by one.
     fn read_u8_at_pc_and_increase(&mut self) -> u8 {
         let val = self.read(self.registers.pc);
-        self.registers.pc += 1;
+        self.registers.pc = self.registers.pc.wrapping_add(1);
         return val;
     }
 
@@ -47,7 +49,9 @@ impl Cpu {
     fn read_u16_at_pc_and_increase(&mut self) -> u16 {
         let a = self.read_u8_at_pc_and_increase();
         let b = self.read_u8_at_pc_and_increase();
-        return helpers::merge_u8s(a, b);
+
+        // Little endian in memory
+        return helpers::merge_u8s(b, a);     
     }
 
     /// Unknown instruction.
@@ -69,18 +73,7 @@ impl Cpu {
     /// Initialize cpu memory
     pub fn new() -> Cpu {
         return Cpu {
-            registers: registers::Registers {
-                a: 0x00,
-                f: 0x00,
-                b: 0x00,
-                c: 0x00,
-                d: 0x00,
-                e: 0x00,
-                h: 0x00,
-                l: 0x00,
-                sp: 0x0000,
-                pc: 0x0100,
-            },
+            registers: registers::Registers::new(),
             wram: [0x00; WRAM_SIZE],
             busy_for: 0x00,
         };
@@ -114,4 +107,8 @@ impl Cpu {
             self.busy_for -= 1;
         }
     }
+
 }
+
+#[cfg(test)] 
+mod tests;

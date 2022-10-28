@@ -1,7 +1,8 @@
 use std::process;
-
 use super::Cpu;
+
 pub type InstructionInfo = (u8, fn(&mut Cpu) -> u8, &'static str);
+
 /// INST DEST, SRC
 pub const INSTRUCTIONS: [InstructionInfo; 0x6] = [
     (0x00, nop, "NOP"),

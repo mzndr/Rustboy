@@ -1,6 +1,8 @@
+use std::fmt;
+
 use crate::helpers;
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Registers {
     pub a: u8,
     pub f: u8,
@@ -16,6 +18,22 @@ pub struct Registers {
 }
 
 impl Registers {
+
+    pub fn new() -> Registers {
+        return Registers {
+            a: 0x00,
+            f: 0x00,
+            b: 0x00,
+            c: 0x00,
+            d: 0x00,
+            e: 0x00,
+            h: 0x00,
+            l: 0x00,
+            sp: 0x000,
+            pc: 0x100,
+        };
+    }
+
     pub fn get_a(&mut self) -> u8 {
         return self.a;
     }
@@ -31,7 +49,7 @@ impl Registers {
     }
 
     pub fn get_af(&self) -> u16 {
-        return helpers::merge_u8s(self.f, self.a);
+        return helpers::merge_u8s(self.a, self.f);
     }
 
     pub fn set_af(&mut self, val: u16) {
@@ -112,17 +130,33 @@ impl Registers {
         self.l = split.1;
     }
 
-    pub fn get_sp(&mut self) -> u16 {
+    pub fn get_sp(& self) -> u16 {
         return self.sp;
     }
     pub fn set_sp(&mut self, val: u16) {
         self.sp = val;
     }
 
-    pub fn get_pc(&mut self) -> u16 {
+    pub fn get_pc(&self) -> u16 {
         return self.pc;
     }
     pub fn set_pc(&mut self, val: u16) {
         self.pc = val;
+    }
+}
+
+impl fmt::Display for Registers {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        _ = write!(
+            f, 
+            "AF: 0x{:x} BC: 0x{:x} DE: 0x{:x} HL: 0x{:x} SP: 0x{:x} PC: 0x{:x}", 
+            self.get_af(),
+            self.get_bc(),
+            self.get_de(),
+            self.get_hl(),
+            self.get_sp(),
+            self.get_pc(),
+        );
+        write!(f, "")
     }
 }
