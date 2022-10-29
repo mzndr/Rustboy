@@ -1,4 +1,4 @@
-use crate::helpers;
+use crate::helpers::{self, split_u16};
 use std::process;
 
 use self::registers::Registers;
@@ -24,10 +24,10 @@ pub struct Cpu {
 }
 
 impl Cpu {
-    /// Reads from wram at address.
-    fn read(&self, address: u16) -> u8 {
-        let u_addr = address as usize;
-        if u_addr >= WRAM_SIZE {
+    /// Checks if an address is in valid space,
+    /// prints an error message and quits if not.
+    fn check_address(&self, address: u16) {
+        if address as usize >= WRAM_SIZE {
             println!(
                 "Memory access at 0x{:x} out of bounds. Valid address space: (0x0000-0x{:x}).",
                 address,
@@ -35,7 +35,27 @@ impl Cpu {
             );
             process::exit(-1);
         }
+    }
+
+    /// Reads from wram at address.
+    fn read(&self, address: u16) -> u8 {
+        let u_addr = address as usize;
+        self.check_address(address);
         return self.wram[u_addr];
+    }
+
+    /// Writes u8 to wram at address.
+    fn write_u8(&mut self, address: u16, val: u8) {
+        let u_addr = address as usize;
+        self.check_address(address);
+        self.wram[u_addr] = val;
+    }
+
+    /// Writes u16 to wram at address.
+    fn write_u16(&mut self, address: u16, val: u16) {
+        let split = split_u16(val);
+        self.write_u8(address, split.1);
+        self.write_u8(address + 1, split.0);
     }
 
     /// Reads a byte from wram at pc and increases pc by one.
