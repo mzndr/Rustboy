@@ -147,7 +147,7 @@ impl Registers {
 
 impl fmt::Display for Registers {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        _ = write!(
+        return write!(
             f, 
             "AF: 0x{:x} BC: 0x{:x} DE: 0x{:x} HL: 0x{:x} SP: 0x{:x} PC: 0x{:x}", 
             self.get_af(),
@@ -157,6 +157,5 @@ impl fmt::Display for Registers {
             self.get_sp(),
             self.get_pc(),
         );
-        write!(f, "")
     }
 }
