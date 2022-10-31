@@ -61,3 +61,11 @@ fn dec_b() {
     assert_eq!(cpu.registers.get_flag_h(), 1);
     assert_eq!(cpu.registers.get_flag_n(), 1);
 }
+
+#[test]
+fn ld_b_d8() {
+    let mut cpu = Cpu::new();
+    cpu.wram[0x100] = 0xAE;
+    instructions::ld_b_d8(&mut cpu);
+    assert_eq!(cpu.registers.b, 0xAE);
+}

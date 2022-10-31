@@ -84,6 +84,14 @@ pub fn dec_b(cpu: &mut Cpu) -> u8 {
     return 1;
 }
 
+/// OPCode: 0x06
+/// Mnenonic: LD B, d8
+pub fn ld_b_d8(cpu: &mut Cpu) -> u8 { 
+    let val = cpu.read_u8_at_pc_and_increase();
+    cpu.registers.set_b(val);
+    return 2;
+}
+
 /// OPCode: 0x13
 /// Mnenonic: INC DE
 pub fn inc_de(cpu: &mut Cpu) -> u8 {
