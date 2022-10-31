@@ -1,10 +1,10 @@
 use std::fmt;
 
 use crate::helpers;
-const FLAG_Z_MASK: u8 = 0b10000000;
-const FLAG_N_MASK: u8 = 0b01000000;
-const FLAG_H_MASK: u8 = 0b00100000;
-const FLAG_C_MASK: u8 = 0b00010000;
+const FLAG_Z_INDEX: u8 = 7;
+const FLAG_N_INDEX: u8 = 6;
+const FLAG_H_INDEX: u8 = 5;
+const FLAG_C_INDEX: u8 = 4;
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Registers {
@@ -37,6 +37,19 @@ impl Registers {
             pc: 0x100,
         };
     }
+    pub fn set_flag_at_index(&mut self, index: u8, val: u8) {
+        let mask: u8 = 1 << index;
+        self.f &= !mask;
+        self.f |= mask;
+        self.f ^= mask;
+        self.f |= val << index;
+    }
+
+    pub fn get_flag_at_index(&self, index: u8) -> u8 {
+        let mask: u8 = 1 << index;
+        return (self.f & mask) >> index;
+    }
+
 
     pub fn get_a(&mut self) -> u8 {
         return self.a;
@@ -170,49 +183,35 @@ impl Registers {
 
     /// FLAGS
     pub fn get_flag_z(&self) -> u8 {
-        let mask: u8 = FLAG_Z_MASK;
-        return (self.f & mask) >> 7;
+        return self.get_flag_at_index(FLAG_Z_INDEX);
     }
 
     pub fn set_flag_z(&mut self, val: u8) {
-        self.f &= FLAG_Z_MASK;
-        self.f |= FLAG_Z_MASK;
-        self.f ^= FLAG_Z_MASK;
-        self.f |= val << 7;
-        
+        self.set_flag_at_index(FLAG_Z_INDEX, val);
     }
 
     pub fn get_flag_n(&self) -> u8 {
-        return (self.f & FLAG_N_MASK) >> 6;
+        return self.get_flag_at_index(FLAG_N_INDEX);
     }
 
     pub fn set_flag_n(&mut self, val: u8) {
-        self.f &= FLAG_N_MASK;
-        self.f |= FLAG_N_MASK;
-        self.f ^= FLAG_N_MASK;
-        self.f |= val << 6;
+        self.set_flag_at_index(FLAG_N_INDEX, val);
     }
 
     pub fn get_flag_h(&self) -> u8 {
-        return (self.f & FLAG_H_MASK) >> 5;
+        return self.get_flag_at_index(FLAG_H_INDEX);
     }
 
     pub fn set_flag_h(&mut self, val: u8) {
-        self.f &= FLAG_H_MASK;
-        self.f |= FLAG_H_MASK;
-        self.f ^= FLAG_H_MASK;
-        self.f |= val << 5;
+        self.set_flag_at_index(FLAG_H_INDEX, val);
     }
 
     pub fn get_flag_c(&self) -> u8 {
-        return (self.f & FLAG_C_MASK) >> 4;
+        return self.get_flag_at_index(FLAG_C_INDEX);
     }
 
     pub fn set_flag_c(&mut self, val: u8) {
-        self.f &= FLAG_C_MASK;
-        self.f |= FLAG_C_MASK;
-        self.f ^= FLAG_C_MASK;
-        self.f |= val << 4;
+        self.set_flag_at_index(FLAG_C_INDEX, val);
     }
 
 
