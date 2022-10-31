@@ -98,7 +98,6 @@ pub fn ld_b_d8(cpu: &mut Cpu) -> u8 {
 /// OPCode: 0x07
 /// Mnenonic: RLCA
 pub fn rlca(cpu: &mut Cpu) -> u8 { 
-
     let a = cpu.registers.get_a();
     cpu.registers.set_flag_c((a & 0b10000000) >> 7);
     cpu.registers.set_a(a.rotate_left(1));
