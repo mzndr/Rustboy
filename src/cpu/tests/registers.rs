@@ -56,23 +56,23 @@ fn get_and_set_16bit_registers() {
     let expected: u16 = 0xEA9E;
 
     // AF
-    r.set_a(expected_a);
-    r.set_f(expected_b);
+    r.a = expected_a;
+    r.f = expected_b;
     assert_eq!(r.get_af(), expected);
 
     // BC
-    r.set_b(expected_a);
-    r.set_c(expected_b);
+    r.b = expected_a;
+    r.c = expected_b;
     assert_eq!(r.get_bc(), expected);
 
     // DE
-    r.set_d(expected_a);
-    r.set_e(expected_b);
+    r.d = expected_a;
+    r.e = expected_b;
     assert_eq!(r.get_de(), expected);
 
     // HL
-    r.set_h(expected_a);
-    r.set_l(expected_b);
+    r.h = expected_a;
+    r.l = expected_b;
     assert_eq!(r.get_hl(), expected);
 
     // PC
