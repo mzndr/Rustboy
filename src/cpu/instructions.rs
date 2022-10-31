@@ -108,6 +108,15 @@ pub fn rlca(cpu: &mut Cpu) -> u8 {
     return 2;
 }
 
+/// OPCode: 0x08
+/// Mnenonic: LD (a16), SP
+pub fn ld_a16p_sp(cpu: &mut Cpu) -> u8 {
+    let address = cpu.read_u16_at_pc_and_increase();
+    let sp = cpu.registers.get_sp();
+    cpu.write_u16(address, sp);
+    return 5;
+}
+
 /// OPCode: 0x13
 /// Mnenonic: INC DE
 pub fn inc_de(cpu: &mut Cpu) -> u8 {

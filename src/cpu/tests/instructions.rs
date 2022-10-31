@@ -85,3 +85,15 @@ fn rlca() {
     assert_eq!(cpu.registers.get_flag_n(), 0);
     assert_eq!(cpu.registers.get_flag_h(), 0);
 }
+
+#[test]
+fn ld_a16p_sp() {
+    let mut cpu = Cpu::new();
+    cpu.registers.sp = 0xBEEF;
+    cpu.wram[0x100] = 0x20;
+    cpu.wram[0x101] = 0x25;
+    instructions::ld_a16p_sp(&mut cpu);
+    assert_eq!(cpu.wram[0x2520], 0xEF);
+    assert_eq!(cpu.wram[0x2521], 0xBE);
+
+}
