@@ -69,3 +69,19 @@ fn ld_b_d8() {
     instructions::ld_b_d8(&mut cpu);
     assert_eq!(cpu.registers.b, 0xAE);
 }
+
+#[test]
+fn rlca() {
+    let mut cpu = Cpu::new();
+    cpu.registers.a = 0b10000001;
+    instructions::rlca(&mut cpu);
+    assert_eq!(cpu.registers.a, 0b00000011);
+    assert_eq!(cpu.registers.get_flag_c(), 1);
+    cpu.registers.a = 0b00000001;
+    instructions::rlca(&mut cpu);
+    assert_eq!(cpu.registers.a, 0b00000010);
+    assert_eq!(cpu.registers.get_flag_c(), 0);
+    assert_eq!(cpu.registers.get_flag_z(), 0);
+    assert_eq!(cpu.registers.get_flag_n(), 0);
+    assert_eq!(cpu.registers.get_flag_h(), 0);
+}
