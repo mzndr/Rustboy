@@ -4,13 +4,16 @@ use super::Cpu;
 pub type InstructionInfo = (u8, fn(&mut Cpu) -> u8, &'static str, u8);
 
 /// INST DEST, SRC
-pub const INSTRUCTIONS: [InstructionInfo; 0x9] = [
+pub const INSTRUCTIONS: [InstructionInfo; 0x0B] = [
     (0x00, nop,       "NOP", 1),
     (0x01, ld_bc_d16, "LD  BC, d16", 3),
     (0x02, ld_bcp_a,  "LD (BC), A", 1),
     (0x03, inc_bc,    "INC BC", 1),
     (0x04, inc_b,     "INC B", 1),
-    (0x06, dec_b,     "DEC B", 1),
+    (0x05, dec_b,     "DEC B", 1),
+    (0x06, ld_b_d8,   "LD B, d8", 2),
+    (0x07, rlca,      "RLCA", 1),
+
     (0x13, inc_de,    "INC DE", 1),
     (0x23, inc_hl,    "INC HL", 1),
     (0x33, inc_sp,    "INC SP", 1),
@@ -89,6 +92,20 @@ pub fn dec_b(cpu: &mut Cpu) -> u8 {
 pub fn ld_b_d8(cpu: &mut Cpu) -> u8 { 
     let val = cpu.read_u8_at_pc_and_increase();
     cpu.registers.set_b(val);
+    return 2;
+}
+
+/// OPCode: 0x07
+/// Mnenonic: RLCA
+pub fn rlca(cpu: &mut Cpu) -> u8 { 
+
+    let a = cpu.registers.get_a();
+    cpu.registers.set_flag_c((a & 0b10000000) >> 7);
+    cpu.registers.set_a(a.rotate_left(1));
+    cpu.registers.set_flag_z(0);
+    cpu.registers.set_flag_n(0);
+    cpu.registers.set_flag_h(0);
+    
     return 2;
 }
 
