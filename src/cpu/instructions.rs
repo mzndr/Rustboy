@@ -4,7 +4,7 @@ use super::Cpu;
 pub type InstructionInfo = (u8, fn(&mut Cpu) -> u8, &'static str, u8);
 
 /// INST DEST, SRC
-pub const INSTRUCTIONS: [InstructionInfo; 0x0B] = [
+pub const INSTRUCTIONS: [InstructionInfo; 0x0C] = [
     (0x00, nop,       "NOP", 1),
     (0x01, ld_bc_d16, "LD  BC, d16", 3),
     (0x02, ld_bcp_a,  "LD (BC), A", 1),
@@ -13,6 +13,7 @@ pub const INSTRUCTIONS: [InstructionInfo; 0x0B] = [
     (0x05, dec_b,     "DEC B", 1),
     (0x06, ld_b_d8,   "LD B, d8", 2),
     (0x07, rlca,      "RLCA", 1),
+    (0x08, ld_a16p_sp,"LD (a16), SP", 3),
 
     (0x13, inc_de,    "INC DE", 1),
     (0x23, inc_hl,    "INC HL", 1),
@@ -104,7 +105,6 @@ pub fn rlca(cpu: &mut Cpu) -> u8 {
     cpu.registers.set_flag_z(0);
     cpu.registers.set_flag_n(0);
     cpu.registers.set_flag_h(0);
-    
     return 2;
 }
 
