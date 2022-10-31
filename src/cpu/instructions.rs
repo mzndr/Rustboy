@@ -49,7 +49,7 @@ pub fn ld_bc_d16(cpu: &mut Cpu) -> u8 {
 /// Mnenonic: LD (BC), A
 pub fn ld_bcp_a(cpu: &mut Cpu) -> u8 {
     let address = cpu.registers.get_bc();
-    let val = cpu.registers.get_a();
+    let val = cpu.registers.a;
     cpu.write_u8(address, val);
     return 2;
 }
@@ -67,24 +67,24 @@ pub fn inc_bc(cpu: &mut Cpu) -> u8 {
 /// OPCode: 0x04
 /// Mnenonic: INC B
 pub fn inc_b(cpu: &mut Cpu) -> u8 {
-    let u = cpu.registers.get_b();
+    let u = cpu.registers.b;
     let w = u.wrapping_add(1);
     cpu.registers.set_flag_h((w == 0) as u8);
     cpu.registers.set_flag_z((w == 0) as u8);
     cpu.registers.set_flag_n(0);
-    cpu.registers.set_b(w);
+    cpu.registers.b = w;
     return 1;
 }
 
 /// OPCode: 0x05
 /// Mnenonic: DEC B
 pub fn dec_b(cpu: &mut Cpu) -> u8 {
-    let u = cpu.registers.get_b();
+    let u = cpu.registers.b;
     let w = u.wrapping_sub(1);
     cpu.registers.set_flag_h((w == 0xFF) as u8);
     cpu.registers.set_flag_z((w == 0) as u8);
     cpu.registers.set_flag_n(1);
-    cpu.registers.set_b(w);
+    cpu.registers.b = w;
     return 1;
 }
 
@@ -92,16 +92,16 @@ pub fn dec_b(cpu: &mut Cpu) -> u8 {
 /// Mnenonic: LD B, d8
 pub fn ld_b_d8(cpu: &mut Cpu) -> u8 { 
     let val = cpu.read_u8_at_pc_and_increase();
-    cpu.registers.set_b(val);
+    cpu.registers.b = val;
     return 2;
 }
 
 /// OPCode: 0x07
 /// Mnenonic: RLCA
 pub fn rlca(cpu: &mut Cpu) -> u8 { 
-    let a = cpu.registers.get_a();
+    let a = cpu.registers.a;
     cpu.registers.set_flag_c((a & 0b10000000) >> 7);
-    cpu.registers.set_a(a.rotate_left(1));
+    cpu.registers.a = a.rotate_left(1);
     cpu.registers.set_flag_z(0);
     cpu.registers.set_flag_n(0);
     cpu.registers.set_flag_h(0);

@@ -43,28 +43,12 @@ impl Registers {
         self.f |= mask;
         self.f ^= mask;
         self.f |= val << index;
-    }
 
+       }
     pub fn get_flag_at_index(&self, index: u8) -> u8 {
         let mask: u8 = 1 << index;
         return (self.f & mask) >> index;
     }
-
-
-    pub fn get_a(&mut self) -> u8 {
-        return self.a;
-    }
-    pub fn set_a(&mut self, val: u8) {
-        self.a = val;
-    }
-
-    pub fn get_f(&self) -> u8 {
-        return self.f;
-    }
-    pub fn set_f(&mut self, val: u8) {
-        self.f = val;
-    }
-
     pub fn get_af(&self) -> u16 {
         return helpers::merge_u8s(self.a, self.f);
     }
@@ -73,20 +57,6 @@ impl Registers {
         let split = helpers::split_u16(val);
         self.a = split.0;
         self.f = split.1;
-    }
-
-    pub fn get_b(&self) -> u8 {
-        return self.b;
-    }
-    pub fn set_b(&mut self, val: u8) {
-        self.b = val;
-    }
-
-    pub fn get_c(&self) -> u8 {
-        return self.c;
-    }
-    pub fn set_c(&mut self, val: u8) {
-        self.c = val;
     }
 
     pub fn get_bc(&self) -> u16 {
@@ -99,24 +69,6 @@ impl Registers {
         self.c = split.1;
     }
 
-    // Gets the d rgister.
-    pub fn get_d(&self) -> u8 {
-        return self.d;
-    }
-    // Sets the d rgister.
-    pub fn set_d(&mut self, val: u8) {
-        self.d = val;
-    }
-
-    // Gets the e rgister.
-    pub fn get_e(&self) -> u8 {
-        return self.e;
-    }
-    // Sets the e rgister.
-    pub fn set_e(&mut self, val: u8) {
-        self.e = val;
-    }
-
     // Gets the de rgister.
     pub fn get_de(&self) -> u16 {
         return helpers::merge_u8s(self.d, self.e);
@@ -127,26 +79,6 @@ impl Registers {
         let split = helpers::split_u16(val);
         self.d = split.0;
         self.e = split.1;
-    }
-
-    /// Gets the h register.
-    pub fn get_h(&self) -> u8 {
-        return self.h;
-    }
-    
-    /// Gets the h register.
-    pub fn set_h(&mut self, val: u8) {
-        self.h = val;
-    }
-
-    /// Gets the l register.
-    pub fn get_l(&self) -> u8 {
-        return self.l;
-    }
-    
-    /// Sets the l register.
-    pub fn set_l(&mut self, val: u8) {
-        self.l = val;
     }
 
     /// Gets the hl register.
