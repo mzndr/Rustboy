@@ -31,3 +31,33 @@ fn ld_bc() {
     assert_eq!(cycles_needed, 3);
     assert_eq!(cpu, expected_cpu);
 }
+
+
+#[test]
+fn inc_b() { 
+    let mut cpu = Cpu::new();
+    cpu.registers.b = 0xFF;
+    instructions::inc_b(&mut cpu);
+    assert_eq!(cpu.registers.b, 0x00);
+    assert_eq!(cpu.registers.get_flag_z(), 1);
+    assert_eq!(cpu.registers.get_flag_h(), 1);
+    assert_eq!(cpu.registers.get_flag_n(), 0);
+}
+
+#[test]
+fn dec_b() { 
+    let mut cpu = Cpu::new();
+    cpu.registers.b = 0x01;
+    instructions::dec_b(&mut cpu);
+    assert_eq!(cpu.registers.b, 0x00);
+    assert_eq!(cpu.registers.get_flag_z(), 1);
+    assert_eq!(cpu.registers.get_flag_h(), 0);
+    assert_eq!(cpu.registers.get_flag_n(), 1);
+
+    cpu.registers.b = 0x00;
+    instructions::dec_b(&mut cpu);
+    assert_eq!(cpu.registers.b, 0xFF);
+    assert_eq!(cpu.registers.get_flag_z(), 0);
+    assert_eq!(cpu.registers.get_flag_h(), 1);
+    assert_eq!(cpu.registers.get_flag_n(), 1);
+}
