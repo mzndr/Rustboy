@@ -5,7 +5,7 @@ use crate::cpu::instructions;
 fn nop() { 
     let mut cpu: Cpu = Cpu::new();
     let expected_cpu = cpu.clone();
-    let cycles_needed = instructions::nop(&mut cpu);
+    let cycles_needed = cpu.nop();
     assert_eq!(cycles_needed, 1);
     assert_eq!(cpu, expected_cpu);
 }
@@ -22,7 +22,7 @@ fn ld_bc() {
     cpu.wram[0x101] = expected_b;
 
     let mut expected_cpu = cpu.clone();
-    let cycles_needed = instructions::ld_bc_d16(&mut cpu);
+    let cycles_needed = cpu.ld_bc_d16();
 
     expected_cpu.registers.b = expected_b;
     expected_cpu.registers.c = expected_c;
@@ -37,7 +37,7 @@ fn ld_bc() {
 fn inc_b() { 
     let mut cpu = Cpu::new();
     cpu.registers.b = 0xFF;
-    instructions::inc_b(&mut cpu);
+    cpu.inc_b();
     assert_eq!(cpu.registers.b, 0x00);
     assert_eq!(cpu.registers.get_flag_z(), 1);
     assert_eq!(cpu.registers.get_flag_h(), 1);
@@ -48,14 +48,14 @@ fn inc_b() {
 fn dec_b() { 
     let mut cpu = Cpu::new();
     cpu.registers.b = 0x01;
-    instructions::dec_b(&mut cpu);
+    cpu.dec_b();
     assert_eq!(cpu.registers.b, 0x00);
     assert_eq!(cpu.registers.get_flag_z(), 1);
     assert_eq!(cpu.registers.get_flag_h(), 0);
     assert_eq!(cpu.registers.get_flag_n(), 1);
 
     cpu.registers.b = 0x00;
-    instructions::dec_b(&mut cpu);
+    cpu.dec_b();
     assert_eq!(cpu.registers.b, 0xFF);
     assert_eq!(cpu.registers.get_flag_z(), 0);
     assert_eq!(cpu.registers.get_flag_h(), 1);
@@ -66,7 +66,7 @@ fn dec_b() {
 fn ld_b_d8() {
     let mut cpu = Cpu::new();
     cpu.wram[0x100] = 0xAE;
-    instructions::ld_b_d8(&mut cpu);
+    cpu.ld_b_d8();
     assert_eq!(cpu.registers.b, 0xAE);
 }
 
@@ -74,11 +74,11 @@ fn ld_b_d8() {
 fn rlca() {
     let mut cpu = Cpu::new();
     cpu.registers.a = 0b10000001;
-    instructions::rlca(&mut cpu);
+    cpu.rlca();
     assert_eq!(cpu.registers.a, 0b00000011);
     assert_eq!(cpu.registers.get_flag_c(), 1);
     cpu.registers.a = 0b00000001;
-    instructions::rlca(&mut cpu);
+    cpu.rlca();
     assert_eq!(cpu.registers.a, 0b00000010);
     assert_eq!(cpu.registers.get_flag_c(), 0);
     assert_eq!(cpu.registers.get_flag_z(), 0);
@@ -92,8 +92,23 @@ fn ld_a16p_sp() {
     cpu.registers.sp = 0xBEEF;
     cpu.wram[0x100] = 0x20;
     cpu.wram[0x101] = 0x25;
-    instructions::ld_a16p_sp(&mut cpu);
+    cpu.ld_a16p_sp();
     assert_eq!(cpu.wram[0x2520], 0xEF);
     assert_eq!(cpu.wram[0x2521], 0xBE);
 
+}
+
+#[test]
+fn add_hl_bc() {
+    let mut cpu = Cpu::new();
+    let a = 0x1000;
+    let b = 0x1000;
+    let sum = a + b;
+    cpu.registers.set_hl(a);
+    cpu.registers.set_bc(b);
+    cpu.add_hl_bc();
+    assert_eq!(cpu.registers.get_hl(), sum);
+    assert_eq!(cpu.registers.get_flag_n(), 0);
+    assert_eq!(cpu.registers.get_flag_c(), 0);
+    assert_eq!(cpu.registers.get_flag_h(), 0);
 }

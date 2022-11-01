@@ -8,3 +8,8 @@ pub fn has_16bit_half_carry(a: u16, b: u16) -> bool {
     return (((a & 0xFFF) + (b & 0xFFF)) & 0x1000) == 0x1000;
 }
 
+/// Checks if an 16 bit addition will cause a carry.
+pub fn has_16bit_carry(a: u16, b: u16) -> bool {
+    return (a + b) as u64 > 0xFFFF;
+}
+
