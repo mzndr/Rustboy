@@ -36,14 +36,18 @@ impl Registers {
             pc: 0x100,
         };
     }
-    pub fn set_flag_at_index(&mut self, index: u8, val: u8) {
-        let mask: u8 = 1 << index;
-        self.f &= !mask;
-        self.f |= mask;
-        self.f ^= mask;
-        self.f |= val << index;
 
-       }
+    pub fn set_flag_at_index(&mut self, index: u8, val: u8) {
+        // Create bitmask for bit you want to override:
+        // e.g. 0b00100000
+        let mask: u8 = 1 << index;
+        // AND bitstring with inversed bitmask to set
+        // the bit to be overwritten to zero.
+        self.f &= !mask;
+        // OR the value (1 or 0) onto the bitstring,
+        // at the desired position.
+        self.f |= val << index;
+    }
     pub fn get_flag_at_index(&self, index: u8) -> u8 {
         let mask: u8 = 1 << index;
         return (self.f & mask) >> index;
