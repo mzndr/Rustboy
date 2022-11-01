@@ -6,6 +6,7 @@ mod instructions;
 
 pub mod utils;
 pub mod registers;
+pub mod operations;
 
 /**
 * Emulating the LR35902 CPU
@@ -105,13 +106,7 @@ impl Cpu {
     /// For specifications see: https://www.pastraiser.com/cpu/gameboy/gameboy_opcodes.html
     fn execute_current_instruction(&mut self) -> u8 {
         let instruction = self.read_u8_at_pc_and_increase();
-        let instruction_info = instructions::decode_instruction(instruction);
-
-        let f = instruction_info.1;
-        let pc = self.registers.get_pc();
-        let mnemonic = instruction_info.2;
-        println!("[0x{:x}] Executing {mnemonic}", pc);
-        let cycled_needed = f(self);
+        let cycled_needed = self.exec_instruction(instruction);
 
         // Something went wrong when no cycles were needed.
         if cycled_needed == 0 {
