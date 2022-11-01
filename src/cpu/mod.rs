@@ -3,6 +3,8 @@ use std::process;
 
 use self::registers::Registers;
 mod instructions;
+
+pub mod utils;
 pub mod registers;
 
 /**

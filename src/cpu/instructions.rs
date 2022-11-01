@@ -1,5 +1,6 @@
 use std::process;
 use super::Cpu;
+use super::utils;
 
 pub type InstructionInfo = (u8, fn(&mut Cpu) -> u8, &'static str, u8);
 
@@ -69,7 +70,8 @@ pub fn inc_bc(cpu: &mut Cpu) -> u8 {
 pub fn inc_b(cpu: &mut Cpu) -> u8 {
     let u = cpu.registers.b;
     let w = u.wrapping_add(1);
-    cpu.registers.set_flag_h((w == 0) as u8);
+    let hc = utils::has_8bit_half_carry(u, 1);
+    cpu.registers.set_flag_h(hc as u8);
     cpu.registers.set_flag_z((w == 0) as u8);
     cpu.registers.set_flag_n(0);
     cpu.registers.b = w;
