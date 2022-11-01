@@ -22,7 +22,6 @@ pub struct Registers {
 }
 
 impl Registers {
-
     pub fn new() -> Registers {
         return Registers {
             a: 0x00,
