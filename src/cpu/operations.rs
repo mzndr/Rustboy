@@ -1,8 +1,7 @@
-use super::Cpu;
 use super::utils;
+use super::Cpu;
 
 impl Cpu {
-
     /// Reads from wram at address.
     pub fn read(&self, address: u16) -> u8 {
         let u_addr = address as usize;
@@ -37,7 +36,7 @@ impl Cpu {
         let b = self.read_u8_at_pc_and_increase();
 
         // Little endian in memory
-        return utils::merge_u8s(b, a);     
+        return utils::merge_u8s(b, a);
     }
 
     pub fn inc16(&mut self, val: u16) -> u16 {
@@ -67,10 +66,11 @@ impl Cpu {
     /// Adds a value with HL and stores it in HL.
     pub fn add16(&mut self, val: u16) {
         let hl = self.registers.get_hl();
-        let res = hl.wrapping_add(val);
-        self.registers.set_hl(
-            hl.wrapping_add(val)
-        );
+        self.registers.set_hl(hl.wrapping_add(val));
     }
+}
+
+#[cfg(test)]
+mod tests {
 
 }
