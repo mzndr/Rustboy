@@ -13,9 +13,9 @@ fn main() {
     let mut cpu = Cpu::new();
     cpu.load_rom(
         fs::read(path::Path::new(
-                "/home/marius/projects/rustboy/files/roms/Tetris.gb"
-            )
-        ).unwrap()
+            "/home/marius/projects/rustboy/files/roms/Tetris.gb",
+        ))
+        .unwrap(),
     );
     clock_loop(&mut cpu);
 }

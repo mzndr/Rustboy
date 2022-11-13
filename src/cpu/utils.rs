@@ -6,7 +6,7 @@ pub fn split_u16(to_split: u16) -> (u8, u8) {
     return (left, right);
 }
 
-/// Merges two 8 bit unsigned integers into 
+/// Merges two 8 bit unsigned integers into
 /// one 16 bit integer.
 pub fn merge_u8s(left: u8, right: u8) -> u16 {
     let r1 = (left as u16) << 8;
@@ -14,7 +14,7 @@ pub fn merge_u8s(left: u8, right: u8) -> u16 {
     return r0 | r1;
 }
 
-#[cfg(test)] 
+#[cfg(test)]
 mod tests {
 
     use super::merge_u8s;
@@ -41,5 +41,4 @@ mod tests {
         let merged: u16 = merge_u8s(left, right);
         assert_eq!(merged, to_split);
     }
-
 }

@@ -3,9 +3,9 @@ use std::process;
 use self::registers::Registers;
 mod instructions;
 
-pub mod utils;
-pub mod registers;
 pub mod operations;
+pub mod registers;
+pub mod utils;
 
 /**
 * Emulating the LR35902 CPU
@@ -17,7 +17,7 @@ pub mod operations;
 const WRAM_SIZE: usize = 0x20 * 0x400;
 type WRam = [u8; WRAM_SIZE];
 
-#[derive(Debug ,Copy, Clone, PartialEq)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Cpu {
     pub registers: Registers,
 
@@ -38,7 +38,6 @@ impl Cpu {
             process::exit(-1);
         }
     }
-
 
     /// Unknown instruction.
     /// TODO: Dump cpu state to log file.
@@ -87,8 +86,4 @@ impl Cpu {
             self.busy_for -= 1;
         }
     }
-
 }
-
-#[cfg(test)] 
-mod tests;
