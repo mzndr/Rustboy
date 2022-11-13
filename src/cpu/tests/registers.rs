@@ -4,15 +4,15 @@ use crate::cpu::registers::Registers;
 fn get_register_logic() {
     let mut r = Registers::new();
     r.f = 0b00100000;
-    assert_eq!(r.get_flag_at_index(5), 1);
+    assert_eq!(r.get_flag_at_index(5), true);
     r.f = 0b11011111;
-    assert_eq!(r.get_flag_at_index(5), 0);
+    assert_eq!(r.get_flag_at_index(5), false);
 }
 #[test]
 fn set_register_logic_0_1() {
     let mut r = Registers::new();
     r.f = 0b00000000;
-    r.set_flag_at_index(5, 1);
+    r.set_flag_at_index(5, true);
     let expected: u8 = 0b00100000;
     assert_eq!(r.f, expected);
 }
@@ -21,7 +21,7 @@ fn set_register_logic_0_1() {
 fn set_register_logic_1_1() {
     let mut r = Registers::new();
     r.f = 0b00100000;
-    r.set_flag_at_index(5, 1);
+    r.set_flag_at_index(5, true);
     let expected: u8 = 0b00100000;
     assert_eq!(r.f, expected);
 }
@@ -30,7 +30,7 @@ fn set_register_logic_1_1() {
 fn set_register_logic_1_0() {
     let mut r = Registers::new();
     r.f = 0b11111111;
-    r.set_flag_at_index(5, 0);
+    r.set_flag_at_index(5, false);
     let expected: u8 = 0b11011111;
     assert_eq!(r.f, expected);
 }
@@ -40,7 +40,7 @@ fn set_register_logic_0_0() {
     let mut r = Registers::new();
     r.f = 0b11011111;
     println!("{:b}", r.f);
-    r.set_flag_at_index(5, 0);
+    r.set_flag_at_index(5, false);
     println!("{:b}", r.f);
     let expected: u8 = 0b11011111;
     assert_eq!(r.f, expected);

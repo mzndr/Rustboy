@@ -1,4 +1,3 @@
-use crate::helpers::{self, split_u16};
 use std::process;
 
 use self::registers::Registers;
@@ -40,42 +39,6 @@ impl Cpu {
         }
     }
 
-    /// Reads from wram at address.
-    fn read(&self, address: u16) -> u8 {
-        let u_addr = address as usize;
-        self.check_address(address);
-        return self.wram[u_addr];
-    }
-
-    /// Writes u8 to wram at address.
-    fn write_u8(&mut self, address: u16, val: u8) {
-        let u_addr = address as usize;
-        self.check_address(address);
-        self.wram[u_addr] = val;
-    }
-
-    /// Writes u16 to wram at address.
-    fn write_u16(&mut self, address: u16, val: u16) {
-        let split = split_u16(val);
-        self.write_u8(address, split.1);
-        self.write_u8(address + 1, split.0);
-    }
-
-    /// Reads a byte from wram at pc and increases pc by one.
-    fn read_u8_at_pc_and_increase(&mut self) -> u8 {
-        let val = self.read(self.registers.pc);
-        self.registers.pc = self.registers.pc.wrapping_add(1);
-        return val;
-    }
-
-    /// Reads two bytes from wram at pc and increases pc by two.
-    fn read_u16_at_pc_and_increase(&mut self) -> u16 {
-        let a = self.read_u8_at_pc_and_increase();
-        let b = self.read_u8_at_pc_and_increase();
-
-        // Little endian in memory
-        return helpers::merge_u8s(b, a);     
-    }
 
     /// Unknown instruction.
     /// TODO: Dump cpu state to log file.

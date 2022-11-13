@@ -32,36 +32,6 @@ fn ld_bc() {
     assert_eq!(cpu, expected_cpu);
 }
 
-
-#[test]
-fn inc_b() { 
-    let mut cpu = Cpu::new();
-    cpu.registers.b = 0xFF;
-    cpu.inc_b();
-    assert_eq!(cpu.registers.b, 0x00);
-    assert_eq!(cpu.registers.get_flag_z(), 1);
-    assert_eq!(cpu.registers.get_flag_h(), 1);
-    assert_eq!(cpu.registers.get_flag_n(), 0);
-}
-
-#[test]
-fn dec_b() { 
-    let mut cpu = Cpu::new();
-    cpu.registers.b = 0x01;
-    cpu.dec_b();
-    assert_eq!(cpu.registers.b, 0x00);
-    assert_eq!(cpu.registers.get_flag_z(), 1);
-    assert_eq!(cpu.registers.get_flag_h(), 0);
-    assert_eq!(cpu.registers.get_flag_n(), 1);
-
-    cpu.registers.b = 0x00;
-    cpu.dec_b();
-    assert_eq!(cpu.registers.b, 0xFF);
-    assert_eq!(cpu.registers.get_flag_z(), 0);
-    assert_eq!(cpu.registers.get_flag_h(), 1);
-    assert_eq!(cpu.registers.get_flag_n(), 1);
-}
-
 #[test]
 fn ld_b_d8() {
     let mut cpu = Cpu::new();
@@ -76,14 +46,14 @@ fn rlca() {
     cpu.registers.a = 0b10000001;
     cpu.rlca();
     assert_eq!(cpu.registers.a, 0b00000011);
-    assert_eq!(cpu.registers.get_flag_c(), 1);
+    assert_eq!(cpu.registers.get_flag_c(), true);
     cpu.registers.a = 0b00000001;
     cpu.rlca();
     assert_eq!(cpu.registers.a, 0b00000010);
-    assert_eq!(cpu.registers.get_flag_c(), 0);
-    assert_eq!(cpu.registers.get_flag_z(), 0);
-    assert_eq!(cpu.registers.get_flag_n(), 0);
-    assert_eq!(cpu.registers.get_flag_h(), 0);
+    assert_eq!(cpu.registers.get_flag_c(), false);
+    assert_eq!(cpu.registers.get_flag_z(), false);
+    assert_eq!(cpu.registers.get_flag_n(), false);
+    assert_eq!(cpu.registers.get_flag_h(), false);
 }
 
 #[test]
@@ -95,20 +65,4 @@ fn ld_a16p_sp() {
     cpu.ld_a16p_sp();
     assert_eq!(cpu.wram[0x2520], 0xEF);
     assert_eq!(cpu.wram[0x2521], 0xBE);
-
-}
-
-#[test]
-fn add_hl_bc() {
-    let mut cpu = Cpu::new();
-    let a = 0x1000;
-    let b = 0x1000;
-    let sum = a + b;
-    cpu.registers.set_hl(a);
-    cpu.registers.set_bc(b);
-    cpu.add_hl_bc();
-    assert_eq!(cpu.registers.get_hl(), sum);
-    assert_eq!(cpu.registers.get_flag_n(), 0);
-    assert_eq!(cpu.registers.get_flag_c(), 0);
-    assert_eq!(cpu.registers.get_flag_h(), 0);
 }

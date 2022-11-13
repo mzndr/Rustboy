@@ -45,7 +45,6 @@ impl Cpu {
         return 2;
     }
 
-
     /// OPCode: 0x03
     /// Mnenonic: INC BC
     pub fn inc_bc(&mut self) -> u8 {
@@ -82,11 +81,11 @@ impl Cpu {
     /// Mnenonic: RLCA
     pub fn rlca(&mut self) -> u8 { 
         let a = self.registers.a;
-        self.registers.set_flag_c((a & 0b10000000) >> 7);
+        self.registers.set_flag_c(((a & 0b10000000) >> 7) == 1);
         self.registers.a = a.rotate_left(1);
-        self.registers.set_flag_z(0);
-        self.registers.set_flag_n(0);
-        self.registers.set_flag_h(0);
+        self.registers.set_flag_z(false);
+        self.registers.set_flag_n(false);
+        self.registers.set_flag_h(false);
         return 2;
     }
 
@@ -102,10 +101,7 @@ impl Cpu {
     /// OPCode: 0x09
     /// Mnenonic: ADD HL, BC
     pub fn add_hl_bc(&mut self) -> u8 {
-        let a = self.registers.get_hl();
-        let b = self.registers.get_bc();
-        let res = self.add16(a, b);
-        self.registers.set_hl(res);
+        self.add16(self.registers.get_bc());
         return 2;
     }
 

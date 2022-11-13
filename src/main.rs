@@ -9,13 +9,14 @@ use time::Duration;
 
 const CLOCK_SPEED: u16 = 4100;
 
-pub mod helpers;
-
 fn main() {
     let mut cpu = Cpu::new();
-    let tetris = fs::read(path::Path::new("../files/roms/Tetris.gb")).unwrap();
-
-    cpu.load_rom(tetris);
+    cpu.load_rom(
+        fs::read(path::Path::new(
+                "/home/marius/projects/rustboy/files/roms/Tetris.gb"
+            )
+        ).unwrap()
+    );
     clock_loop(&mut cpu);
 }
 

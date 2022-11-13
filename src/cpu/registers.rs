@@ -1,6 +1,6 @@
 use std::fmt;
+use super::utils;
 
-use crate::helpers;
 const FLAG_Z_INDEX: u8 = 7;
 const FLAG_N_INDEX: u8 = 6;
 const FLAG_H_INDEX: u8 = 5;
@@ -37,7 +37,7 @@ impl Registers {
         };
     }
 
-    pub fn set_flag_at_index(&mut self, index: u8, val: u8) {
+    pub fn set_flag_at_index(&mut self, index: u8, val: bool) {
         // Create bitmask for bit you want to override:
         // e.g. 0b00100000
         let mask: u8 = 1 << index;
@@ -46,52 +46,52 @@ impl Registers {
         self.f &= !mask;
         // OR the value (1 or 0) onto the bitstring,
         // at the desired position.
-        self.f |= val << index;
+        self.f |= (val as u8) << index;
     }
-    pub fn get_flag_at_index(&self, index: u8) -> u8 {
+    pub fn get_flag_at_index(&self, index: u8) -> bool {
         let mask: u8 = 1 << index;
-        return (self.f & mask) >> index;
+        return ((self.f & mask) >> index) == 1;
     }
     pub fn get_af(&self) -> u16 {
-        return helpers::merge_u8s(self.a, self.f);
+        return utils::merge_u8s(self.a, self.f);
     }
 
     pub fn set_af(&mut self, val: u16) {
-        let split = helpers::split_u16(val);
+        let split = utils::split_u16(val);
         self.a = split.0;
         self.f = split.1;
     }
 
     pub fn get_bc(&self) -> u16 {
-        return helpers::merge_u8s(self.b, self.c);
+        return utils::merge_u8s(self.b, self.c);
     }
 
     pub fn set_bc(&mut self, val: u16) {
-        let split = helpers::split_u16(val);
+        let split = utils::split_u16(val);
         self.b = split.0;
         self.c = split.1;
     }
 
     // Gets the de rgister.
     pub fn get_de(&self) -> u16 {
-        return helpers::merge_u8s(self.d, self.e);
+        return utils::merge_u8s(self.d, self.e);
     }
 
     // Sets the de rgister.
     pub fn set_de(&mut self, val: u16) {
-        let split = helpers::split_u16(val);
+        let split = utils::split_u16(val);
         self.d = split.0;
         self.e = split.1;
     }
 
     /// Gets the hl register.
     pub fn get_hl(&self) -> u16 {
-        return helpers::merge_u8s(self.h, self.l);
+        return utils::merge_u8s(self.h, self.l);
     }
 
     /// Gets the sp register.
     pub fn set_hl(&mut self, val: u16) {
-        let split = helpers::split_u16(val);
+        let split = utils::split_u16(val);
         self.h = split.0;
         self.l = split.1;
     }
@@ -117,35 +117,35 @@ impl Registers {
     }
 
     /// FLAGS
-    pub fn get_flag_z(&self) -> u8 {
+    pub fn get_flag_z(&self) -> bool {
         return self.get_flag_at_index(FLAG_Z_INDEX);
     }
 
-    pub fn set_flag_z(&mut self, val: u8) {
+    pub fn set_flag_z(&mut self, val: bool) {
         self.set_flag_at_index(FLAG_Z_INDEX, val);
     }
 
-    pub fn get_flag_n(&self) -> u8 {
+    pub fn get_flag_n(&self) -> bool {
         return self.get_flag_at_index(FLAG_N_INDEX);
     }
 
-    pub fn set_flag_n(&mut self, val: u8) {
+    pub fn set_flag_n(&mut self, val: bool) {
         self.set_flag_at_index(FLAG_N_INDEX, val);
     }
 
-    pub fn get_flag_h(&self) -> u8 {
+    pub fn get_flag_h(&self) -> bool {
         return self.get_flag_at_index(FLAG_H_INDEX);
     }
 
-    pub fn set_flag_h(&mut self, val: u8) {
+    pub fn set_flag_h(&mut self, val: bool) {
         self.set_flag_at_index(FLAG_H_INDEX, val);
     }
 
-    pub fn get_flag_c(&self) -> u8 {
+    pub fn get_flag_c(&self) -> bool {
         return self.get_flag_at_index(FLAG_C_INDEX);
     }
 
-    pub fn set_flag_c(&mut self, val: u8) {
+    pub fn set_flag_c(&mut self, val: bool) {
         self.set_flag_at_index(FLAG_C_INDEX, val);
     }
 
