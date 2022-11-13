@@ -1,15 +1,45 @@
-/// Checks if an 8 bit addition will cause a half carry.
-pub fn has_8bit_half_carry(a: u8, b: u8) -> bool {
-    return (((a & 0xF) + (b & 0xF)) & 0x10) == 0x10;
+/// Split a 16 bit unsigned integer into two
+/// 8 bit integers.
+pub fn split_u16(to_split: u16) -> (u8, u8) {
+    let left: u8 = (to_split >> 8) as u8;
+    let right: u8 = to_split as u8;
+    return (left, right);
 }
 
-/// Checks if an 16 bit addition will cause a half carry.
-pub fn has_16bit_half_carry(a: u16, b: u16) -> bool {
-    return (((a & 0xFFF) + (b & 0xFFF)) & 0x1000) == 0x1000;
+/// Merges two 8 bit unsigned integers into 
+/// one 16 bit integer.
+pub fn merge_u8s(left: u8, right: u8) -> u16 {
+    let r1 = (left as u16) << 8;
+    let r0 = right as u16;
+    return r0 | r1;
 }
 
-/// Checks if an 16 bit addition will cause a carry.
-pub fn has_16bit_carry(a: u16, b: u16) -> bool {
-    return (a + b) as u64 > 0xFFFF;
-}
+#[cfg(test)] 
+mod tests {
 
+    use super::merge_u8s;
+    use super::split_u16;
+
+    #[test]
+    fn split() {
+        let to_split: u16 = 0xEAFE;
+        let expect_left: u8 = 0xEA;
+        let expect_right: u8 = 0xFE;
+        let split = split_u16(to_split);
+        let left: u8 = split.0;
+        let right: u8 = split.1;
+        assert_eq!(expect_left, left);
+        assert_eq!(expect_right, right);
+    }
+
+    #[test]
+    fn merge() {
+        let to_split: u16 = 0xEAFE;
+        let split: (u8, u8) = split_u16(to_split);
+        let left: u8 = split.0;
+        let right: u8 = split.1;
+        let merged: u16 = merge_u8s(left, right);
+        assert_eq!(merged, to_split);
+    }
+
+}
