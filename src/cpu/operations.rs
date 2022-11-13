@@ -66,11 +66,12 @@ impl Cpu {
     /// Adds a value with HL and stores it in HL.
     pub fn add16(&mut self, val: u16) {
         let hl = self.registers.get_hl();
+        // TODO: Set flags
         self.registers.set_hl(hl.wrapping_add(val));
     }
 }
 
 #[cfg(test)]
 mod tests {
-
+    // TODO: Add tests
 }
