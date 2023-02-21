@@ -1,9 +1,10 @@
+#![allow(dead_code)]
 mod cpu;
 use crate::cpu::Cpu;
 use std::{fs, path};
 use std::{
     thread,
-    time::{self, Instant},
+    time,
 };
 use time::Duration;
 
@@ -13,7 +14,7 @@ fn main() {
     let mut cpu = Cpu::new();
     cpu.load_rom(
         fs::read(path::Path::new(
-            "/home/marius/projects/rustboy/files/roms/Tetris.gb",
+            "./files/roms/Tetris.gb",
         ))
         .unwrap(),
     );

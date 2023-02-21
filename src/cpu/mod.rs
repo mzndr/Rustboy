@@ -72,6 +72,7 @@ impl Cpu {
 
         // Something went wrong when no cycles were needed.
         if cycled_needed == 0 {
+            print!("Unknown opcode 0x{instruction:x}!\n");
             process::exit(-1);
         }
 
