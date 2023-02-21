@@ -1,9 +1,10 @@
+#![allow(dead_code)]
 mod cpu;
 use crate::cpu::Cpu;
 use std::{fs, path};
 use std::{
     thread,
-    time::{self, Instant},
+    time,
 };
 use time::Duration;
 
@@ -13,7 +14,7 @@ pub mod helpers;
 
 fn main() {
     let mut cpu = Cpu::new();
-    let tetris = fs::read(path::Path::new("../files/roms/Tetris.gb")).unwrap();
+    let tetris = fs::read(path::Path::new("./files/roms/Tetris.gb")).unwrap();
 
     cpu.load_rom(tetris);
     clock_loop(&mut cpu);
@@ -36,12 +37,12 @@ fn clock_loop(cpu: &mut Cpu) {
             cycles = 0;
             machine_cycle(cpu);
         }
-        sleep_till_next_cycle(start);
+        sleep_til_next_cycle(start);
         cycles += 1;
     }
 }
 
-fn sleep_till_next_cycle(start: time::Instant) {
+fn sleep_til_next_cycle(start: time::Instant) {
     let cycles_per_ms: f32 = CLOCK_SPEED as f32 / 1000.0; // 1mhz
     let after = time::Instant::now();
     let passed = after - start;
