@@ -12,7 +12,7 @@ pub mod registers;
 */
 
 /** Working RAM **/
-const WRAM_SIZE: usize = 0x20 * 0x400;
+const WRAM_SIZE: usize = 0xFFFF;//0x20 * 0x400;
 type WRam = [u8; WRAM_SIZE];
 
 #[derive(Debug ,Copy, Clone, PartialEq)]
@@ -20,7 +20,7 @@ pub struct Cpu {
     pub registers: Registers,
 
     busy_for: u8,
-    wram: WRam,
+    wram: WRam, // Eventuell in memory umbennen und 0xFFFF groesse geben
 }
 
 impl Cpu {
@@ -105,10 +105,11 @@ impl Cpu {
         let instruction = self.read_u8_at_pc_and_increase();
         let instruction_info = instructions::decode_instruction(instruction);
 
+        let opcode = instruction_info.0;
         let f = instruction_info.1;
-        let pc = self.registers.get_pc();
         let mnemonic = instruction_info.2;
-        println!("[0x{:x}] Executing {mnemonic}", pc);
+        let pc = self.registers.get_pc();
+        println!("[0x{pc:x}] Executing 0x{opcode:x} {mnemonic}");
         let cycled_needed = f(self);
 
         // Something went wrong when no cycles were needed.
