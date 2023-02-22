@@ -74,6 +74,15 @@ impl Cpu {
     pub fn jmp(&mut self, address: u16) {
         self.registers.set_pc(address);
     }
+
+    /// Xors value with a register and sets flags.
+    pub fn xor(&mut self, val: u8) {
+        self.registers.a ^= val;
+        self.registers.set_flag_z(self.registers.a == 0);
+        self.registers.set_flag_n(false);
+        self.registers.set_flag_h(false);
+        self.registers.set_flag_c(false);
+    }
 }
 
 #[cfg(test)]
