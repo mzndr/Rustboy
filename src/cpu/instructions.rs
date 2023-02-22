@@ -17,6 +17,7 @@ impl Cpu {
             0x13 => self.inc_de(),
             0x23 => self.inc_hl(),
             0x33 => self.inc_sp(),
+            0xC3 => self.jp_a16(),
 
             _ => 0,
         };
@@ -130,6 +131,16 @@ impl Cpu {
         self.registers.set_sp(res);
         return 2;
     }
+
+    /// OPCode: 0xC3
+    /// Mnenonic: JP
+    pub fn jp_a16(&mut self) -> u8 {
+        let address = self.read_u16_at_pc_and_increase();
+        self.jmp(address);
+        return 4;
+    }
+
+
 }
 
 #[cfg(test)]

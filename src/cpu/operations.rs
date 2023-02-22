@@ -69,6 +69,11 @@ impl Cpu {
         // TODO: Set flags
         self.registers.set_hl(hl.wrapping_add(val));
     }
+
+    /// Jumps by setting PC to val
+    pub fn jmp(&mut self, address: u16) {
+        self.registers.set_pc(address);
+    }
 }
 
 #[cfg(test)]
