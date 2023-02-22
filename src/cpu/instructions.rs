@@ -17,6 +17,7 @@ impl Cpu {
             0x13 => self.inc_de(),
             0x23 => self.inc_hl(),
             0x33 => self.inc_sp(),
+            0xAF => self.xor_a(),
             0xC3 => self.jp_a16(),
 
             _ => 0,
@@ -130,6 +131,14 @@ impl Cpu {
         let res = self.inc16(r);
         self.registers.set_sp(res);
         return 2;
+    }
+
+    /// OPCode: 0xAF
+    /// Mnenonic: XOR A
+    pub fn xor_a(&mut self) -> u8 {
+        let val = self.read_u8_at_pc_and_increase();
+        self.xor(val);
+        return 1;
     }
 
     /// OPCode: 0xC3

@@ -68,11 +68,13 @@ impl Cpu {
     /// For specifications see: https://www.pastraiser.com/cpu/gameboy/gameboy_opcodes.html
     fn execute_current_instruction(&mut self) -> u8 {
         let instruction = self.read_u8_at_pc_and_increase();
+        print!("Executing instruction 0x{instruction:x}... ");
         let cycled_needed = self.exec_instruction(instruction);
+        println!(" needed {cycled_needed} cycles.");
 
         // Something went wrong when no cycles were needed.
         if cycled_needed == 0 {
-            print!("Unknown opcode 0x{instruction:x}!\n");
+            println!("Unknown opcode 0x{instruction:x}!");
             process::exit(-1);
         }
 
