@@ -39,6 +39,15 @@ impl Cpu {
         return utils::merge_u8s(b, a);
     }
 
+    /// Sets the bit specified in pos {0-7} of byte
+    pub fn set_nth_bit(&mut self, pos: u8, byte: u8) -> u8 {
+        if pos > 7 {
+            // TODO: Throw error or something.
+        }
+        let mask: u8 = 0b1000000 >> pos;
+        return byte | mask;
+    }
+
     pub fn inc16(&mut self, val: u16) -> u16 {
         return val.wrapping_add(1);
     }
