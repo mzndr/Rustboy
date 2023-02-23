@@ -15,12 +15,16 @@ impl Cpu {
             0x09 => self.add_hl_bc(),
 
             0x13 => self.inc_de(),
+            0x20 => self.jr_nz_r8(),
+            0x21 => self.ld_hl_d16(),
             0x23 => self.inc_hl(),
+            0x32 => self.ld_hlp_dec_a(),
             0x33 => self.inc_sp(),
             0xAF => self.xor_a(),
             0xC3 => self.jp_a16(),
+            0x0E => self.ld_c_d8(),
 
-            _ => 0,
+            _ => self.opcode_unknown(opcode),
         };
     }
 
@@ -115,6 +119,28 @@ impl Cpu {
         return 2;
     }
 
+    /// OPCode: 0x20
+    /// Mnenonic: JR NZ, r8
+    pub fn jr_nz_r8(&mut self) -> u8 {
+        let val = self.read_u16_at_pc_and_increase();
+        if !self.registers.get_flag_z() {
+            self.jr(val);
+            return 3;
+        }
+        return 2;
+    }
+
+
+
+    /// OPCode: 0x21
+    /// Mnenonic: LD HL, d16
+    pub fn ld_hl_d16(&mut self) -> u8 {
+        let val = self.read_u16_at_pc_and_increase();
+        self.registers.set_hl(val);
+        return 3;
+    }
+
+
     /// OPCode: 0x23
     /// Mnenonic: INC HL
     pub fn inc_hl(&mut self) -> u8 {
@@ -124,8 +150,18 @@ impl Cpu {
         return 2;
     }
 
+    /// OPCode: 0x32
+    /// Mnenonic: INC Sd16P
+    pub fn ld_hlp_dec_a(&mut self) -> u8 {
+        let hl = self.registers.get_hl();
+        self.write_u8(hl, self.registers.a);
+        self.registers.set_hl(hl - 1);
+        return 2;
+    }
+
+
     /// OPCode: 0x33
-    /// Mnenonic: INC SP
+    /// Mnenonic: INC Sd16P
     pub fn inc_sp(&mut self) -> u8 {
         let r = self.registers.get_sp();
         let res = self.inc16(r);
@@ -136,7 +172,7 @@ impl Cpu {
     /// OPCode: 0xAF
     /// Mnenonic: XOR A
     pub fn xor_a(&mut self) -> u8 {
-        let val = self.read_u8_at_pc_and_increase();
+        let val = self.registers.a;
         self.xor(val);
         return 1;
     }
@@ -145,9 +181,18 @@ impl Cpu {
     /// Mnenonic: JP
     pub fn jp_a16(&mut self) -> u8 {
         let address = self.read_u16_at_pc_and_increase();
-        self.jmp(address);
+        self.jp(address);
         return 4;
     }
+    
+    /// OPCode: 0x0E
+    /// Mnenonic: LD C, d8
+    pub fn ld_c_d8(&mut self) -> u8 {
+        self.registers.c = self.read_u8_at_pc_and_increase();
+        return 4;
+    }
+
+
 
 
 }

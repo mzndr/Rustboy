@@ -14,7 +14,8 @@ pub mod utils;
 */
 
 /** Working RAM **/
-const WRAM_SIZE: usize = 0x20 * 0x400;
+// TODO: Fixen, es ist nicht WRAM sondern der gesammte memory.
+const WRAM_SIZE: usize = 0x10000;//0x20 * 0x400;
 type WRam = [u8; WRAM_SIZE];
 
 #[derive(Debug, Copy, Clone, PartialEq)]
@@ -67,16 +68,18 @@ impl Cpu {
     /// Handles an instruction according to specifications.
     /// For specifications see: https://www.pastraiser.com/cpu/gameboy/gameboy_opcodes.html
     fn execute_current_instruction(&mut self) -> u8 {
+        let pc = self.registers.get_pc();
         let instruction = self.read_u8_at_pc_and_increase();
-        print!("Executing instruction 0x{instruction:x}... ");
+        print!("[0x{pc:x}] Executing instruction 0x{instruction:x}... ");
         let cycled_needed = self.exec_instruction(instruction);
-        println!(" needed {cycled_needed} cycles.");
 
         // Something went wrong when no cycles were needed.
         if cycled_needed == 0 {
-            println!("Unknown opcode 0x{instruction:x}!");
+            println!(" Unknown opcode 0x{instruction:x}!");
             process::exit(-1);
         }
+
+        println!(" Needed {cycled_needed} cycles.");
 
         return cycled_needed;
     }
