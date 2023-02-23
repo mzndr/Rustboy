@@ -50,7 +50,7 @@ impl Cpu {
     /// Unknown instruction.
     /// TODO: Dump cpu state to log file.
     fn cb_opcode_unknown(&mut self, opcode: u8) -> u8 {
-        println!("Unknown instruction 0xcb{opcode:x}!");
+        println!("Unknown extended instruction 0xcb{opcode:x}!");
         return 0;
     }
 
