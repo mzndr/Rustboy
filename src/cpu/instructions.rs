@@ -22,11 +22,21 @@ impl Cpu {
             0x33 => self.inc_sp(),
             0xAF => self.xor_a(),
             0xC3 => self.jp_a16(),
+            0xCB => self.exec_cb_instruction(),
             0x0E => self.ld_c_d8(),
+            
 
             _ => self.opcode_unknown(opcode),
         };
     }
+
+    pub fn exec_cb_instruction(&mut self) -> u8 {
+        let opcode = self.read_u8_at_pc_and_increase();
+        return match opcode {
+            _ => self.cb_opcode_unknown(opcode),
+        };
+    }
+
 
     /// OPCode: 0x00
     /// Mnenonic: NOP
@@ -191,9 +201,6 @@ impl Cpu {
         self.registers.c = self.read_u8_at_pc_and_increase();
         return 4;
     }
-
-
-
 
 }
 

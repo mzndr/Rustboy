@@ -43,9 +43,17 @@ impl Cpu {
     /// Unknown instruction.
     /// TODO: Dump cpu state to log file.
     fn opcode_unknown(&mut self, opcode: u8) -> u8 {
-        println!("Unknown instruction {opcode}!");
+        println!("Unknown instruction 0x{opcode:x}!");
         return 0;
     }
+
+    /// Unknown instruction.
+    /// TODO: Dump cpu state to log file.
+    fn cb_opcode_unknown(&mut self, opcode: u8) -> u8 {
+        println!("Unknown instruction 0xcb{opcode:x}!");
+        return 0;
+    }
+
 
     /// Needs to be changed for bigger games, since they
     /// are too big to fit into ram, so banking has to be
@@ -75,11 +83,11 @@ impl Cpu {
 
         // Something went wrong when no cycles were needed.
         if cycled_needed == 0 {
-            println!(" Unknown opcode 0x{instruction:x}!");
+            println!("Something went wrong while executing instruction 0x{instruction:x}! Exiting...");
             process::exit(-1);
         }
 
-        println!(" Needed {cycled_needed} cycles.");
+        println!("Needed {cycled_needed} cycles.");
 
         return cycled_needed;
     }
