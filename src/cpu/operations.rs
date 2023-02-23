@@ -70,10 +70,16 @@ impl Cpu {
         self.registers.set_hl(hl.wrapping_add(val));
     }
 
-    /// Jumps by setting PC to val
-    pub fn jmp(&mut self, address: u16) {
+    /// Absolute jump by setting PC to address
+    pub fn jp(&mut self, address: u16) {
         self.registers.set_pc(address);
     }
+    
+    /// Relative jump by adding val to PC
+    pub fn jr(&mut self, val: u16) {
+        self.registers.pc += val;
+    }
+
 
     /// Xors value with a register and sets flags.
     pub fn xor(&mut self, val: u8) {
