@@ -27,8 +27,77 @@ impl Cpu {
             0x32 => self.ld_hlp_dec_a(),
             0x33 => self.inc_sp(),
             0x3E => self.ld_a_d8(),
+
+            0x40 => self.ld_b_b(),
+            0x41 => self.ld_b_c(),
+            0x42 => self.ld_b_d(),
+            0x43 => self.ld_b_e(),
+            0x44 => self.ld_b_h(),
+            0x45 => self.ld_b_l(),
+            0x46 => self.ld_b_hlp(),
+            0x47 => self.ld_b_a(),
+            0x48 => self.ld_c_b(),
+            0x49 => self.ld_c_c(),
             0x4A => self.ld_c_d(),
             0x4B => self.ld_c_e(),
+            0x4C => self.ld_c_h(),
+            0x4D => self.ld_c_l(),
+            0x4E => self.ld_c_hlp(),
+            0x4F => self.ld_c_a(),
+
+            0x50 => self.ld_d_b(),
+            0x51 => self.ld_d_c(),
+            0x52 => self.ld_d_d(),
+            0x53 => self.ld_d_e(),
+            0x54 => self.ld_d_h(),
+            0x55 => self.ld_d_l(),
+            0x56 => self.ld_d_hlp(),
+            0x57 => self.ld_d_a(),
+            0x58 => self.ld_e_b(),
+            0x59 => self.ld_e_c(),
+            0x5A => self.ld_e_d(),
+            0x5B => self.ld_e_e(),
+            0x5C => self.ld_e_h(),
+            0x5D => self.ld_e_l(),
+            0x5E => self.ld_e_hlp(),
+            0x5F => self.ld_e_a(),
+
+            0x60 => self.ld_h_b(),
+            0x61 => self.ld_h_c(),
+            0x62 => self.ld_h_d(),
+            0x63 => self.ld_h_e(),
+            0x64 => self.ld_h_h(),
+            0x65 => self.ld_h_l(),
+            0x66 => self.ld_h_hlp(),
+            0x67 => self.ld_h_a(),
+            0x68 => self.ld_l_b(),
+            0x69 => self.ld_l_c(),
+            0x6A => self.ld_l_d(),
+            0x6B => self.ld_l_e(),
+            0x6C => self.ld_l_h(),
+            0x6D => self.ld_l_l(),
+            0x6E => self.ld_l_hlp(),
+            0x6F => self.ld_l_a(),
+
+            0x70 => self.ld_hlp_b(),
+            0x71 => self.ld_hlp_c(),
+            0x72 => self.ld_hlp_d(),
+            0x73 => self.ld_hlp_e(),
+            0x74 => self.ld_hlp_h(),
+            0x75 => self.ld_hlp_l(),
+            0x76 => self.halt(),
+            0x77 => self.ld_hlp_a(),
+            0x78 => self.ld_a_b(),
+            0x79 => self.ld_a_c(),
+            0x7A => self.ld_a_d(),
+            0x7B => self.ld_a_e(),
+            0x7C => self.ld_a_h(),
+            0x7D => self.ld_a_l(),
+            0x7E => self.ld_a_hlp(),
+            0x7F => self.ld_a_a(),
+
+
+
             0xAF => self.xor_a(),
             0xC3 => self.jp_a16(),
             0xCB => self.exec_cb_instruction(),
@@ -599,56 +668,56 @@ impl Cpu {
 
     /// OPCode: 0x70
     /// Mnemonic: LD (HL), B
-    pub fn ld_hp_b(&mut self) -> u8 {
+    pub fn ld_hlp_b(&mut self) -> u8 {
         self.write_u8(self.registers.get_hl(), self.registers.b);
         return 2;
     }
 
     /// OPCode: 0x71
     /// Mnemonic: LD (HL), C
-    pub fn ld_hp_c(&mut self) -> u8 {
+    pub fn ld_hlp_c(&mut self) -> u8 {
         self.write_u8(self.registers.get_hl(), self.registers.c);
         return 2;
     }
 
     /// OPCode: 0x72
     /// Mnemonic: LD (HL), D
-    pub fn ld_hp_d(&mut self) -> u8 {
+    pub fn ld_hlp_d(&mut self) -> u8 {
         self.write_u8(self.registers.get_hl(), self.registers.d);
         return 2;
     }
 
     /// OPCode: 0x73
     /// Mnemonic: LD (HL), E
-    pub fn ld_hp_e(&mut self) -> u8 {
+    pub fn ld_hlp_e(&mut self) -> u8 {
         self.write_u8(self.registers.get_hl(), self.registers.e);
         return 2;
     }
 
     /// OPCode: 0x74
     /// Mnemonic: LD (HL), H
-    pub fn ld_hp_h(&mut self) -> u8 {
+    pub fn ld_hlp_h(&mut self) -> u8 {
         self.write_u8(self.registers.get_hl(), self.registers.h);
         return 2;
     }
 
     /// OPCode: 0x75
     /// Mnemonic: LD (HL), L
-    pub fn ld_hp_l(&mut self) -> u8 {
+    pub fn ld_hlp_l(&mut self) -> u8 {
         self.write_u8(self.registers.get_hl(), self.registers.l);
         return 2;
     }
 
     /// OPCode: 0x76
     /// Mnemonic: HALT
-    pub fn ld_hp_hlp(&mut self) -> u8 {
+    pub fn halt(&mut self) -> u8 {
         println!("HALT not implemented!");
         return 0;
     }
 
     /// OPCode: 0x77
     /// Mnemonic: LD (HL), A
-    pub fn halt(&mut self) -> u8 {
+    pub fn ld_hlp_a(&mut self) -> u8 {
         self.write_u8(self.registers.get_hl(), self.registers.a);
         return 2;
     }
