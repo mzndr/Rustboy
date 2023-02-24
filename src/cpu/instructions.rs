@@ -45,13 +45,13 @@ impl Cpu {
 
 
     /// OPCode: 0x00
-    /// Mnenonic: NOP
+    /// Mnemonic: NOP
     pub fn nop(&mut self) -> u8 {
         return 1;
     }
 
     /// OPCode: 0x01
-    /// Mnenonic: LD BC, d16
+    /// Mnemonic: LD BC, d16
     pub fn ld_bc_d16(&mut self) -> u8 {
         let val = self.read_u16_at_pc_and_increase();
         self.registers.set_bc(val);
@@ -59,7 +59,7 @@ impl Cpu {
     }
 
     /// OPCode: 0x02
-    /// Mnenonic: LD (BC), A
+    /// Mnemonic: LD (BC), A
     pub fn ld_bcp_a(&mut self) -> u8 {
         let address = self.registers.get_bc();
         let val = self.registers.a;
@@ -68,7 +68,7 @@ impl Cpu {
     }
 
     /// OPCode: 0x03
-    /// Mnenonic: INC BC
+    /// Mnemonic: INC BC
     pub fn inc_bc(&mut self) -> u8 {
         let r = self.registers.get_bc();
         let res = self.inc16(r);
@@ -77,21 +77,21 @@ impl Cpu {
     }
 
     /// OPCode: 0x04
-    /// Mnenonic: INC B
+    /// Mnemonic: INC B
     pub fn inc_b(&mut self) -> u8 {
         self.registers.b = self.inc8(self.registers.b);
         return 1;
     }
 
     /// OPCode: 0x05
-    /// Mnenonic: DEC B
+    /// Mnemonic: DEC B
     pub fn dec_b(&mut self) -> u8 {
         self.registers.b = self.dec8(self.registers.b);
         return 1;
     }
 
     /// OPCode: 0x06
-    /// Mnenonic: LD B, d8
+    /// Mnemonic: LD B, d8
     pub fn ld_b_d8(&mut self) -> u8 {
         let val = self.read_u8_at_pc_and_increase();
         self.registers.b = val;
@@ -99,7 +99,7 @@ impl Cpu {
     }
 
     /// OPCode: 0x07
-    /// Mnenonic: RLCA
+    /// Mnemonic: RLCA
     pub fn rlca(&mut self) -> u8 {
         let a = self.registers.a;
         self.registers.set_flag_c(((a & 0b10000000) >> 7) == 1);
@@ -111,7 +111,7 @@ impl Cpu {
     }
 
     /// OPCode: 0x08
-    /// Mnenonic: LD (a16), SP
+    /// Mnemonic: LD (a16), SP
     pub fn ld_a16p_sp(&mut self) -> u8 {
         let address = self.read_u16_at_pc_and_increase();
         let sp = self.registers.get_sp();
@@ -120,7 +120,7 @@ impl Cpu {
     }
 
     /// OPCode: 0x09
-    /// Mnenonic: ADD HL, BC
+    /// Mnemonic: ADD HL, BC
     pub fn add_hl_bc(&mut self) -> u8 {
         let hl = self.registers.get_hl();
         let bc = self.registers.get_bc();
@@ -130,7 +130,7 @@ impl Cpu {
     }
 
     /// OPCode: 0x13
-    /// Mnenonic: INC DE
+    /// Mnemonic: INC DE
     pub fn inc_de(&mut self) -> u8 {
         let r = self.registers.get_de();
         let res = self.inc16(r);
@@ -139,14 +139,14 @@ impl Cpu {
     }
 
     /// OPCode: 0x1D
-    /// Mnenonic: DEC E
+    /// Mnemonic: DEC E
     pub fn dec_e(&mut self) -> u8 {
         self.registers.e = self.dec8(self.registers.e);
         return 1;
     }
 
     /// OPCode: 0x20
-    /// Mnenonic: JR NZ, r8
+    /// Mnemonic: JR NZ, r8
     pub fn jr_nz_r8(&mut self) -> u8 {
         let val = self.read_u16_at_pc_and_increase();
         if !self.registers.get_flag_z() {
@@ -159,7 +159,7 @@ impl Cpu {
 
 
     /// OPCode: 0x21
-    /// Mnenonic: LD HL, d16
+    /// Mnemonic: LD HL, d16
     pub fn ld_hl_d16(&mut self) -> u8 {
         let val = self.read_u16_at_pc_and_increase();
         self.registers.set_hl(val);
@@ -167,7 +167,7 @@ impl Cpu {
     }
 
     /// OPCode: 0x22
-    /// Mnenonic: LD (HL+), A
+    /// Mnemonic: LD (HL+), A
     pub fn ld_hlp_inc_a(&mut self) -> u8 {
         let hl = self.registers.get_hl();
         self.write_u8(hl, self.registers.a);
@@ -179,7 +179,7 @@ impl Cpu {
 
 
     /// OPCode: 0x23
-    /// Mnenonic: INC HL
+    /// Mnemonic: INC HL
     pub fn inc_hl(&mut self) -> u8 {
         let r = self.registers.get_hl();
         let res = self.inc16(r);
@@ -188,7 +188,7 @@ impl Cpu {
     }
 
     /// OPCode: 0x25
-    /// Mnenonic: DEC H
+    /// Mnemonic: DEC H
     pub fn dec_h(&mut self) -> u8 {
         self.registers.h = self.dec8(self.registers.h);
         return 1;
@@ -197,7 +197,7 @@ impl Cpu {
 
     
     /// OPCode: 0x29
-    /// Mnenonic: ADD HL, HL
+    /// Mnemonic: ADD HL, HL
     pub fn add_hl_hl(&mut self) -> u8 {
         let hl = self.registers.get_hl();
         let result = self.add16(hl, hl);
@@ -206,7 +206,7 @@ impl Cpu {
     }
 
     /// OPCode: 0x32
-    /// Mnenonic: INC Sd16P
+    /// Mnemonic: INC Sd16P
     pub fn ld_hlp_dec_a(&mut self) -> u8 {
         let hl = self.registers.get_hl();
         self.write_u8(hl, self.registers.a);
@@ -216,7 +216,7 @@ impl Cpu {
 
 
     /// OPCode: 0x33
-    /// Mnenonic: INC Sd16P
+    /// Mnemonic: INC Sd16P
     pub fn inc_sp(&mut self) -> u8 {
         let r = self.registers.get_sp();
         let res = self.inc16(r);
@@ -225,7 +225,7 @@ impl Cpu {
     }
 
     /// OPCode: 0x3E
-    /// Mnenonic: LD A, d8 
+    /// Mnemonic: LD A, d8 
     pub fn ld_a_d8(&mut self) -> u8 {
         self.registers.a = self.read_u8_at_pc_and_increase();
         return 2;
@@ -233,7 +233,7 @@ impl Cpu {
 
 
     /// OPCode: 0xAF
-    /// Mnenonic: XOR A
+    /// Mnemonic: XOR A
     pub fn xor_a(&mut self) -> u8 {
         let val = self.registers.a;
         self.xor(val);
@@ -241,7 +241,7 @@ impl Cpu {
     }
 
     /// OPCode: 0xC3
-    /// Mnenonic: JP
+    /// Mnemonic: JP
     pub fn jp_a16(&mut self) -> u8 {
         let address = self.read_u16_at_pc_and_increase();
         self.jp(address);
@@ -249,7 +249,7 @@ impl Cpu {
     }
     
     /// OPCode: 0x0E
-    /// Mnenonic: LD C, d8
+    /// Mnemonic: LD C, d8
     pub fn ld_c_d8(&mut self) -> u8 {
         self.registers.c = self.read_u8_at_pc_and_increase();
         return 4;
