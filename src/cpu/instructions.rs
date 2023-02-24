@@ -15,11 +15,16 @@ impl Cpu {
             0x09 => self.add_hl_bc(),
 
             0x13 => self.inc_de(),
+            0x1D => self.dec_e(),
             0x20 => self.jr_nz_r8(),
             0x21 => self.ld_hl_d16(),
+            0x22 => self.ld_hlp_inc_a(),
             0x23 => self.inc_hl(),
+            0x25 => self.dec_h(),
+            0x29 => self.add_hl_hl(),
             0x32 => self.ld_hlp_dec_a(),
             0x33 => self.inc_sp(),
+            0x3E => self.ld_a_d8(),
             0xAF => self.xor_a(),
             0xC3 => self.jp_a16(),
             0xCB => self.exec_cb_instruction(),
@@ -117,7 +122,10 @@ impl Cpu {
     /// OPCode: 0x09
     /// Mnenonic: ADD HL, BC
     pub fn add_hl_bc(&mut self) -> u8 {
-        self.add16(self.registers.get_bc());
+        let hl = self.registers.get_hl();
+        let bc = self.registers.get_bc();
+        let result = self.add16(hl, bc);
+        self.registers.set_hl(result);
         return 2;
     }
 
@@ -128,6 +136,13 @@ impl Cpu {
         let res = self.inc16(r);
         self.registers.set_de(res);
         return 2;
+    }
+
+    /// OPCode: 0x1D
+    /// Mnenonic: DEC E
+    pub fn dec_e(&mut self) -> u8 {
+        self.registers.e = self.dec8(self.registers.e);
+        return 1;
     }
 
     /// OPCode: 0x20
@@ -151,6 +166,17 @@ impl Cpu {
         return 3;
     }
 
+    /// OPCode: 0x22
+    /// Mnenonic: LD (HL+), A
+    pub fn ld_hlp_inc_a(&mut self) -> u8 {
+        let hl = self.registers.get_hl();
+        self.write_u8(hl, self.registers.a);
+        self.registers.set_hl(hl + 1);
+        return 2;
+    }
+
+
+
 
     /// OPCode: 0x23
     /// Mnenonic: INC HL
@@ -158,6 +184,24 @@ impl Cpu {
         let r = self.registers.get_hl();
         let res = self.inc16(r);
         self.registers.set_hl(res);
+        return 2;
+    }
+
+    /// OPCode: 0x25
+    /// Mnenonic: DEC H
+    pub fn dec_h(&mut self) -> u8 {
+        self.registers.h = self.dec8(self.registers.h);
+        return 1;
+    }
+
+
+    
+    /// OPCode: 0x29
+    /// Mnenonic: ADD HL, HL
+    pub fn add_hl_hl(&mut self) -> u8 {
+        let hl = self.registers.get_hl();
+        let result = self.add16(hl, hl);
+        self.registers.set_hl(result);
         return 2;
     }
 
@@ -179,6 +223,14 @@ impl Cpu {
         self.registers.set_sp(res);
         return 2;
     }
+
+    /// OPCode: 0x3E
+    /// Mnenonic: LD A, d8 
+    pub fn ld_a_d8(&mut self) -> u8 {
+        self.registers.a = self.read_u8_at_pc_and_increase();
+        return 2;
+    }
+
 
     /// OPCode: 0xAF
     /// Mnenonic: XOR A
