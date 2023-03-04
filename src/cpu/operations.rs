@@ -73,13 +73,55 @@ impl Cpu {
     }
 
     /// Adds a value with HL and stores it in HL.
-    pub fn add16(&mut self, a: u16, b: u16) -> u16 {
-        let h = (((a & 0xFFF) + (b & 0xFFF)) & 0x1000) == 0x1000;
-        let c  = a as u32 + b as u32 > 0xFFFF;
+    pub fn add16(&mut self, val: u16) {
+        let hl = self.registers.get_hl();
+        let h = (((val & 0xFFF) + (hl & 0xFFF)) & 0x1000) == 0x1000;
+        let c  = val as u32 + hl as u32 > 0xFFFF;
         self.registers.set_flag_h(h);
         self.registers.set_flag_c(c);
         self.registers.set_flag_n(false);
-        return a.wrapping_add(b);
+        self.registers.set_hl(val.wrapping_add(hl));
+    }
+
+    // 8 bit addition with carry flag and value
+    pub fn add8c(&mut self, val: u8) {
+        self.add8(val.wrapping_add(self.registers.get_flag_c() as u8));
+    }
+
+    // 8 bit sub with carry flag and value
+    pub fn sub8c(&mut self, val: u8) {
+        self.sub8(val.wrapping_sub(self.registers.get_flag_c() as u8));
+    }
+
+    /// Adds two value with A, sets flags, and stores result in A
+    pub fn add8(&mut self, val: u8) {
+        let a = self.registers.a;
+        let result = a.wrapping_add(val);
+        self.registers.set_flag_h(result & 0xf == 0xf);
+        self.registers.set_flag_z(result == 0);
+        self.registers.set_flag_n(false);
+        self.registers.a = result;
+    }
+
+    /// Subs two 8 bit integers and sets flags and sotres result in A
+    pub fn sub8(&mut self, val: u8) {
+        let a = self.registers.a;
+        let result = a.wrapping_sub(val);
+        self.registers.set_flag_h(result & 0xf == 0xf);
+        self.registers.set_flag_z(result == 0);
+        self.registers.set_flag_n(true);
+        self.registers.a = result;
+    }
+
+    /// Subs a value with HL and stores it in HL.
+    pub fn sub16(&mut self, val: u16) {
+        let hl = self.registers.get_hl();
+        let h = (((val & 0xFFF) - (val & 0xFFF)) & 0x1000) == 0x1000;
+        let c  = val as u32 + hl as u32 > 0xFFFF;
+        self.registers.set_flag_h(h);
+        self.registers.set_flag_c(c);
+        self.registers.set_flag_n(true);
+        self.registers.set_hl(val.wrapping_sub(hl));
     }
 
     /// Absolute jump by setting PC to address
