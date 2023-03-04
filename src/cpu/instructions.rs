@@ -7,7 +7,6 @@ impl Cpu {
             0x01 => self.ld_bc_d16(),
             0x02 => self.ld_bcp_a(),
             0x03 => self.inc_bc(),
-            0x06 => self.ld_b_d8(),
             0x07 => self.rlca(),
             0x08 => self.ld_a16p_sp(),
             0x09 => self.add_hl_bc(),
@@ -25,13 +24,17 @@ impl Cpu {
             0x19 => self.add_hl_de(),
             0x1D => self.dec_e(),
             0x20 => self.jr_nz_r8(),
+            0x29 => self.add_hl_hl(),
+            0x2C => self.inc_l(),
+            0x33 => self.inc_sp(),
+
+            0x06 => self.ld_b_d8(),
+
             0x21 => self.ld_hl_d16(),
             0x22 => self.ld_hlp_inc_a(),
             0x23 => self.inc_hl(),
-            0x29 => self.add_hl_hl(),
-            0x2C => self.inc_l(),
+
             0x32 => self.ld_hlp_dec_a(),
-            0x33 => self.inc_sp(),
             0x3E => self.ld_a_d8(),
 
             0x40 => self.ld_b_b(),
@@ -40,7 +43,6 @@ impl Cpu {
             0x43 => self.ld_b_e(),
             0x44 => self.ld_b_h(),
             0x45 => self.ld_b_l(),
-            0x46 => self.ld_b_hlp(),
             0x47 => self.ld_b_a(),
             0x48 => self.ld_c_b(),
             0x49 => self.ld_c_c(),
@@ -101,7 +103,39 @@ impl Cpu {
             0x7E => self.ld_a_hlp(),
             0x7F => self.ld_a_a(),
 
+            0x80 => self.add_a_b(),
+            0x81 => self.add_a_c(),
+            0x82 => self.add_a_d(),
+            0x83 => self.add_a_e(),
+            0x84 => self.add_a_h(),
+            0x85 => self.add_a_l(),
+            0x86 => self.add_a_hlp(),
+            0x87 => self.add_a_a(),
+            0x88 => self.adc_a_b(),
+            0x89 => self.adc_a_c(),
+            0x8A => self.adc_a_d(),
+            0x8B => self.adc_a_e(),
+            0x8C => self.adc_a_h(),
+            0x8D => self.adc_a_l(),
+            0x8E => self.adc_a_hlp(),
+            0x8F => self.adc_a_a(),
 
+            0x90 => self.sub_a_b(),
+            0x91 => self.sub_a_c(),
+            0x92 => self.sub_a_d(),
+            0x93 => self.sub_a_e(),
+            0x94 => self.sub_a_h(),
+            0x95 => self.sub_a_l(),
+            0x96 => self.sub_a_hlp(),
+            0x97 => self.sub_a_a(),
+            0x98 => self.sbc_a_b(),
+            0x99 => self.sbc_a_c(),
+            0x9A => self.sbc_a_d(),
+            0x9B => self.sbc_a_e(),
+            0x9C => self.sbc_a_h(),
+            0x9D => self.sbc_a_l(),
+            0x9E => self.sbc_a_hlp(),
+            0x9F => self.sbc_a_a(),
 
             0xAF => self.xor_a(),
             0xC3 => self.jp_a16(),
@@ -120,6 +154,233 @@ impl Cpu {
         };
     }
 
+    /// OPCode: 0x80
+    /// Mnemonic: ADD A B
+    pub fn add_a_b(&mut self) -> u8 {
+        self.add8(self.registers.b);
+        return 1;
+    }
+
+    /// OPCode: 0x81
+    /// Mnemonic: ADD A C
+    pub fn add_a_c(&mut self) -> u8 {
+        self.add8(self.registers.c);
+        return 1;
+    }
+
+    /// OPCode: 0x82
+    /// Mnemonic: ADD A D
+    pub fn add_a_d(&mut self) -> u8 {
+        self.add8(self.registers.d);
+        return 1;
+    }
+
+    /// OPCode: 0x83
+    /// Mnemonic: ADD A E
+    pub fn add_a_e(&mut self) -> u8 {
+        self.add8(self.registers.e);
+        return 1;
+    }
+
+    /// OPCode: 0x84
+    /// Mnemonic: ADD A H
+    pub fn add_a_h(&mut self) -> u8 {
+        self.add8(self.registers.h);
+        return 1;
+    }
+
+    /// OPCode: 0x85
+    /// Mnemonic: ADD A L
+    pub fn add_a_l(&mut self) -> u8 {
+        self.add8(self.registers.l);
+        return 1;
+    }
+
+    /// OPCode: 0x86
+    /// Mnemonic: ADD A (HL)
+    pub fn add_a_hlp(&mut self) -> u8 {
+        let address = self.registers.get_hl();
+        self.add8(self.read(address));
+        return 2;
+    }
+
+    /// OPCode: 0x87
+    /// Mnemonic: ADD A A
+    pub fn add_a_a(&mut self) -> u8 {
+        self.add8(self.registers.a);
+        return 1;
+    }
+
+    /// OPCode: 0x88
+    /// Mnemonic: ADC A B
+    pub fn adc_a_b(&mut self) -> u8 {
+        self.add8c(self.registers.b);
+        return 1;
+    }
+
+    /// OPCode: 0x89
+    /// Mnemonic: ADC A C
+    pub fn adc_a_c(&mut self) -> u8 {
+        self.add8c(self.registers.c);
+        return 1;
+    }
+
+    /// OPCode: 0x8A
+    /// Mnemonic: ADC A D
+    pub fn adc_a_d(&mut self) -> u8 {
+        self.add8c(self.registers.d);
+        return 1;
+    }
+
+    /// OPCode: 0x8B
+    /// Mnemonic: ADC A E
+    pub fn adc_a_e(&mut self) -> u8 {
+        self.add8c(self.registers.e);
+        return 1;
+    }
+
+    /// OPCode: 0x8C
+    /// Mnemonic: ADC A H
+    pub fn adc_a_h(&mut self) -> u8 {
+        self.add8c(self.registers.h);
+        return 1;
+    }
+
+    /// OPCode: 0x8D
+    /// Mnemonic: ADC A L
+    pub fn adc_a_l(&mut self) -> u8 {
+        self.add8c(self.registers.l);
+        return 1;
+    }
+
+    /// OPCode: 0x8E
+    /// Mnemonic: ADC A L
+    pub fn adc_a_hlp(&mut self) -> u8 {
+        let address = self.registers.get_hl();
+        self.add8c(self.read(address));
+        return 2;
+    }
+
+    /// OPCode: 0x8F
+    /// Mnemonic: ADC A A
+    pub fn adc_a_a(&mut self) -> u8 {
+        self.add8c(self.registers.a);
+        return 1;
+    }
+
+    /// OPCode: 0x90
+    /// Mnemonic: SUB A B
+    pub fn sub_a_b(&mut self) -> u8 {
+        self.sub8(self.registers.b);
+        return 1;
+    }
+
+    /// OPCode: 0x91
+    /// Mnemonic: SUB A C
+    pub fn sub_a_c(&mut self) -> u8 {
+        self.sub8(self.registers.c);
+        return 1;
+    }
+
+    /// OPCode: 0x92
+    /// Mnemonic: SUB A D
+    pub fn sub_a_d(&mut self) -> u8 {
+        self.sub8(self.registers.d);
+        return 1;
+    }
+
+    /// OPCode: 0x93
+    /// Mnemonic: SUB A E
+    pub fn sub_a_e(&mut self) -> u8 {
+        self.sub8(self.registers.e);
+        return 1;
+    }
+
+    /// OPCode: 0x94
+    /// Mnemonic: SUB A H
+    pub fn sub_a_h(&mut self) -> u8 {
+        self.sub8(self.registers.h);
+        return 1;
+    }
+
+    /// OPCode: 0x95
+    /// Mnemonic: SUB A L
+    pub fn sub_a_l(&mut self) -> u8 {
+        self.sub8(self.registers.l);
+        return 1;
+    }
+
+    /// OPCode: 0x96
+    /// Mnemonic: SUB A (HL)
+    pub fn sub_a_hlp(&mut self) -> u8 {
+        let address = self.registers.get_hl();
+        self.sub8(self.read(address));
+        return 2;
+    }
+
+    /// OPCode: 0x97
+    /// Mnemonic: SUB A A
+    pub fn sub_a_a(&mut self) -> u8 {
+        self.sub8(self.registers.a);
+        return 1;
+    }
+
+    /// OPCode: 0x98
+    /// Mnemonic: SBC A B
+    pub fn sbc_a_b(&mut self) -> u8 {
+        self.sub8c(self.registers.b);
+        return 1;
+    }
+
+    /// OPCode: 0x99
+    /// Mnemonic: SBC A C
+    pub fn sbc_a_c(&mut self) -> u8 {
+        self.sub8c(self.registers.c);
+        return 1;
+    }
+
+    /// OPCode: 0x9A
+    /// Mnemonic: SBC A D
+    pub fn sbc_a_d(&mut self) -> u8 {
+        self.sub8c(self.registers.d);
+        return 1;
+    }
+
+    /// OPCode: 0x9B
+    /// Mnemonic: SBC A E
+    pub fn sbc_a_e(&mut self) -> u8 {
+        self.sub8c(self.registers.e);
+        return 1;
+    }
+
+    /// OPCode: 0x9C
+    /// Mnemonic: SBC A H
+    pub fn sbc_a_h(&mut self) -> u8 {
+        self.sub8c(self.registers.h);
+        return 1;
+    }
+
+    /// OPCode: 0x9D
+    /// Mnemonic: SBC A L
+    pub fn sbc_a_l(&mut self) -> u8 {
+        self.sub8c(self.registers.l);
+        return 1;
+    }
+
+    /// OPCode: 0x9E
+    /// Mnemonic: SBC A L
+    pub fn sbc_a_hlp(&mut self) -> u8 {
+        let address = self.registers.get_hl();
+        self.sub8c(self.read(address));
+        return 2;
+    }
+
+    /// OPCode: 0x9F
+    /// Mnemonic: SBC A A
+    pub fn sbc_a_a(&mut self) -> u8 {
+        self.sub8c(self.registers.a);
+        return 1;
+    }
 
     /// OPCode: 0x00
     /// Mnemonic: NOP
@@ -249,10 +510,8 @@ impl Cpu {
     /// OPCode: 0x09
     /// Mnemonic: ADD HL, BC
     pub fn add_hl_bc(&mut self) -> u8 {
-        let hl = self.registers.get_hl();
         let bc = self.registers.get_bc();
-        let result = self.add16(hl, bc);
-        self.registers.set_hl(result);
+        self.add16(bc);
         return 2;
     }
 
@@ -265,17 +524,13 @@ impl Cpu {
         return 2;
     }
     
-
     /// OPCode: 0x19
     /// Mnemonic: ADD HL, DE
     pub fn add_hl_de(&mut self) -> u8 {
         let de = self.registers.get_de();
-        let hl = self.registers.get_hl();
-        let result = self.add16(hl, de);
-        self.registers.set_hl(result);
+        self.add16(de);
         return 2;
     }
-
 
     /// OPCode: 0x1D
     /// Mnemonic: DEC E
@@ -331,8 +586,7 @@ impl Cpu {
     /// Mnemonic: ADD HL, HL
     pub fn add_hl_hl(&mut self) -> u8 {
         let hl = self.registers.get_hl();
-        let result = self.add16(hl, hl);
-        self.registers.set_hl(result);
+        self.add16(hl);
         return 2;
     }
 
