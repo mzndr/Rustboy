@@ -7,21 +7,27 @@ impl Cpu {
             0x01 => self.ld_bc_d16(),
             0x02 => self.ld_bcp_a(),
             0x03 => self.inc_bc(),
-            0x04 => self.inc_b(),
-            0x05 => self.dec_b(),
             0x06 => self.ld_b_d8(),
             0x07 => self.rlca(),
             0x08 => self.ld_a16p_sp(),
             0x09 => self.add_hl_bc(),
             0x0E => self.ld_c_d8(),
             0x13 => self.inc_de(),
+
+            0x05 => self.dec_b(),
+            0x15 => self.dec_d(),
+            0x25 => self.dec_h(),
+
+            0x04 => self.inc_b(),
+            0x14 => self.inc_d(),
+            0x24 => self.inc_h(),
+
             0x19 => self.add_hl_de(),
             0x1D => self.dec_e(),
             0x20 => self.jr_nz_r8(),
             0x21 => self.ld_hl_d16(),
             0x22 => self.ld_hlp_inc_a(),
             0x23 => self.inc_hl(),
-            0x25 => self.dec_h(),
             0x29 => self.add_hl_hl(),
             0x2C => self.inc_l(),
             0x32 => self.ld_hlp_dec_a(),
@@ -85,7 +91,6 @@ impl Cpu {
             0x73 => self.ld_hlp_e(),
             0x74 => self.ld_hlp_h(),
             0x75 => self.ld_hlp_l(),
-            0x76 => self.halt(),
             0x77 => self.ld_hlp_a(),
             0x78 => self.ld_a_b(),
             0x79 => self.ld_a_c(),
@@ -148,6 +153,37 @@ impl Cpu {
         return 2;
     }
 
+    /// OPCode: 0x05
+    /// Mnemonic: DEC B
+    pub fn dec_b(&mut self) -> u8 {
+        self.registers.b = self.dec8(self.registers.b);
+        return 1;
+    }
+
+    /// OPCode: 0x15
+    /// Mnemonic: DEC D
+    pub fn dec_d(&mut self) -> u8 {
+        self.registers.d = self.dec8(self.registers.d);
+        return 2;
+    }
+
+    /// OPCode: 0x25
+    /// Mnemonic: DEC H
+    pub fn dec_h(&mut self) -> u8 {
+        self.registers.h = self.dec8(self.registers.h);
+        return 1;
+    }
+
+    /// OPCode: 0x35
+    /// Mnemonic: DEC (HL)
+    pub fn dec_hlp(&mut self) -> u8 {
+        let address = self.registers.get_hl();
+        let val = self.read(address);
+        let res = self.dec8(val);
+        self.write_u8(address, res);
+        return 3;
+    }
+
     /// OPCode: 0x04
     /// Mnemonic: INC B
     pub fn inc_b(&mut self) -> u8 {
@@ -155,12 +191,31 @@ impl Cpu {
         return 1;
     }
 
-    /// OPCode: 0x05
-    /// Mnemonic: DEC B
-    pub fn dec_b(&mut self) -> u8 {
-        self.registers.b = self.dec8(self.registers.b);
+    /// OPCode: 0x14
+    /// Mnemonic: INC D
+    pub fn inc_d(&mut self) -> u8 {
+        self.registers.d = self.inc8(self.registers.d);
+        return 2;
+    }
+
+    /// OPCode: 0x24
+    /// Mnemonic: INC H
+    pub fn inc_h(&mut self) -> u8 {
+        self.registers.h = self.inc8(self.registers.h);
         return 1;
     }
+
+    /// OPCode: 0x34
+    /// Mnemonic: INC (HL)
+    pub fn inc_hlp(&mut self) -> u8 {
+        let address = self.registers.get_hl();
+        let val = self.read(address);
+        let res = self.inc8(val);
+        self.write_u8(address, res);
+        return 3;
+    }
+
+
 
     /// OPCode: 0x06
     /// Mnemonic: LD B, d8
@@ -209,6 +264,7 @@ impl Cpu {
         self.registers.set_de(res);
         return 2;
     }
+    
 
     /// OPCode: 0x19
     /// Mnemonic: ADD HL, DE
@@ -270,15 +326,7 @@ impl Cpu {
         return 2;
     }
 
-    /// OPCode: 0x25
-    /// Mnemonic: DEC H
-    pub fn dec_h(&mut self) -> u8 {
-        self.registers.h = self.dec8(self.registers.h);
-        return 1;
-    }
 
-
-    
     /// OPCode: 0x29
     /// Mnemonic: ADD HL, HL
     pub fn add_hl_hl(&mut self) -> u8 {
@@ -706,13 +754,6 @@ impl Cpu {
     pub fn ld_hlp_l(&mut self) -> u8 {
         self.write_u8(self.registers.get_hl(), self.registers.l);
         return 2;
-    }
-
-    /// OPCode: 0x76
-    /// Mnemonic: HALT
-    pub fn halt(&mut self) -> u8 {
-        println!("HALT not implemented!");
-        return 0;
     }
 
     /// OPCode: 0x77
