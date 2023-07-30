@@ -2,41 +2,34 @@ use super::Cpu;
 
 impl Cpu {
     pub fn exec_instruction(&mut self, opcode: u8) -> u8 {
-        return match opcode {
+        match opcode {
             0x00 => self.nop(),
             0x01 => self.ld_bc_d16(),
             0x02 => self.ld_bcp_a(),
             0x03 => self.inc_bc(),
+            0x04 => self.inc_b(),
+            0x05 => self.dec_b(),
+            0x06 => self.ld_b_d8(),
             0x07 => self.rlca(),
             0x08 => self.ld_a16p_sp(),
             0x09 => self.add_hl_bc(),
             0x0E => self.ld_c_d8(),
             0x13 => self.inc_de(),
-
-            0x05 => self.dec_b(),
-            0x15 => self.dec_d(),
-            0x25 => self.dec_h(),
-
-            0x04 => self.inc_b(),
             0x14 => self.inc_d(),
-            0x24 => self.inc_h(),
-
+            0x15 => self.dec_d(),
             0x19 => self.add_hl_de(),
             0x1D => self.dec_e(),
             0x20 => self.jr_nz_r8(),
-            0x29 => self.add_hl_hl(),
-            0x2C => self.inc_l(),
-            0x33 => self.inc_sp(),
-
-            0x06 => self.ld_b_d8(),
-
             0x21 => self.ld_hl_d16(),
             0x22 => self.ld_hlp_inc_a(),
             0x23 => self.inc_hl(),
-
+            0x24 => self.inc_h(),
+            0x25 => self.dec_h(),
+            0x29 => self.add_hl_hl(),
+            0x2C => self.inc_l(),
             0x32 => self.ld_hlp_dec_a(),
+            0x33 => self.inc_sp(),
             0x3E => self.ld_a_d8(),
-
             0x40 => self.ld_b_b(),
             0x41 => self.ld_b_c(),
             0x42 => self.ld_b_d(),
@@ -52,7 +45,6 @@ impl Cpu {
             0x4D => self.ld_c_l(),
             0x4E => self.ld_c_hlp(),
             0x4F => self.ld_c_a(),
-
             0x50 => self.ld_d_b(),
             0x51 => self.ld_d_c(),
             0x52 => self.ld_d_d(),
@@ -69,7 +61,6 @@ impl Cpu {
             0x5D => self.ld_e_l(),
             0x5E => self.ld_e_hlp(),
             0x5F => self.ld_e_a(),
-
             0x60 => self.ld_h_b(),
             0x61 => self.ld_h_c(),
             0x62 => self.ld_h_d(),
@@ -86,7 +77,6 @@ impl Cpu {
             0x6D => self.ld_l_l(),
             0x6E => self.ld_l_hlp(),
             0x6F => self.ld_l_a(),
-
             0x70 => self.ld_hlp_b(),
             0x71 => self.ld_hlp_c(),
             0x72 => self.ld_hlp_d(),
@@ -102,7 +92,6 @@ impl Cpu {
             0x7D => self.ld_a_l(),
             0x7E => self.ld_a_hlp(),
             0x7F => self.ld_a_a(),
-
             0x80 => self.add_a_b(),
             0x81 => self.add_a_c(),
             0x82 => self.add_a_d(),
@@ -119,7 +108,6 @@ impl Cpu {
             0x8D => self.adc_a_l(),
             0x8E => self.adc_a_hlp(),
             0x8F => self.adc_a_a(),
-
             0x90 => self.sub_a_b(),
             0x91 => self.sub_a_c(),
             0x92 => self.sub_a_d(),
@@ -136,14 +124,13 @@ impl Cpu {
             0x9D => self.sbc_a_l(),
             0x9E => self.sbc_a_hlp(),
             0x9F => self.sbc_a_a(),
-
             0xAF => self.xor_a(),
             0xC3 => self.jp_a16(),
             0xCB => self.exec_cb_instruction(),
             
 
             _ => self.opcode_unknown(opcode),
-        };
+        }
     }
 
     pub fn exec_cb_instruction(&mut self) -> u8 {
