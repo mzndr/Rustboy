@@ -44,14 +44,14 @@ impl Cpu {
     /// TODO: Dump cpu state to log file.
     fn opcode_unknown(&mut self, opcode: u8) -> u8 {
         println!("Unknown instruction 0x{opcode:x}!");
-        return 0;
+        0
     }
 
     /// Unknown instruction.
     /// TODO: Dump cpu state to log file.
     fn cb_opcode_unknown(&mut self, opcode: u8) -> u8 {
         println!("Unknown extended instruction 0xcb{opcode:x}!");
-        return 0;
+        0
     }
 
 
@@ -66,11 +66,11 @@ impl Cpu {
 
     /// Initialize cpu memory
     pub fn new() -> Cpu {
-        return Cpu {
+        Cpu {
             registers: registers::Registers::new(),
             wram: [0x00; WRAM_SIZE],
             busy_for: 0x00,
-        };
+        }
     }
 
     /// Handles an instruction according to specifications.
@@ -89,7 +89,7 @@ impl Cpu {
 
         println!("Needed {cycled_needed} cycles.");
 
-        return cycled_needed;
+        cycled_needed
     }
 
     // Execute a machine cycle.

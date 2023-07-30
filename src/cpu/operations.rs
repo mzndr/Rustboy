@@ -6,7 +6,7 @@ impl Cpu {
     pub fn read(&self, address: u16) -> u8 {
         let u_addr = address as usize;
         self.check_address(address);
-        return self.wram[u_addr];
+        self.wram[u_addr]
     }
 
     /// Writes u8 to wram at address.
@@ -27,7 +27,7 @@ impl Cpu {
     pub fn read_u8_at_pc_and_increase(&mut self) -> u8 {
         let val = self.read(self.registers.pc);
         self.registers.pc = self.registers.pc.wrapping_add(1);
-        return val;
+        val
     }
 
     /// Reads two bytes from wram at pc and increases pc by two.
@@ -36,7 +36,7 @@ impl Cpu {
         let b = self.read_u8_at_pc_and_increase();
 
         // Little endian in memory
-        return utils::merge_u8s(b, a);
+        utils::merge_u8s(b, a)
     }
 
     /// Sets the bit specified in pos {0-7} of byte
@@ -45,15 +45,15 @@ impl Cpu {
             // TODO: Throw error or something.
         }
         let mask: u8 = 0b1000000 >> pos;
-        return byte | mask;
+        byte | mask
     }
 
     pub fn inc16(&mut self, val: u16) -> u16 {
-        return val.wrapping_add(1);
+        val.wrapping_add(1)
     }
 
     pub fn dec16(&mut self, val: u16) -> u16 {
-        return val.wrapping_sub(1);
+        val.wrapping_sub(1)
     }
 
     pub fn inc8(&mut self, val: u8) -> u8 {
@@ -61,7 +61,7 @@ impl Cpu {
         self.registers.set_flag_h(w & 0xf == 0xf);
         self.registers.set_flag_z(w == 0);
         self.registers.set_flag_n(false);
-        return w;
+        w
     }
 
     pub fn dec8(&mut self, val: u8) -> u8 {
@@ -69,7 +69,7 @@ impl Cpu {
         self.registers.set_flag_h(w & 0xf == 0xf);
         self.registers.set_flag_z(w == 0);
         self.registers.set_flag_n(true);
-        return w;
+        w
     }
 
     /// Adds a value with HL and stores it in HL.

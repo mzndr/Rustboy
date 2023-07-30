@@ -3,7 +3,7 @@
 pub fn split_u16(to_split: u16) -> (u8, u8) {
     let left: u8 = (to_split >> 8) as u8;
     let right: u8 = to_split as u8;
-    return (left, right);
+    (left, right)
 }
 
 /// Merges two 8 bit unsigned integers into
@@ -11,7 +11,7 @@ pub fn split_u16(to_split: u16) -> (u8, u8) {
 pub fn merge_u8s(left: u8, right: u8) -> u16 {
     let r1 = (left as u16) << 8;
     let r0 = right as u16;
-    return r0 | r1;
+    r0 | r1
 }
 
 #[cfg(test)]
