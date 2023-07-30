@@ -3,6 +3,12 @@
 #![warn(clippy::pedantic, clippy::unwrap_used)]
 #![allow(dead_code)]
 
+// TODO:
+// - Add tokio runtime, and make cpu async.
+// - Take ROM_PATH from args.
+// - Create actual errors instead of anyhow errors.
+// - Add tracing library, and add more tracing.
+
 mod cpu;
 use crate::cpu::Cpu;
 use std::{fs, path};
