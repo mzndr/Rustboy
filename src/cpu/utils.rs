@@ -1,17 +1,14 @@
 /// Split a 16 bit unsigned integer into two
 /// 8 bit integers.
 pub fn split_u16(to_split: u16) -> (u8, u8) {
-    let left: u8 = (to_split >> 8) as u8;
-    let right: u8 = to_split as u8;
-    (left, right)
+    let split = to_split.to_be_bytes();
+    (split[0], split[1])
 }
 
 /// Merges two 8 bit unsigned integers into
 /// one 16 bit integer.
 pub fn merge_u8s(left: u8, right: u8) -> u16 {
-    let r1 = (left as u16) << 8;
-    let r0 = right as u16;
-    r0 | r1
+    u16::from_be_bytes([left, right])
 }
 
 #[cfg(test)]

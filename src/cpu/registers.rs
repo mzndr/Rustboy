@@ -1,10 +1,10 @@
 use super::utils;
 use std::fmt;
 
-const FLAG_Z_INDEX: u8 = 7;
-const FLAG_N_INDEX: u8 = 6;
-const FLAG_H_INDEX: u8 = 5;
-const FLAG_C_INDEX: u8 = 4;
+const FLAG_Z_INDEX: u8 = 0x07;
+const FLAG_N_INDEX: u8 = 0x06;
+const FLAG_H_INDEX: u8 = 0x05;
+const FLAG_C_INDEX: u8 = 0x04;
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Registers {
@@ -46,7 +46,7 @@ impl Registers {
         self.f &= !mask;
         // OR the value (1 or 0) onto the bitstring,
         // at the desired position.
-        self.f |= (val as u8) << index;
+        self.f |= (u8::from(val)) << index;
     }
     pub fn get_flag_at_index(&self, index: u8) -> bool {
         let mask: u8 = 1 << index;
@@ -72,12 +72,12 @@ impl Registers {
         self.c = split.1;
     }
 
-    // Gets the de rgister.
+    /// Gets the de rgister.
     pub fn get_de(&self) -> u16 {
         utils::merge_u8s(self.d, self.e)
     }
 
-    // Sets the de rgister.
+    /// Sets the de rgister.
     pub fn set_de(&mut self, val: u16) {
         let split = utils::split_u16(val);
         self.d = split.0;
@@ -172,47 +172,47 @@ mod tests {
     #[test]
     fn get_register_logic() {
         let mut r = Registers::new();
-        r.f = 0b00100000;
-        assert_eq!(r.get_flag_at_index(5), true);
-        r.f = 0b11011111;
-        assert_eq!(r.get_flag_at_index(5), false);
+        r.f = 0b0010_0000;
+        assert!(r.get_flag_at_index(5));
+        r.f = 0b1101_1111;
+        assert!(!r.get_flag_at_index(5));
     }
 
     #[test]
     fn set_register_logic_0_1() {
         let mut r = Registers::new();
-        r.f = 0b00000000;
+        r.f = 0b0000_0000;
         r.set_flag_at_index(5, true);
-        let expected: u8 = 0b00100000;
+        let expected: u8 = 0b0010_0000;
         assert_eq!(r.f, expected);
     }
 
     #[test]
     fn set_register_logic_1_1() {
         let mut r = Registers::new();
-        r.f = 0b00100000;
+        r.f = 0b0010_0000;
         r.set_flag_at_index(5, true);
-        let expected: u8 = 0b00100000;
+        let expected: u8 = 0b0010_0000;
         assert_eq!(r.f, expected);
     }
 
     #[test]
     fn set_register_logic_1_0() {
         let mut r = Registers::new();
-        r.f = 0b11111111;
+        r.f = 0b1111_1111;
         r.set_flag_at_index(5, false);
-        let expected: u8 = 0b11011111;
+        let expected: u8 = 0b1101_1111;
         assert_eq!(r.f, expected);
     }
 
     #[test]
     fn set_register_logic_0_0() {
         let mut r = Registers::new();
-        r.f = 0b11011111;
+        r.f = 0b1101_1111;
         println!("{:b}", r.f);
         r.set_flag_at_index(5, false);
         println!("{:b}", r.f);
-        let expected: u8 = 0b11011111;
+        let expected: u8 = 0b1101_1111;
         assert_eq!(r.f, expected);
     }
 
