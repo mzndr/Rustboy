@@ -23,7 +23,7 @@ pub struct Registers {
 
 impl Registers {
     pub fn new() -> Registers {
-        return Registers {
+        Registers {
             a: 0x00,
             f: 0x00,
             b: 0x00,
@@ -34,7 +34,7 @@ impl Registers {
             l: 0x00,
             sp: 0x000,
             pc: 0x100,
-        };
+        }
     }
 
     pub fn set_flag_at_index(&mut self, index: u8, val: bool) {
@@ -50,10 +50,10 @@ impl Registers {
     }
     pub fn get_flag_at_index(&self, index: u8) -> bool {
         let mask: u8 = 1 << index;
-        return ((self.f & mask) >> index) == 1;
+        ((self.f & mask) >> index) == 1
     }
     pub fn get_af(&self) -> u16 {
-        return utils::merge_u8s(self.a, self.f);
+        utils::merge_u8s(self.a, self.f)
     }
 
     pub fn set_af(&mut self, val: u16) {
@@ -63,7 +63,7 @@ impl Registers {
     }
 
     pub fn get_bc(&self) -> u16 {
-        return utils::merge_u8s(self.b, self.c);
+        utils::merge_u8s(self.b, self.c)
     }
 
     pub fn set_bc(&mut self, val: u16) {
@@ -74,7 +74,7 @@ impl Registers {
 
     // Gets the de rgister.
     pub fn get_de(&self) -> u16 {
-        return utils::merge_u8s(self.d, self.e);
+        utils::merge_u8s(self.d, self.e)
     }
 
     // Sets the de rgister.
@@ -86,7 +86,7 @@ impl Registers {
 
     /// Gets the hl register.
     pub fn get_hl(&self) -> u16 {
-        return utils::merge_u8s(self.h, self.l);
+        utils::merge_u8s(self.h, self.l)
     }
 
     /// Gets the sp register.
@@ -98,7 +98,7 @@ impl Registers {
 
     /// Gets the sp register.
     pub fn get_sp(&self) -> u16 {
-        return self.sp;
+        self.sp
     }
 
     /// Sets the sp register.
@@ -108,7 +108,7 @@ impl Registers {
 
     /// Gets the pc register.
     pub fn get_pc(&self) -> u16 {
-        return self.pc;
+        self.pc
     }
 
     /// Sets the pc register.
@@ -118,7 +118,7 @@ impl Registers {
 
     /// FLAGS
     pub fn get_flag_z(&self) -> bool {
-        return self.get_flag_at_index(FLAG_Z_INDEX);
+        self.get_flag_at_index(FLAG_Z_INDEX)
     }
 
     pub fn set_flag_z(&mut self, val: bool) {
@@ -126,7 +126,7 @@ impl Registers {
     }
 
     pub fn get_flag_n(&self) -> bool {
-        return self.get_flag_at_index(FLAG_N_INDEX);
+        self.get_flag_at_index(FLAG_N_INDEX)
     }
 
     pub fn set_flag_n(&mut self, val: bool) {
@@ -134,7 +134,7 @@ impl Registers {
     }
 
     pub fn get_flag_h(&self) -> bool {
-        return self.get_flag_at_index(FLAG_H_INDEX);
+        self.get_flag_at_index(FLAG_H_INDEX)
     }
 
     pub fn set_flag_h(&mut self, val: bool) {
@@ -142,7 +142,7 @@ impl Registers {
     }
 
     pub fn get_flag_c(&self) -> bool {
-        return self.get_flag_at_index(FLAG_C_INDEX);
+        self.get_flag_at_index(FLAG_C_INDEX)
     }
 
     pub fn set_flag_c(&mut self, val: bool) {
@@ -152,7 +152,7 @@ impl Registers {
 
 impl fmt::Display for Registers {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        return write!(
+        write!(
             f,
             "AF: 0x{:x} BC: 0x{:x} DE: 0x{:x} HL: 0x{:x} SP: 0x{:x} PC: 0x{:x}",
             self.get_af(),
@@ -161,7 +161,7 @@ impl fmt::Display for Registers {
             self.get_hl(),
             self.get_sp(),
             self.get_pc(),
-        );
+        )
     }
 }
 
