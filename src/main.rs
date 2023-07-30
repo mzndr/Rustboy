@@ -8,6 +8,7 @@
 // - Take ROM_PATH from args.
 // - Create actual errors instead of anyhow errors.
 // - Add tracing library, and add more tracing.
+// - Add more tests, especially for scary stuff like carry flag detection.
 
 mod cpu;
 use crate::cpu::Cpu;
