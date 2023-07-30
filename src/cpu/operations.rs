@@ -5,14 +5,14 @@ impl Cpu {
     /// Reads from wram at address.
     pub fn read(&self, address: u16) -> u8 {
         let u_addr = address as usize;
-        self.check_address(address);
+        Self::check_address(address);
         self.wram[u_addr]
     }
 
     /// Writes u8 to wram at address.
     pub fn write_u8(&mut self, address: u16, val: u8) {
         let u_addr = address as usize;
-        self.check_address(address);
+        Self::check_address(address);
         self.wram[u_addr] = val;
     }
 
@@ -40,19 +40,19 @@ impl Cpu {
     }
 
     /// Sets the bit specified in pos {0-7} of byte
-    pub fn set_nth_bit(&mut self, pos: u8, byte: u8) -> u8 {
+    pub fn set_nth_bit(pos: u8, byte: u8) -> u8 {
         if pos > 7 {
             // TODO: Throw error or something.
         }
-        let mask: u8 = 0b1000000 >> pos;
+        let mask: u8 = 0b100_0000 >> pos;
         byte | mask
     }
 
-    pub fn inc16(&mut self, val: u16) -> u16 {
+    pub fn inc16(val: u16) -> u16 {
         val.wrapping_add(1)
     }
 
-    pub fn dec16(&mut self, val: u16) -> u16 {
+    pub fn dec16(val: u16) -> u16 {
         val.wrapping_sub(1)
     }
 
@@ -76,7 +76,7 @@ impl Cpu {
     pub fn add16(&mut self, val: u16) {
         let hl = self.registers.get_hl();
         let h = (((val & 0xFFF) + (hl & 0xFFF)) & 0x1000) == 0x1000;
-        let c  = val as u32 + hl as u32 > 0xFFFF;
+        let c = u32::from(val) + u32::from(hl) > 0xFFFF;
         self.registers.set_flag_h(h);
         self.registers.set_flag_c(c);
         self.registers.set_flag_n(false);
@@ -85,12 +85,12 @@ impl Cpu {
 
     // 8 bit addition with carry flag and value
     pub fn add8c(&mut self, val: u8) {
-        self.add8(val.wrapping_add(self.registers.get_flag_c() as u8));
+        self.add8(val.wrapping_add(self.registers.get_flag_c().into()));
     }
 
     // 8 bit sub with carry flag and value
     pub fn sub8c(&mut self, val: u8) {
-        self.sub8(val.wrapping_sub(self.registers.get_flag_c() as u8));
+        self.sub8(val.wrapping_sub(self.registers.get_flag_c().into()));
     }
 
     /// Adds two value with A, sets flags, and stores result in A
@@ -116,8 +116,8 @@ impl Cpu {
     /// Subs a value with HL and stores it in HL.
     pub fn sub16(&mut self, val: u16) {
         let hl = self.registers.get_hl();
-        let h = (((val & 0xFFF) - (val & 0xFFF)) & 0x1000) == 0x1000;
-        let c  = val as u32 + hl as u32 > 0xFFFF;
+        let h = (((val & 0xFFF) - (hl & 0xFFF)) & 0x1000) == 0x1000;
+        let c: bool = u32::from(val) + u32::from(hl) > 0xFFFF;
         self.registers.set_flag_h(h);
         self.registers.set_flag_c(c);
         self.registers.set_flag_n(true);
@@ -128,12 +128,11 @@ impl Cpu {
     pub fn jp(&mut self, address: u16) {
         self.registers.set_pc(address);
     }
-    
+
     /// Relative jump by adding val to PC
     pub fn jr(&mut self, val: u16) {
         self.registers.pc += val;
     }
-
 
     /// Xors value with a register and sets flags.
     pub fn xor(&mut self, val: u8) {
@@ -148,4 +147,5 @@ impl Cpu {
 #[cfg(test)]
 mod tests {
     // TODO: Add tests
+    // Especially for carry flag detection
 }
