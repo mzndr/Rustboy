@@ -7,3 +7,5 @@ edition = "2021"
 
 [dependencies]
 anyhow = "1.0.72"
+tokio = { version = "1.29.1", features = ["full"] }
+tracing = "0.1.37"
