@@ -58,7 +58,7 @@ impl Cpu {
 
     pub fn inc8(&mut self, val: u8) -> u8 {
         let w = val.wrapping_add(1);
-        self.registers.set_flag_h(w & 0xf == 0xf);
+        self.registers.set_flag_h(Self::is_u8_hc(w));
         self.registers.set_flag_z(w == 0);
         self.registers.set_flag_n(false);
         w
@@ -66,7 +66,7 @@ impl Cpu {
 
     pub fn dec8(&mut self, val: u8) -> u8 {
         let w = val.wrapping_sub(1);
-        self.registers.set_flag_h(w & 0xf == 0xf);
+        self.registers.set_flag_h(Self::is_u8_hc(w));
         self.registers.set_flag_z(w == 0);
         self.registers.set_flag_n(true);
         w
@@ -76,7 +76,7 @@ impl Cpu {
     pub fn add16(&mut self, val: u16) {
         let hl = self.registers.get_hl();
         let sum = val.wrapping_add(hl);
-        self.registers.set_flag_h(sum & 0x10 == 0x10);
+        self.registers.set_flag_h(Self::is_u16_hc(sum));
         self.registers.set_flag_c(u32::from(val) + u32::from(hl) > 0xFFFF);
         self.registers.set_flag_n(false);
         self.registers.set_hl(sum);
@@ -116,7 +116,7 @@ impl Cpu {
     pub fn sub16(&mut self, val: u16) {
         let hl = self.registers.get_hl();
         let result = val.wrapping_sub(hl);
-        self.registers.set_flag_h(result & 0x1000 == 0x1000);
+        self.registers.set_flag_h(Self::is_u16_hc(result));
         self.registers.set_flag_c(u32::from(val) + u32::from(hl) > 0xFFFF);
         self.registers.set_flag_n(true);
         self.registers.set_hl(result);
@@ -139,6 +139,13 @@ impl Cpu {
         self.registers.set_flag_n(false);
         self.registers.set_flag_h(false);
         self.registers.set_flag_c(false);
+    }
+
+    fn is_u8_hc(val: u8) -> bool {
+            val & 0x10 == 0x10
+    }
+    fn is_u16_hc(val: u16) -> bool {
+            val & 0x1000 == 0x1000
     }
 }
 
