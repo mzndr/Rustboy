@@ -75,12 +75,11 @@ impl Cpu {
     /// Adds a value with HL and stores it in HL.
     pub fn add16(&mut self, val: u16) {
         let hl = self.registers.get_hl();
-        let h = (((val & 0xFFF) + (hl & 0xFFF)) & 0x1000) == 0x1000;
-        let c = u32::from(val) + u32::from(hl) > 0xFFFF;
-        self.registers.set_flag_h(h);
-        self.registers.set_flag_c(c);
+        let sum = val.wrapping_add(hl);
+        self.registers.set_flag_h(sum & 0x10 == 0x10);
+        self.registers.set_flag_c(u32::from(val) + u32::from(hl) > 0xFFFF);
         self.registers.set_flag_n(false);
-        self.registers.set_hl(val.wrapping_add(hl));
+        self.registers.set_hl(sum);
     }
 
     // 8 bit addition with carry flag and value
@@ -116,12 +115,11 @@ impl Cpu {
     /// Subs a value with HL and stores it in HL.
     pub fn sub16(&mut self, val: u16) {
         let hl = self.registers.get_hl();
-        let h = (((val & 0xFFF) - (hl & 0xFFF)) & 0x1000) == 0x1000;
-        let c: bool = u32::from(val) + u32::from(hl) > 0xFFFF;
-        self.registers.set_flag_h(h);
-        self.registers.set_flag_c(c);
+        let result = val.wrapping_sub(hl);
+        self.registers.set_flag_h(result & 0x1000 == 0x1000);
+        self.registers.set_flag_c(u32::from(val) + u32::from(hl) > 0xFFFF);
         self.registers.set_flag_n(true);
-        self.registers.set_hl(val.wrapping_sub(hl));
+        self.registers.set_hl(result);
     }
 
     /// Absolute jump by setting PC to address
