@@ -141,11 +141,12 @@ impl Cpu {
         self.registers.set_flag_c(false);
     }
 
-    fn is_u8_hc(val: u8) -> bool {
-            val & 0x10 == 0x10
+    fn is_add_u8_hc(left: u8, right: u8) -> bool {
+        ((left & 0xf) + (right & 0xf)) & 0x10 == 0x10
     }
-    fn is_u16_hc(val: u16) -> bool {
-            val & 0x1000 == 0x1000
+
+    fn is_add_u16_hc(left: u16, right: u16) -> bool {
+        ((left & 0xff) + (right & 0xff)) & 0x100 == 0x100
     }
 }
 
