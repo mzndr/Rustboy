@@ -58,7 +58,7 @@ impl Cpu {
 
     pub fn inc8(&mut self, val: u8) -> u8 {
         let w = val.wrapping_add(1);
-        self.registers.set_flag_h(Self::is_u8_hc(w));
+        self.registers.set_flag_h(Self::check_add_u8_hc(w, 1));
         self.registers.set_flag_z(w == 0);
         self.registers.set_flag_n(false);
         w
@@ -66,7 +66,7 @@ impl Cpu {
 
     pub fn dec8(&mut self, val: u8) -> u8 {
         let w = val.wrapping_sub(1);
-        self.registers.set_flag_h(Self::is_u8_hc(w));
+        self.registers.set_flag_h(Self::check_sub_u8_hc(w, 1));
         self.registers.set_flag_z(w == 0);
         self.registers.set_flag_n(true);
         w
@@ -76,7 +76,7 @@ impl Cpu {
     pub fn add16(&mut self, val: u16) {
         let hl = self.registers.get_hl();
         let sum = val.wrapping_add(hl);
-        self.registers.set_flag_h(Self::is_u16_hc(sum));
+        self.registers.set_flag_h(Self::check_add_u16_hc(val, hl));
         self.registers.set_flag_c(u32::from(val) + u32::from(hl) > 0xFFFF);
         self.registers.set_flag_n(false);
         self.registers.set_hl(sum);
@@ -106,20 +106,10 @@ impl Cpu {
     pub fn sub8(&mut self, val: u8) {
         let a = self.registers.a;
         let result = a.wrapping_sub(val);
-        self.registers.set_flag_h(result & 0xf == 0xf);
+        self.registers.set_flag_h(Self::check_sub_u8_hc(a, val));
         self.registers.set_flag_z(result == 0);
         self.registers.set_flag_n(true);
         self.registers.a = result;
-    }
-
-    /// Subs a value with HL and stores it in HL.
-    pub fn sub16(&mut self, val: u16) {
-        let hl = self.registers.get_hl();
-        let result = val.wrapping_sub(hl);
-        self.registers.set_flag_h(Self::is_u16_hc(result));
-        self.registers.set_flag_c(u32::from(val) + u32::from(hl) > 0xFFFF);
-        self.registers.set_flag_n(true);
-        self.registers.set_hl(result);
     }
 
     /// Absolute jump by setting PC to address
@@ -141,19 +131,19 @@ impl Cpu {
         self.registers.set_flag_c(false);
     }
 
-    fn is_add_u8_hc(left: u8, right: u8) -> bool {
+    fn check_add_u8_hc(left: u8, right: u8) -> bool {
         ((left & 0xf) + (right & 0xf)) & 0x10 == 0x10
     }
 
-    fn is_add_u16_hc(left: u16, right: u16) -> bool {
+    fn check_add_u16_hc(left: u16, right: u16) -> bool {
         ((left & 0xff) + (right & 0xff)) & 0x100 == 0x100
     }
 
-    fn is_sub_u8_hc(left: u8, right: u8) -> bool {
+    fn check_sub_u8_hc(left: u8, right: u8) -> bool {
         ((left & 0xf) - (right & 0xf)) & 0x10 == 0x10
     }
 
-    fn is_sub_u16_hc(left: u16, right: u16) -> bool {
+    fn check_sub_u16_hc(left: u16, right: u16) -> bool {
         ((left & 0xff) - (right & 0xff)) & 0x100 == 0x100
     }
 }
