@@ -31,7 +31,7 @@ impl Cpu {
     /// prints an error message and quits if not.
     fn check_address(address: u16) {
         if address as usize >= WRAM_SIZE {
-            println!(
+            tracing::error!(
                 "Memory access at 0x{:x} out of bounds. Valid address space: (0x0000-0x{:x}).",
                 address,
                 WRAM_SIZE - 1
@@ -43,14 +43,14 @@ impl Cpu {
     /// Unknown instruction.
     /// TODO: Dump cpu state to log file.
     fn opcode_unknown(opcode: u8) -> u8 {
-        println!("Unknown instruction 0x{opcode:x}!");
+        tracing::error!("Unknown instruction 0x{opcode:x}!");
         0
     }
 
     /// Unknown instruction.
     /// TODO: Dump cpu state to log file.
     fn cb_opcode_unknown(opcode: u8) -> u8 {
-        println!("Unknown extended instruction 0xcb{opcode:x}!");
+        tracing::error!("Unknown extended instruction 0xcb{opcode:x}!");
         0
     }
 
@@ -65,6 +65,7 @@ impl Cpu {
 
     /// Initialize cpu memory
     pub fn new() -> Cpu {
+        tracing::info!("initializing cpu");
         Cpu {
             registers: registers::Registers::new(),
             wram: [0x00; WRAM_SIZE],
@@ -77,19 +78,18 @@ impl Cpu {
     fn execute_current_instruction(&mut self) -> anyhow::Result<u8> {
         let pc = self.registers.get_pc();
         let instruction = self.read_u8_at_pc_and_increase();
-        print!("[0x{pc:x}] Executing instruction 0x{instruction:x}... ");
+        tracing::trace!("[0x{pc:x}] Executing instruction 0x{instruction:x}... ");
         let cycled_needed = self.exec_instruction(instruction)?;
 
         // Something went wrong when no cycles were needed.
         if cycled_needed == 0 {
-            println!(
+            tracing::error!(
                 "Something went wrong while executing instruction 0x{instruction:x}! Exiting..."
             );
             process::exit(-1);
         }
 
-        println!("Needed {cycled_needed} cycles.");
-
+        tracing::trace!("Needed {cycled_needed} cycles.");
         Ok(cycled_needed)
     }
 

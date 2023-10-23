@@ -209,9 +209,7 @@ mod tests {
     fn set_register_logic_0_0() {
         let mut r = Registers::new();
         r.f = 0b1101_1111;
-        println!("{:b}", r.f);
         r.set_flag_at_index(5, false);
-        println!("{:b}", r.f);
         let expected: u8 = 0b1101_1111;
         assert_eq!(r.f, expected);
     }
