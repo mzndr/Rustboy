@@ -20,6 +20,7 @@ const CLOCK_SPEED: f32 = 4100f32;
 const ROM_PATH: &str = "./files/roms/Tetris.gb";
 
 fn main() -> anyhow::Result<()> {
+    tracing_subscriber::fmt::init();
     let mut cpu = Cpu::new();
     cpu.load_rom(fs::read(path::Path::new(ROM_PATH))?.as_slice());
     clock_loop(&mut cpu)?;
