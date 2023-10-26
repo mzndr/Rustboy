@@ -119,8 +119,8 @@ impl Cpu {
     }
 
     /// Relative jump by adding val to PC
-    pub fn jr(&mut self, val: u16) {
-        self.registers.pc += val;
+    pub fn jr(&mut self, val: u8) {
+        self.registers.pc = self.registers.pc.wrapping_add(val.into());
     }
 
     /// Xors value with a register and sets flags.
