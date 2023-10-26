@@ -150,6 +150,30 @@ impl Cpu {
 
 #[cfg(test)]
 mod tests {
-    // TODO: Add tests
-    // Especially for carry flag detection
+    use crate::cpu::Cpu;
+
+    #[test]
+    fn test_check_add_u8_hc() {
+        assert!(Cpu::check_add_u8_hc(1, 0xF));
+        assert!(!Cpu::check_add_u8_hc(1, 0xE));
+    }
+
+    #[test]
+    fn test_check_add_u16_hc() {
+        assert!(Cpu::check_add_u16_hc(0xFF, 1));
+        assert!(!Cpu::check_add_u16_hc(0xFE, 1));
+    }
+
+    #[test]
+    fn test_check_sub_u8_hc() {
+        assert!(Cpu::check_sub_u8_hc(1, 0xF));
+        assert!(!Cpu::check_sub_u8_hc(0xF, 0xE));
+    }
+
+    #[test]
+    fn test_check_sub_u16_hc() {
+        assert!(Cpu::check_sub_u16_hc(1, 0xFF));
+        assert!(!Cpu::check_sub_u16_hc(0xFF, 0xFE));
+    }
+
 }
