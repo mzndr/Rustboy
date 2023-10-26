@@ -11,12 +11,15 @@ use time::Duration;
 const CLOCK_SPEED: f32 = 4100f32;
 const ROM_PATH: &str = "./files/roms/Tetris.gb";
 
-fn main() -> anyhow::Result<()> {
+fn main() {
     tracing_subscriber::fmt::init();
     let mut cpu = Cpu::new();
-    cpu.load_rom(fs::read(path::Path::new(ROM_PATH))?.as_slice());
+    cpu.load_rom(
+        fs::read(path::Path::new(ROM_PATH))
+            .expect("cannot read ROM")
+            .as_slice(),
+    );
     clock_loop(&mut cpu);
-    Ok(())
 }
 
 /// Executed in loop at roughly 4mhz.
@@ -42,7 +45,11 @@ fn clock_loop(cpu: &mut Cpu) {
 }
 
 //TODO: Actually properly convert values
-#[allow(clippy::cast_precision_loss, clippy::cast_sign_loss, clippy::cast_possible_truncation)]
+#[allow(
+    clippy::cast_precision_loss,
+    clippy::cast_sign_loss,
+    clippy::cast_possible_truncation
+)]
 fn sleep_till_next_cycle(start: time::Instant) {
     let cycles_per_ms: f32 = CLOCK_SPEED / 1000.0; // 1mhz
     let after = time::Instant::now();
