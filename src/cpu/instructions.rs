@@ -130,7 +130,7 @@ impl Cpu {
             0xC3 => self.jp_a16(),
             0xCB => self.exec_cb_instruction()?,
 
-            _ => anyhow::bail!("Unknown opcode: {opcode}"),
+            _ => anyhow::bail!("Unknown opcode: 0x{opcode:x}"),
         })
     }
 
@@ -138,7 +138,7 @@ impl Cpu {
         let opcode = self.read_u8_at_pc_and_increase();
         Ok(match opcode {
             0xFE => self.set_7_hlp(),
-            _ => anyhow::bail!("Unknown opcode: {opcode}"),
+            _ => anyhow::bail!("Unknown extended opcode: 0xCB{opcode:x}"),
         })
     }
 
