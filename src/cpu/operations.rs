@@ -41,9 +41,7 @@ impl Cpu {
 
     /// Sets the bit specified in pos {0-7} of byte
     pub fn set_nth_bit(pos: u8, byte: u8) -> u8 {
-        if pos > 7 {
-            // TODO: Throw error or something.
-        }
+        assert!(pos <= 7);
         let mask: u8 = 0b100_0000 >> pos;
         byte | mask
     }
