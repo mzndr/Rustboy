@@ -15,7 +15,7 @@ fn main() -> anyhow::Result<()> {
     tracing_subscriber::fmt::init();
     let mut cpu = Cpu::new();
     cpu.load_rom(fs::read(path::Path::new(ROM_PATH))?.as_slice());
-    clock_loop(&mut cpu)?;
+    clock_loop(&mut cpu);
     Ok(())
 }
 
@@ -23,19 +23,18 @@ fn main() -> anyhow::Result<()> {
 fn clock_cycle() {}
 
 /// Executed every 4 clock clycles or roughly 1mhz.
-fn machine_cycle(cpu: &mut Cpu) -> anyhow::Result<()> {
-    cpu.cycle()?;
-    Ok(())
+fn machine_cycle(cpu: &mut Cpu) {
+    cpu.cycle();
 }
 
-fn clock_loop(cpu: &mut Cpu) -> anyhow::Result<()> {
+fn clock_loop(cpu: &mut Cpu) {
     let mut cycles: u8 = 1;
     loop {
         let start = time::Instant::now();
         clock_cycle();
         if cycles == 4 {
             cycles = 0;
-            machine_cycle(cpu)?;
+            machine_cycle(cpu);
         }
         sleep_till_next_cycle(start);
         cycles += 1;

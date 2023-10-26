@@ -61,11 +61,11 @@ impl Cpu {
 
     /// Handles an instruction according to specifications.
     /// For specifications see: <https://www.pastraiser.com/cpu/gameboy/gameboy_opcodes.html>
-    fn execute_current_instruction(&mut self) -> anyhow::Result<u8> {
+    fn execute_current_instruction(&mut self) -> u8 {
         let pc = self.registers.get_pc();
         let instruction = self.read_u8_at_pc_and_increase();
         tracing::trace!("[0x{pc:x}] Executing instruction 0x{instruction:x}... ");
-        let cycled_needed = self.exec_instruction(instruction)?;
+        let cycled_needed = self.exec_instruction(instruction);
 
         // Something went wrong when no cycles were needed.
         if cycled_needed == 0 {
@@ -76,16 +76,15 @@ impl Cpu {
         }
 
         tracing::trace!("Needed {cycled_needed} cycles.");
-        Ok(cycled_needed)
+        cycled_needed
     }
 
     // Execute a machine cycle.
-    pub fn cycle(&mut self) -> anyhow::Result<()> {
+    pub fn cycle(&mut self) {
         if self.busy_for == 0 {
-            self.busy_for = self.execute_current_instruction()?;
+            self.busy_for = self.execute_current_instruction();
         } else {
             self.busy_for -= 1;
         }
-        Ok(())
     }
 }

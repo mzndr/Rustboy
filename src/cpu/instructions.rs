@@ -2,8 +2,8 @@ use super::Cpu;
 
 impl Cpu {
     #[allow(clippy::too_many_lines)]
-    pub fn exec_instruction(&mut self, opcode: u8) -> anyhow::Result<u8> {
-        Ok(match opcode {
+    pub fn exec_instruction(&mut self, opcode: u8) -> u8 {
+        match opcode {
             0x00 => Self::nop(),
             0x01 => self.ld_bc_d16(),
             0x02 => self.ld_bcp_a(),
@@ -127,18 +127,18 @@ impl Cpu {
             0x9F => self.sbc_a_a(),
             0xAF => self.xor_a(),
             0xC3 => self.jp_a16(),
-            0xCB => self.exec_cb_instruction()?,
+            0xCB => self.exec_cb_instruction(),
 
-            _ => anyhow::bail!("Unknown opcode: 0x{opcode:x}"),
-        })
+            _ => panic!("Unknown opcode: 0x{opcode:x}"),
+        }
     }
 
-    pub fn exec_cb_instruction(&mut self) -> anyhow::Result<u8> {
+    pub fn exec_cb_instruction(&mut self) -> u8 {
         let opcode = self.read_u8_at_pc_and_increase();
-        Ok(match opcode {
+        match opcode {
             0xFE => self.set_7_hlp(),
-            _ => anyhow::bail!("Unknown extended opcode: 0xCB{opcode:x}"),
-        })
+            _ => panic!("Unknown extended opcode: 0xCB{opcode:x}"),
+        }
     }
 
     /// OP-Code: `0x80`
