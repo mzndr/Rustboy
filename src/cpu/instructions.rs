@@ -3,7 +3,6 @@ use super::Cpu;
 impl Cpu {
     #[allow(clippy::too_many_lines)]
     pub fn exec_instruction(&mut self, opcode: u8) -> anyhow::Result<u8> {
-        //TODO: Add actual error
         Ok(match opcode {
             0x00 => Self::nop(),
             0x01 => self.ld_bc_d16(),
