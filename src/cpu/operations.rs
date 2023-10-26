@@ -77,7 +77,8 @@ impl Cpu {
         let hl = self.registers.get_hl();
         let sum = val.wrapping_add(hl);
         self.registers.set_flag_h(Self::check_add_u16_hc(val, hl));
-        self.registers.set_flag_c(u32::from(val) + u32::from(hl) > 0xFFFF);
+        self.registers
+            .set_flag_c(u32::from(val) + u32::from(hl) > 0xFFFF);
         self.registers.set_flag_n(false);
         self.registers.set_hl(sum);
     }
@@ -179,5 +180,4 @@ mod tests {
         assert!(Cpu::check_sub_u16_hc(1, 0xFF));
         assert!(!Cpu::check_sub_u16_hc(0xFF, 0xFE));
     }
-
 }
