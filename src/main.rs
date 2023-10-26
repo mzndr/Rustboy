@@ -2,13 +2,6 @@
 #![deny(nonstandard_style)]
 #![warn(clippy::pedantic, clippy::unwrap_used)]
 
-// TODO:
-// - Add tokio runtime, and make cpu async.
-// - Take ROM_PATH from args.
-// - Create actual errors instead of anyhow errors.
-// - Add tracing library, and add more tracing.
-// - Add more tests, especially for scary stuff like carry flag detection.
-
 mod cpu;
 use crate::cpu::Cpu;
 use std::{fs, path};
@@ -56,7 +49,7 @@ fn sleep_till_next_cycle(start: time::Instant) {
     let after = time::Instant::now();
     let passed = after - start;
     let passed_nano = passed.as_nanos();
-    let sleep_needed = Duration::from_nanos(((1000.0 / cycles_per_ms) - passed_nano as f32) as u64);
+    let delta = Duration::from_nanos(((1000.0 / cycles_per_ms) - passed_nano as f32) as u64);
 
-    thread::sleep(sleep_needed);
+    thread::sleep(delta);
 }
