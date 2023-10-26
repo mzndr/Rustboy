@@ -18,8 +18,10 @@ impl Cpu {
             0x13 => self.inc_de(),
             0x14 => self.inc_d(),
             0x15 => self.dec_d(),
+            0x18 => self.jr_r8(),
             0x19 => self.add_hl_de(),
             0x1D => self.dec_e(),
+            0x1F => self.rra(),
             0x20 => self.jr_nz_r8(),
             0x21 => self.ld_hl_d16(),
             0x22 => self.ld_hlp_inc_a(),
@@ -28,6 +30,8 @@ impl Cpu {
             0x25 => self.dec_h(),
             0x29 => self.add_hl_hl(),
             0x2C => self.inc_l(),
+            0x2D => self.dec_l(),
+            0x2E => self.ld_l_d8(),
             0x32 => self.ld_hlp_dec_a(),
             0x33 => self.inc_sp(),
             0x3E => self.ld_a_d8(),
@@ -422,6 +426,13 @@ impl Cpu {
         1
     }
 
+    /// OP-Code: `0x2D`
+    /// Mnemonic: `DEC L`
+    pub fn dec_l(&mut self) -> u8 {
+        self.registers.h = self.dec8(self.registers.l);
+        1
+    }
+
     /// OP-Code: `0x35`
     /// Mnemonic: `DEC (HL)`
     pub fn dec_hlp(&mut self) -> u8 {
@@ -477,7 +488,7 @@ impl Cpu {
         let a = self.registers.a;
         self.registers.set_flag_c(((a & 0b1000_0000) >> 7) == 1);
         self.registers.a = a.rotate_left(1);
-        self.registers.set_flag_z(false);
+        self.registers.set_flag_z(self.registers.a == 0);
         self.registers.set_flag_n(false);
         self.registers.set_flag_h(false);
         2
@@ -509,6 +520,14 @@ impl Cpu {
         2
     }
 
+    /// OP-Code: `0x18`
+    /// Mnemonic: `JR r8`
+    pub fn jr_r8(&mut self) -> u8 {
+        let val = self.read_u8_at_pc_and_increase();
+        self.jr(val);
+        3
+    }
+
     /// OP-Code: `0x19`
     /// Mnemonic: `ADD HL, DE`
     pub fn add_hl_de(&mut self) -> u8 {
@@ -524,10 +543,22 @@ impl Cpu {
         1
     }
 
+    /// OP-Code: `0x1F`
+    /// Mnemonic: `RRA`
+    pub fn rra(&mut self) -> u8 {
+        let a = self.registers.a;
+        self.registers.set_flag_c(((a & 0b1000_0000) << 7) == 1);
+        self.registers.a = a.rotate_right(1);
+        self.registers.set_flag_z(false);
+        self.registers.set_flag_n(false);
+        self.registers.set_flag_h(false);
+        1
+    }
+
     /// OP-Code: `0x20`
     /// Mnemonic: `JR NZ, r8`
     pub fn jr_nz_r8(&mut self) -> u8 {
-        let val = self.read_u16_at_pc_and_increase();
+        let val = self.read_u8_at_pc_and_increase();
         if !self.registers.get_flag_z() {
             self.jr(val);
             return 3;
@@ -575,6 +606,14 @@ impl Cpu {
         self.registers.l = self.inc8(self.registers.l);
         1
     }
+
+    /// OP-Code: `0x2E`
+    /// Mnemonic: `LD L, d8`
+    pub fn ld_l_d8(&mut self) -> u8 {
+        self.registers.l = self.read_u8_at_pc_and_increase();
+        2
+    }
+
 
     /// OP-Code: `0x32`
     /// Mnemonic: `INC Sd16P`
