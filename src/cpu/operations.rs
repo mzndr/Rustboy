@@ -48,10 +48,12 @@ impl Cpu {
         byte | mask
     }
 
+    /// Wrappingly increase a 16 bit value by one.
     pub fn inc16(val: u16) -> u16 {
         val.wrapping_add(1)
     }
 
+    /// Wrappingly decrease a 16 bit value by one.
     pub fn dec16(val: u16) -> u16 {
         val.wrapping_sub(1)
     }
@@ -131,18 +133,22 @@ impl Cpu {
         self.registers.set_flag_c(false);
     }
 
+    /// Check for u8 half carries on additions. (carry from 3rd to 4th bit).
     fn check_add_u8_hc(left: u8, right: u8) -> bool {
         ((left & 0xf).wrapping_add(right & 0xf)) & 0x10 == 0x10
     }
 
+    /// Check for u8 half carries on additions. (carry from 7th to 8th bit).
     fn check_add_u16_hc(left: u16, right: u16) -> bool {
         ((left & 0xff).wrapping_add(right & 0xff)) & 0x100 == 0x100
     }
 
+    /// Check for u8 half carries on subtractions. (carry from 3rd to 4th bit).
     fn check_sub_u8_hc(left: u8, right: u8) -> bool {
         ((left & 0xf).wrapping_sub(right & 0xf)) & 0x10 == 0x10
     }
 
+    /// Check for u8 half carries on subtractions. (carry from 7th to 8th bit).
     fn check_sub_u16_hc(left: u16, right: u16) -> bool {
         ((left & 0xff).wrapping_sub(right & 0xff)) & 0x100 == 0x100
     }
