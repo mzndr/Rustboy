@@ -40,20 +40,6 @@ impl Cpu {
         }
     }
 
-    /// Unknown instruction.
-    /// TODO: Dump cpu state to log file.
-    fn opcode_unknown(opcode: u8) -> u8 {
-        tracing::error!("Unknown instruction 0x{opcode:x}!");
-        0
-    }
-
-    /// Unknown instruction.
-    /// TODO: Dump cpu state to log file.
-    fn cb_opcode_unknown(opcode: u8) -> u8 {
-        tracing::error!("Unknown extended instruction 0xcb{opcode:x}!");
-        0
-    }
-
     /// Needs to be changed for bigger games, since they
     /// are too big to fit into ram, so banking has to be
     /// implemented.
