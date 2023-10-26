@@ -1,7 +1,6 @@
 #![forbid(unsafe_code)]
 #![deny(nonstandard_style)]
 #![warn(clippy::pedantic, clippy::unwrap_used)]
-#![allow(dead_code)]
 
 // TODO:
 // - Add tokio runtime, and make cpu async.
