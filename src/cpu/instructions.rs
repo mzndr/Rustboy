@@ -145,234 +145,6 @@ impl Cpu {
         }
     }
 
-    /// OP-Code: `0x80`
-    /// Mnemonic: `ADD A B`
-    pub fn add_a_b(&mut self) -> u8 {
-        self.add8(self.registers.b);
-        1
-    }
-
-    /// OP-Code: `0x81`
-    /// Mnemonic: `ADD A C`
-    pub fn add_a_c(&mut self) -> u8 {
-        self.add8(self.registers.c);
-        1
-    }
-
-    /// OP-Code: `0x82`
-    /// Mnemonic: `ADD A D`
-    pub fn add_a_d(&mut self) -> u8 {
-        self.add8(self.registers.d);
-        1
-    }
-
-    /// OP-Code: `0x83`
-    /// Mnemonic: `ADD A E`
-    pub fn add_a_e(&mut self) -> u8 {
-        self.add8(self.registers.e);
-        1
-    }
-
-    /// OP-Code: `0x84`
-    /// Mnemonic: `ADD A H`
-    pub fn add_a_h(&mut self) -> u8 {
-        self.add8(self.registers.h);
-        1
-    }
-
-    /// OP-Code: `0x85`
-    /// Mnemonic: `ADD A L`
-    pub fn add_a_l(&mut self) -> u8 {
-        self.add8(self.registers.l);
-        1
-    }
-
-    /// OP-Code: `0x86`
-    /// Mnemonic: `ADD A (HL)`
-    pub fn add_a_hlp(&mut self) -> u8 {
-        let address = self.registers.get_hl();
-        self.add8(self.read(address));
-        2
-    }
-
-    /// OP-Code: `0x87`
-    /// Mnemonic: `ADD A A`
-    pub fn add_a_a(&mut self) -> u8 {
-        self.add8(self.registers.a);
-        1
-    }
-
-    /// OP-Code: `0x88`
-    /// Mnemonic: `ADC A B`
-    pub fn adc_a_b(&mut self) -> u8 {
-        self.add8c(self.registers.b);
-        1
-    }
-
-    /// OP-Code: `0x89`
-    /// Mnemonic: `ADC A C`
-    pub fn adc_a_c(&mut self) -> u8 {
-        self.add8c(self.registers.c);
-        1
-    }
-
-    /// OP-Code: `0x8A`
-    /// Mnemonic: `ADC A D`
-    pub fn adc_a_d(&mut self) -> u8 {
-        self.add8c(self.registers.d);
-        1
-    }
-
-    /// OP-Code: `0x8B`
-    /// Mnemonic: `ADC A E`
-    pub fn adc_a_e(&mut self) -> u8 {
-        self.add8c(self.registers.e);
-        1
-    }
-
-    /// OP-Code: `0x8C`
-    /// Mnemonic: `ADC A H`
-    pub fn adc_a_h(&mut self) -> u8 {
-        self.add8c(self.registers.h);
-        1
-    }
-
-    /// OP-Code: `0x8D`
-    /// Mnemonic: `ADC A L`
-    pub fn adc_a_l(&mut self) -> u8 {
-        self.add8c(self.registers.l);
-        1
-    }
-
-    /// OP-Code: `0x8E`
-    /// Mnemonic: `ADC A L`
-    pub fn adc_a_hlp(&mut self) -> u8 {
-        let address = self.registers.get_hl();
-        self.add8c(self.read(address));
-        2
-    }
-
-    /// OP-Code: `0x8F`
-    /// Mnemonic: `ADC A A`
-    pub fn adc_a_a(&mut self) -> u8 {
-        self.add8c(self.registers.a);
-        1
-    }
-
-    /// OP-Code: `0x90`
-    /// Mnemonic: `SUB A B`
-    pub fn sub_a_b(&mut self) -> u8 {
-        self.sub8(self.registers.b);
-        1
-    }
-
-    /// OP-Code: `0x91`
-    /// Mnemonic: `SUB A C`
-    pub fn sub_a_c(&mut self) -> u8 {
-        self.sub8(self.registers.c);
-        1
-    }
-
-    /// OP-Code: `0x92`
-    /// Mnemonic: `SUB A D`
-    pub fn sub_a_d(&mut self) -> u8 {
-        self.sub8(self.registers.d);
-        1
-    }
-
-    /// OP-Code: `0x93`
-    /// Mnemonic: `SUB A E`
-    pub fn sub_a_e(&mut self) -> u8 {
-        self.sub8(self.registers.e);
-        1
-    }
-
-    /// OP-Code: `0x94`
-    /// Mnemonic: `SUB A H`
-    pub fn sub_a_h(&mut self) -> u8 {
-        self.sub8(self.registers.h);
-        1
-    }
-
-    /// OP-Code: `0x95`
-    /// Mnemonic: `SUB A L`
-    pub fn sub_a_l(&mut self) -> u8 {
-        self.sub8(self.registers.l);
-        1
-    }
-
-    /// OP-Code: `0x96`
-    /// Mnemonic: `SUB A (HL)`
-    pub fn sub_a_hlp(&mut self) -> u8 {
-        let address = self.registers.get_hl();
-        self.sub8(self.read(address));
-        2
-    }
-
-    /// OP-Code: `0x97`
-    /// Mnemonic: `SUB A A`
-    pub fn sub_a_a(&mut self) -> u8 {
-        self.sub8(self.registers.a);
-        1
-    }
-
-    /// OP-Code: `0x98`
-    /// Mnemonic: `SBC A B`
-    pub fn sbc_a_b(&mut self) -> u8 {
-        self.sub8c(self.registers.b);
-        1
-    }
-
-    /// OP-Code: `0x99`
-    /// Mnemonic: `SBC A C`
-    pub fn sbc_a_c(&mut self) -> u8 {
-        self.sub8c(self.registers.c);
-        1
-    }
-
-    /// OP-Code: `0x9A`
-    /// Mnemonic: `SBC A D`
-    pub fn sbc_a_d(&mut self) -> u8 {
-        self.sub8c(self.registers.d);
-        1
-    }
-
-    /// OP-Code: `0x9B`
-    /// Mnemonic: `SBC A E`
-    pub fn sbc_a_e(&mut self) -> u8 {
-        self.sub8c(self.registers.e);
-        1
-    }
-
-    /// OP-Code: `0x9C`
-    /// Mnemonic: `SBC A H`
-    pub fn sbc_a_h(&mut self) -> u8 {
-        self.sub8c(self.registers.h);
-        1
-    }
-
-    /// OP-Code: `0x9D`
-    /// Mnemonic: `SBC A L`
-    pub fn sbc_a_l(&mut self) -> u8 {
-        self.sub8c(self.registers.l);
-        1
-    }
-
-    /// OP-Code: `0x9E`
-    /// Mnemonic: `SBC A L`
-    pub fn sbc_a_hlp(&mut self) -> u8 {
-        let address = self.registers.get_hl();
-        self.sub8c(self.read(address));
-        2
-    }
-
-    /// OP-Code: `0x9F`
-    /// Mnemonic: `SBC A A`
-    pub fn sbc_a_a(&mut self) -> u8 {
-        self.sub8c(self.registers.a);
-        1
-    }
-
     /// OP-Code: `0x00`
     /// Mnemonic: `NOP`
     pub fn nop() -> u8 {
@@ -405,44 +177,6 @@ impl Cpu {
         2
     }
 
-    /// OP-Code: `0x05`
-    /// Mnemonic: `DEC B`
-    pub fn dec_b(&mut self) -> u8 {
-        self.registers.b = self.dec8(self.registers.b);
-        1
-    }
-
-    /// OP-Code: `0x15`
-    /// Mnemonic: `DEC D`
-    pub fn dec_d(&mut self) -> u8 {
-        self.registers.d = self.dec8(self.registers.d);
-        2
-    }
-
-    /// OP-Code: `0x25`
-    /// Mnemonic: `DEC H`
-    pub fn dec_h(&mut self) -> u8 {
-        self.registers.h = self.dec8(self.registers.h);
-        1
-    }
-
-    /// OP-Code: `0x2D`
-    /// Mnemonic: `DEC L`
-    pub fn dec_l(&mut self) -> u8 {
-        self.registers.h = self.dec8(self.registers.l);
-        1
-    }
-
-    /// OP-Code: `0x35`
-    /// Mnemonic: `DEC (HL)`
-    pub fn dec_hlp(&mut self) -> u8 {
-        let address = self.registers.get_hl();
-        let val = self.read(address);
-        let res = self.dec8(val);
-        self.write_u8(address, res);
-        3
-    }
-
     /// OP-Code: `0x04`
     /// Mnemonic: `INC B`
     pub fn inc_b(&mut self) -> u8 {
@@ -450,28 +184,11 @@ impl Cpu {
         1
     }
 
-    /// OP-Code: `0x14`
-    /// Mnemonic: `INC D`
-    pub fn inc_d(&mut self) -> u8 {
-        self.registers.d = self.inc8(self.registers.d);
-        2
-    }
-
-    /// OP-Code: `0x24`
-    /// Mnemonic: `INC H`
-    pub fn inc_h(&mut self) -> u8 {
-        self.registers.h = self.inc8(self.registers.h);
+    /// OP-Code: `0x05`
+    /// Mnemonic: `DEC B`
+    pub fn dec_b(&mut self) -> u8 {
+        self.registers.b = self.dec8(self.registers.b);
         1
-    }
-
-    /// OP-Code: `0x34`
-    /// Mnemonic: `INC (HL)`
-    pub fn inc_hlp(&mut self) -> u8 {
-        let address = self.registers.get_hl();
-        let val = self.read(address);
-        let res = self.inc8(val);
-        self.write_u8(address, res);
-        3
     }
 
     /// OP-Code: `0x06`
@@ -511,12 +228,33 @@ impl Cpu {
         2
     }
 
+    /// OP-Code: `0x0E`
+    /// Mnemonic: `LD C, d8`
+    pub fn ld_c_d8(&mut self) -> u8 {
+        self.registers.c = self.read_u8_at_pc_and_increase();
+        4
+    }
+
     /// OP-Code: `0x13`
     /// Mnemonic: `INC DE`
     pub fn inc_de(&mut self) -> u8 {
         let r = self.registers.get_de();
         let res = Self::inc16(r);
         self.registers.set_de(res);
+        2
+    }
+
+    /// OP-Code: `0x14`
+    /// Mnemonic: `INC D`
+    pub fn inc_d(&mut self) -> u8 {
+        self.registers.d = self.inc8(self.registers.d);
+        2
+    }
+
+    /// OP-Code: `0x15`
+    /// Mnemonic: `DEC D`
+    pub fn dec_d(&mut self) -> u8 {
+        self.registers.d = self.dec8(self.registers.d);
         2
     }
 
@@ -547,13 +285,57 @@ impl Cpu {
     /// Mnemonic: `RRA`
     pub fn rra(&mut self) -> u8 {
         let a = self.registers.a;
-        self.registers.set_flag_c(((a & 0b1000_0000) << 7) == 1);
+        self.registers.set_flag_c(((a & 0b1000_0000) >> 7) == 1);
         self.registers.a = a.rotate_right(1);
         self.registers.set_flag_z(false);
         self.registers.set_flag_n(false);
         self.registers.set_flag_h(false);
         1
     }
+
+
+    /// OP-Code: `0x24`
+    /// Mnemonic: `INC H`
+    pub fn inc_h(&mut self) -> u8 {
+        self.registers.h = self.inc8(self.registers.h);
+        1
+    }
+
+
+    /// OP-Code: `0x25`
+    /// Mnemonic: `DEC H`
+    pub fn dec_h(&mut self) -> u8 {
+        self.registers.h = self.dec8(self.registers.h);
+        1
+    }
+
+    /// OP-Code: `0x2D`
+    /// Mnemonic: `DEC L`
+    pub fn dec_l(&mut self) -> u8 {
+        self.registers.h = self.dec8(self.registers.l);
+        1
+    }
+
+    /// OP-Code: `0x34`
+    /// Mnemonic: `INC (HL)`
+    pub fn inc_hlp(&mut self) -> u8 {
+        let address = self.registers.get_hl();
+        let val = self.read(address);
+        let res = self.inc8(val);
+        self.write_u8(address, res);
+        3
+    }
+
+    /// OP-Code: `0x35`
+    /// Mnemonic: `DEC (HL)`
+    pub fn dec_hlp(&mut self) -> u8 {
+        let address = self.registers.get_hl();
+        let val = self.read(address);
+        let res = self.dec8(val);
+        self.write_u8(address, res);
+        3
+    }
+
 
     /// OP-Code: `0x20`
     /// Mnemonic: `JR NZ, r8`
@@ -1081,6 +863,235 @@ impl Cpu {
     pub fn ld_a_a() -> u8 {
         1
     }
+
+    /// OP-Code: `0x80`
+    /// Mnemonic: `ADD A B`
+    pub fn add_a_b(&mut self) -> u8 {
+        self.add8(self.registers.b);
+        1
+    }
+
+    /// OP-Code: `0x81`
+    /// Mnemonic: `ADD A C`
+    pub fn add_a_c(&mut self) -> u8 {
+        self.add8(self.registers.c);
+        1
+    }
+
+    /// OP-Code: `0x82`
+    /// Mnemonic: `ADD A D`
+    pub fn add_a_d(&mut self) -> u8 {
+        self.add8(self.registers.d);
+        1
+    }
+
+    /// OP-Code: `0x83`
+    /// Mnemonic: `ADD A E`
+    pub fn add_a_e(&mut self) -> u8 {
+        self.add8(self.registers.e);
+        1
+    }
+
+    /// OP-Code: `0x84`
+    /// Mnemonic: `ADD A H`
+    pub fn add_a_h(&mut self) -> u8 {
+        self.add8(self.registers.h);
+        1
+    }
+
+    /// OP-Code: `0x85`
+    /// Mnemonic: `ADD A L`
+    pub fn add_a_l(&mut self) -> u8 {
+        self.add8(self.registers.l);
+        1
+    }
+
+    /// OP-Code: `0x86`
+    /// Mnemonic: `ADD A (HL)`
+    pub fn add_a_hlp(&mut self) -> u8 {
+        let address = self.registers.get_hl();
+        self.add8(self.read(address));
+        2
+    }
+
+    /// OP-Code: `0x87`
+    /// Mnemonic: `ADD A A`
+    pub fn add_a_a(&mut self) -> u8 {
+        self.add8(self.registers.a);
+        1
+    }
+
+    /// OP-Code: `0x88`
+    /// Mnemonic: `ADC A B`
+    pub fn adc_a_b(&mut self) -> u8 {
+        self.add8c(self.registers.b);
+        1
+    }
+
+    /// OP-Code: `0x89`
+    /// Mnemonic: `ADC A C`
+    pub fn adc_a_c(&mut self) -> u8 {
+        self.add8c(self.registers.c);
+        1
+    }
+
+    /// OP-Code: `0x8A`
+    /// Mnemonic: `ADC A D`
+    pub fn adc_a_d(&mut self) -> u8 {
+        self.add8c(self.registers.d);
+        1
+    }
+
+    /// OP-Code: `0x8B`
+    /// Mnemonic: `ADC A E`
+    pub fn adc_a_e(&mut self) -> u8 {
+        self.add8c(self.registers.e);
+        1
+    }
+
+    /// OP-Code: `0x8C`
+    /// Mnemonic: `ADC A H`
+    pub fn adc_a_h(&mut self) -> u8 {
+        self.add8c(self.registers.h);
+        1
+    }
+
+    /// OP-Code: `0x8D`
+    /// Mnemonic: `ADC A L`
+    pub fn adc_a_l(&mut self) -> u8 {
+        self.add8c(self.registers.l);
+        1
+    }
+
+    /// OP-Code: `0x8E`
+    /// Mnemonic: `ADC A L`
+    pub fn adc_a_hlp(&mut self) -> u8 {
+        let address = self.registers.get_hl();
+        self.add8c(self.read(address));
+        2
+    }
+
+    /// OP-Code: `0x8F`
+    /// Mnemonic: `ADC A A`
+    pub fn adc_a_a(&mut self) -> u8 {
+        self.add8c(self.registers.a);
+        1
+    }
+
+    /// OP-Code: `0x90`
+    /// Mnemonic: `SUB A B`
+    pub fn sub_a_b(&mut self) -> u8 {
+        self.sub8(self.registers.b);
+        1
+    }
+
+    /// OP-Code: `0x91`
+    /// Mnemonic: `SUB A C`
+    pub fn sub_a_c(&mut self) -> u8 {
+        self.sub8(self.registers.c);
+        1
+    }
+
+    /// OP-Code: `0x92`
+    /// Mnemonic: `SUB A D`
+    pub fn sub_a_d(&mut self) -> u8 {
+        self.sub8(self.registers.d);
+        1
+    }
+
+    /// OP-Code: `0x93`
+    /// Mnemonic: `SUB A E`
+    pub fn sub_a_e(&mut self) -> u8 {
+        self.sub8(self.registers.e);
+        1
+    }
+
+    /// OP-Code: `0x94`
+    /// Mnemonic: `SUB A H`
+    pub fn sub_a_h(&mut self) -> u8 {
+        self.sub8(self.registers.h);
+        1
+    }
+
+    /// OP-Code: `0x95`
+    /// Mnemonic: `SUB A L`
+    pub fn sub_a_l(&mut self) -> u8 {
+        self.sub8(self.registers.l);
+        1
+    }
+
+    /// OP-Code: `0x96`
+    /// Mnemonic: `SUB A (HL)`
+    pub fn sub_a_hlp(&mut self) -> u8 {
+        let address = self.registers.get_hl();
+        self.sub8(self.read(address));
+        2
+    }
+
+    /// OP-Code: `0x97`
+    /// Mnemonic: `SUB A A`
+    pub fn sub_a_a(&mut self) -> u8 {
+        self.sub8(self.registers.a);
+        1
+    }
+
+    /// OP-Code: `0x98`
+    /// Mnemonic: `SBC A B`
+    pub fn sbc_a_b(&mut self) -> u8 {
+        self.sub8c(self.registers.b);
+        1
+    }
+
+    /// OP-Code: `0x99`
+    /// Mnemonic: `SBC A C`
+    pub fn sbc_a_c(&mut self) -> u8 {
+        self.sub8c(self.registers.c);
+        1
+    }
+
+    /// OP-Code: `0x9A`
+    /// Mnemonic: `SBC A D`
+    pub fn sbc_a_d(&mut self) -> u8 {
+        self.sub8c(self.registers.d);
+        1
+    }
+
+    /// OP-Code: `0x9B`
+    /// Mnemonic: `SBC A E`
+    pub fn sbc_a_e(&mut self) -> u8 {
+        self.sub8c(self.registers.e);
+        1
+    }
+
+    /// OP-Code: `0x9C`
+    /// Mnemonic: `SBC A H`
+    pub fn sbc_a_h(&mut self) -> u8 {
+        self.sub8c(self.registers.h);
+        1
+    }
+
+    /// OP-Code: `0x9D`
+    /// Mnemonic: `SBC A L`
+    pub fn sbc_a_l(&mut self) -> u8 {
+        self.sub8c(self.registers.l);
+        1
+    }
+
+    /// OP-Code: `0x9E`
+    /// Mnemonic: `SBC A L`
+    pub fn sbc_a_hlp(&mut self) -> u8 {
+        let address = self.registers.get_hl();
+        self.sub8c(self.read(address));
+        2
+    }
+
+    /// OP-Code: `0x9F`
+    /// Mnemonic: `SBC A A`
+    pub fn sbc_a_a(&mut self) -> u8 {
+        self.sub8c(self.registers.a);
+        1
+    }
+
     /// OP-Code: `0xC3`
     /// Mnemonic: `JP`
     pub fn jp_a16(&mut self) -> u8 {
@@ -1089,14 +1100,8 @@ impl Cpu {
         4
     }
 
-    /// OP-Code: `0x0E`
-    /// Mnemonic: `LD C, d8`
-    pub fn ld_c_d8(&mut self) -> u8 {
-        self.registers.c = self.read_u8_at_pc_and_increase();
-        4
-    }
 
-    // `0xCB extended set:`
+    // **** 0xCB extended set *****
 
     /// OP-Code: `0xCBFE`
     /// Mnemonic: `SET 7, (HL)`
