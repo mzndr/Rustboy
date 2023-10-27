@@ -2,20 +2,34 @@
 #![deny(nonstandard_style)]
 #![warn(clippy::pedantic, clippy::unwrap_used)]
 
-mod cpu;
-use crate::cpu::Cpu;
 use std::{fs, path};
 use std::{thread, time};
+
+use clap::Parser;
 use time::Duration;
 
+use crate::cpu::Cpu;
+
+mod cpu;
+
 const CLOCK_SPEED: f32 = 4100f32;
-const ROM_PATH: &str = "./files/roms/Tetris.gb";
+
+/// Command line arguments, parsed by [`clap`].
+#[derive(Parser, Debug)]
+struct Args {
+    rom_path: String,
+}
 
 fn main() {
     tracing_subscriber::fmt::init();
+
+    let args = Args::parse();
+    tracing::debug!(?args, "starting emulator");
+
     let mut cpu = Cpu::new();
+
     cpu.load_rom(
-        fs::read(path::Path::new(ROM_PATH))
+        fs::read(path::Path::new(&args.rom_path))
             .expect("cannot read ROM")
             .as_slice(),
     );
