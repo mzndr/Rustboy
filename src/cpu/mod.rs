@@ -88,6 +88,33 @@ impl Cpu {
         }
     }
 
+    /// Push a u8 value onto the stack.
+    pub fn push_stack_u8(&mut self, val: u8) {
+        self.registers.sp -= 1;
+        self.write_u8(self.registers.sp, val);
+    }
+
+    /// Pop a u8 value from the stack.
+    pub fn pop_stack_u8(&mut self) -> u8 {
+        let val = self.read(self.registers.sp);
+        self.registers.sp += 1;
+        val
+    }
+
+    /// Push a u16 value onto the stack.
+    pub fn push_stack_u16(&mut self, val: u16) {
+        let (l, h) = utils::split_u16(val);
+        self.push_stack_u8(h);
+        self.push_stack_u8(l);
+    }
+
+    /// Pop a u16 value from the stack.
+    pub fn pop_stack_u16(&mut self) -> u16 {
+        let l = self.pop_stack_u8();
+        let h = self.pop_stack_u8();
+        utils::merge_u8s(l, h)
+    }
+
     /// Reads from wram at address.
     pub fn read(&self, address: u16) -> u8 {
         let u_addr = address as usize;
