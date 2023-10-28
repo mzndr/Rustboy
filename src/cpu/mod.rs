@@ -1,6 +1,7 @@
 use std::process;
 
 use self::registers::Registers;
+mod extended_instructions;
 mod instructions;
 
 pub mod registers;
@@ -236,7 +237,6 @@ impl Cpu {
     fn check_sub_u16_hc(left: u16, right: u16) -> bool {
         ((left & 0xff).wrapping_sub(right & 0xff)) & 0x100 == 0x100
     }
-
 }
 
 #[cfg(test)]
