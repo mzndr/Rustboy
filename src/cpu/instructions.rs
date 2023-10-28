@@ -5,16 +5,16 @@ impl Cpu {
     pub fn exec_instruction(&mut self, opcode: u8) -> u8 {
         match opcode {
             0x00 => Self::nop(),
-            0x01 => self.ld_bc_d16(),
+            0x01 => self.ld_bc_u16(),
             0x02 => self.ld_bcp_a(),
             0x03 => self.inc_bc(),
             0x04 => self.inc_b(),
             0x05 => self.dec_b(),
-            0x06 => self.ld_b_d8(),
+            0x06 => self.ld_b_u8(),
             0x07 => self.rlca(),
             0x08 => self.ld_a16p_sp(),
             0x09 => self.add_hl_bc(),
-            0x0e => self.ld_c_d8(),
+            0x0e => self.ld_c_u8(),
             0x13 => self.inc_de(),
             0x14 => self.inc_d(),
             0x15 => self.dec_d(),
@@ -23,7 +23,7 @@ impl Cpu {
             0x1d => self.dec_e(),
             0x1f => self.rra(),
             0x20 => self.jr_nz_r8(),
-            0x21 => self.ld_hl_d16(),
+            0x21 => self.ld_hl_u16(),
             0x22 => self.ld_hlp_inc_a(),
             0x23 => self.inc_hl(),
             0x24 => self.inc_h(),
@@ -31,10 +31,10 @@ impl Cpu {
             0x29 => self.add_hl_hl(),
             0x2c => self.inc_l(),
             0x2d => self.dec_l(),
-            0x2e => self.ld_l_d8(),
+            0x2e => self.ld_l_u8(),
             0x32 => self.ld_hlp_dec_a(),
             0x33 => self.inc_sp(),
-            0x3e => self.ld_a_d8(),
+            0x3e => self.ld_a_u8(),
             0x40 => Self::ld_b_b(),
             0x41 => self.ld_b_c(),
             0x42 => self.ld_b_d(),
@@ -147,7 +147,7 @@ impl Cpu {
 
     /// OP-Code: `0x01`
     /// Mnemonic: `LD BC, d16`
-    pub fn ld_bc_d16(&mut self) -> u8 {
+    pub fn ld_bc_u16(&mut self) -> u8 {
         let val = self.read_u16_at_pc_and_increase();
         self.registers.set_bc(val);
         3
@@ -187,7 +187,7 @@ impl Cpu {
 
     /// OP-Code: `0x06`
     /// Mnemonic: `LD B, d8`
-    pub fn ld_b_d8(&mut self) -> u8 {
+    pub fn ld_b_u8(&mut self) -> u8 {
         let val = self.read_u8_at_pc_and_increase();
         self.registers.b = val;
         2
@@ -224,7 +224,7 @@ impl Cpu {
 
     /// OP-Code: `0x0E`
     /// Mnemonic: `LD C, d8`
-    pub fn ld_c_d8(&mut self) -> u8 {
+    pub fn ld_c_u8(&mut self) -> u8 {
         self.registers.c = self.read_u8_at_pc_and_increase();
         4
     }
@@ -341,7 +341,7 @@ impl Cpu {
 
     /// OP-Code: `0x21`
     /// Mnemonic: `LD HL, d16`
-    pub fn ld_hl_d16(&mut self) -> u8 {
+    pub fn ld_hl_u16(&mut self) -> u8 {
         let val = self.read_u16_at_pc_and_increase();
         self.registers.set_hl(val);
         3
@@ -407,7 +407,7 @@ impl Cpu {
 
     /// OP-Code: `0x3E`
     /// Mnemonic: `LD A, d8`
-    pub fn ld_a_d8(&mut self) -> u8 {
+    pub fn ld_a_u8(&mut self) -> u8 {
         self.registers.a = self.read_u8_at_pc_and_increase();
         2
     }
@@ -1134,7 +1134,7 @@ mod tests {
         cpu.wram[0x101] = expected_b;
 
         let mut expected_cpu = cpu;
-        let cycles_needed = cpu.ld_bc_d16();
+        let cycles_needed = cpu.ld_bc_u16();
 
         expected_cpu.registers.b = expected_b;
         expected_cpu.registers.c = expected_c;
@@ -1145,10 +1145,10 @@ mod tests {
     }
 
     #[test]
-    fn ld_b_d8() {
+    fn ld_b_u8() {
         let mut cpu = Cpu::new();
         cpu.wram[0x100] = 0xAE;
-        cpu.ld_b_d8();
+        cpu.ld_b_u8();
         assert_eq!(cpu.registers.b, 0xAE);
     }
 
