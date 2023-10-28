@@ -32,6 +32,7 @@ impl Cpu {
             0x2c => self.inc_l(),
             0x2d => self.dec_l(),
             0x2e => self.ld_l_u8(),
+            0x31 => self.ld_sp_u16(),
             0x32 => self.ld_hlp_dec_a(),
             0x33 => self.inc_sp(),
             0x3e => self.ld_a_u8(),
@@ -382,9 +383,17 @@ impl Cpu {
 
     /// OP-Code: `0x2E`
     /// Mnemonic: `LD L, d8`
-    pub fn ld_l_d8(&mut self) -> u8 {
+    pub fn ld_l_u8(&mut self) -> u8 {
         self.registers.l = self.read_u8_at_pc_and_increase();
         2
+    }
+
+    /// OP-Code: `0x31`
+    /// Mnemonic: `LD SP, u16`
+    pub fn ld_sp_u16(&mut self) -> u8 {
+        let val = self.read_u16_at_pc_and_increase();
+        self.registers.set_sp(val);
+        3
     }
 
     /// OP-Code: `0x32`
@@ -1087,6 +1096,13 @@ impl Cpu {
     pub fn jp_a16(&mut self) -> u8 {
         let address = self.read_u16_at_pc_and_increase();
         self.jp(address);
+        4
+    }
+
+    /// OP-Code: `0xDF`
+    /// Mnemonic: `JP`
+    pub fn rst_08(&mut self) -> u8 {
+
         4
     }
 

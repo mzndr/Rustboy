@@ -30,14 +30,7 @@ impl Cpu {
     /// Checks if an address is in valid space,
     /// prints an error message and quits if not.
     fn check_address(address: u16) {
-        if address as usize >= WRAM_SIZE {
-            tracing::error!(
-                "Memory access at 0x{:x} out of bounds. Valid address space: (0x0000-0x{:x}).",
-                address,
-                WRAM_SIZE - 1
-            );
-            process::exit(-1);
-        }
+        assert!(address as usize >= WRAM_SIZE);
     }
 
     /// Needs to be changed for bigger games, since they
@@ -68,12 +61,7 @@ impl Cpu {
         let cycled_needed = self.exec_instruction(instruction);
 
         // Something went wrong when no cycles were needed.
-        if cycled_needed == 0 {
-            tracing::error!(
-                "Something went wrong while executing instruction 0x{instruction:x}! Exiting..."
-            );
-            process::exit(-1);
-        }
+        assert_ne!(cycled_needed, 0);
 
         tracing::trace!("Needed {cycled_needed} cycles.");
         cycled_needed
@@ -157,6 +145,11 @@ impl Cpu {
         assert!(pos <= 7);
         let mask: u8 = 0b100_0000 >> pos;
         byte | mask
+    }
+
+    /// Wrappingly increase a 16 bit value by one.
+    pub fn rst(&mut self, address: u8) {
+
     }
 
     /// Wrappingly increase a 16 bit value by one.
