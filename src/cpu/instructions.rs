@@ -133,6 +133,7 @@ impl Cpu {
             0xc3 => self.jp_a16(),
             0xcb => self.exec_cb_instruction(),
             0xf3 => self.di(),
+            0xfe => self.ei(),
 
             _ => panic!("Unknown opcode: 0x{opcode:x}"),
         }
@@ -1102,6 +1103,14 @@ impl Cpu {
     pub fn di(&mut self) -> u8 {
         self.registers.ime = false;
         // TODO: cancel scheduled interrupts.
+        1
+    }
+
+    /// OP-Code: `0xFB`
+    /// Mnemonic: `EI`
+    pub fn ei(&mut self) -> u8 {
+        self.registers.ime = true;
+        // TODO: schedule interrupts.
         1
     }
 
