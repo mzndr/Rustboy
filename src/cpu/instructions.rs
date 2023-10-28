@@ -14,14 +14,14 @@ impl Cpu {
             0x07 => self.rlca(),
             0x08 => self.ld_a16p_sp(),
             0x09 => self.add_hl_bc(),
-            0x0E => self.ld_c_d8(),
+            0x0e => self.ld_c_d8(),
             0x13 => self.inc_de(),
             0x14 => self.inc_d(),
             0x15 => self.dec_d(),
             0x18 => self.jr_r8(),
             0x19 => self.add_hl_de(),
-            0x1D => self.dec_e(),
-            0x1F => self.rra(),
+            0x1d => self.dec_e(),
+            0x1f => self.rra(),
             0x20 => self.jr_nz_r8(),
             0x21 => self.ld_hl_d16(),
             0x22 => self.ld_hlp_inc_a(),
@@ -29,12 +29,12 @@ impl Cpu {
             0x24 => self.inc_h(),
             0x25 => self.dec_h(),
             0x29 => self.add_hl_hl(),
-            0x2C => self.inc_l(),
-            0x2D => self.dec_l(),
-            0x2E => self.ld_l_d8(),
+            0x2c => self.inc_l(),
+            0x2d => self.dec_l(),
+            0x2e => self.ld_l_d8(),
             0x32 => self.ld_hlp_dec_a(),
             0x33 => self.inc_sp(),
-            0x3E => self.ld_a_d8(),
+            0x3e => self.ld_a_d8(),
             0x40 => Self::ld_b_b(),
             0x41 => self.ld_b_c(),
             0x42 => self.ld_b_d(),
@@ -44,12 +44,12 @@ impl Cpu {
             0x47 => self.ld_b_a(),
             0x48 => self.ld_c_b(),
             0x49 => Self::ld_c_c(),
-            0x4A => self.ld_c_d(),
-            0x4B => self.ld_c_e(),
-            0x4C => self.ld_c_h(),
-            0x4D => self.ld_c_l(),
-            0x4E => self.ld_c_hlp(),
-            0x4F => self.ld_c_a(),
+            0x4a => self.ld_c_d(),
+            0x4b => self.ld_c_e(),
+            0x4c => self.ld_c_h(),
+            0x4d => self.ld_c_l(),
+            0x4e => self.ld_c_hlp(),
+            0x4f => self.ld_c_a(),
             0x50 => Self::ld_d_b(),
             0x51 => self.ld_d_c(),
             0x52 => self.ld_d_d(),
@@ -60,12 +60,12 @@ impl Cpu {
             0x57 => self.ld_d_a(),
             0x58 => self.ld_e_b(),
             0x59 => self.ld_e_c(),
-            0x5A => self.ld_e_d(),
-            0x5B => Self::ld_e_e(),
-            0x5C => self.ld_e_h(),
-            0x5D => self.ld_e_l(),
-            0x5E => self.ld_e_hlp(),
-            0x5F => self.ld_e_a(),
+            0x5a => self.ld_e_d(),
+            0x5b => Self::ld_e_e(),
+            0x5c => self.ld_e_h(),
+            0x5d => self.ld_e_l(),
+            0x5e => self.ld_e_hlp(),
+            0x5f => self.ld_e_a(),
             0x60 => self.ld_h_b(),
             0x61 => self.ld_h_c(),
             0x62 => self.ld_h_d(),
@@ -76,12 +76,12 @@ impl Cpu {
             0x67 => self.ld_h_a(),
             0x68 => self.ld_l_b(),
             0x69 => self.ld_l_c(),
-            0x6A => self.ld_l_d(),
-            0x6B => self.ld_l_e(),
-            0x6C => self.ld_l_h(),
-            0x6D => Self::ld_l_l(),
-            0x6E => self.ld_l_hlp(),
-            0x6F => self.ld_l_a(),
+            0x6a => self.ld_l_d(),
+            0x6b => self.ld_l_e(),
+            0x6c => self.ld_l_h(),
+            0x6d => Self::ld_l_l(),
+            0x6e => self.ld_l_hlp(),
+            0x6f => self.ld_l_a(),
             0x70 => self.ld_hlp_b(),
             0x71 => self.ld_hlp_c(),
             0x72 => self.ld_hlp_d(),
@@ -91,12 +91,12 @@ impl Cpu {
             0x77 => self.ld_hlp_a(),
             0x78 => self.ld_a_b(),
             0x79 => self.ld_a_c(),
-            0x7A => self.ld_a_d(),
-            0x7B => self.ld_a_e(),
-            0x7C => self.ld_a_h(),
-            0x7D => self.ld_a_l(),
-            0x7E => self.ld_a_hlp(),
-            0x7F => Self::ld_a_a(),
+            0x7a => self.ld_a_d(),
+            0x7b => self.ld_a_e(),
+            0x7c => self.ld_a_h(),
+            0x7d => self.ld_a_l(),
+            0x7e => self.ld_a_hlp(),
+            0x7f => Self::ld_a_a(),
             0x80 => self.add_a_b(),
             0x81 => self.add_a_c(),
             0x82 => self.add_a_d(),
@@ -107,12 +107,12 @@ impl Cpu {
             0x87 => self.add_a_a(),
             0x88 => self.adc_a_b(),
             0x89 => self.adc_a_c(),
-            0x8A => self.adc_a_d(),
-            0x8B => self.adc_a_e(),
-            0x8C => self.adc_a_h(),
-            0x8D => self.adc_a_l(),
-            0x8E => self.adc_a_hlp(),
-            0x8F => self.adc_a_a(),
+            0x8a => self.adc_a_d(),
+            0x8b => self.adc_a_e(),
+            0x8c => self.adc_a_h(),
+            0x8d => self.adc_a_l(),
+            0x8e => self.adc_a_hlp(),
+            0x8f => self.adc_a_a(),
             0x90 => self.sub_a_b(),
             0x91 => self.sub_a_c(),
             0x92 => self.sub_a_d(),
@@ -123,15 +123,16 @@ impl Cpu {
             0x97 => self.sub_a_a(),
             0x98 => self.sbc_a_b(),
             0x99 => self.sbc_a_c(),
-            0x9A => self.sbc_a_d(),
-            0x9B => self.sbc_a_e(),
-            0x9C => self.sbc_a_h(),
-            0x9D => self.sbc_a_l(),
-            0x9E => self.sbc_a_hlp(),
-            0x9F => self.sbc_a_a(),
-            0xAF => self.xor_a(),
-            0xC3 => self.jp_a16(),
-            0xCB => self.exec_cb_instruction(),
+            0x9a => self.sbc_a_d(),
+            0x9b => self.sbc_a_e(),
+            0x9c => self.sbc_a_h(),
+            0x9d => self.sbc_a_l(),
+            0x9e => self.sbc_a_hlp(),
+            0x9f => self.sbc_a_a(),
+            0xaf => self.xor_a(),
+            0xc3 => self.jp_a16(),
+            0xcb => self.exec_cb_instruction(),
+            0xf3 => self.di(),
 
             _ => panic!("Unknown opcode: 0x{opcode:x}"),
         }
@@ -293,14 +294,12 @@ impl Cpu {
         1
     }
 
-
     /// OP-Code: `0x24`
     /// Mnemonic: `INC H`
     pub fn inc_h(&mut self) -> u8 {
         self.registers.h = self.inc8(self.registers.h);
         1
     }
-
 
     /// OP-Code: `0x25`
     /// Mnemonic: `DEC H`
@@ -335,7 +334,6 @@ impl Cpu {
         self.write_u8(address, res);
         3
     }
-
 
     /// OP-Code: `0x20`
     /// Mnemonic: `JR NZ, r8`
@@ -395,7 +393,6 @@ impl Cpu {
         self.registers.l = self.read_u8_at_pc_and_increase();
         2
     }
-
 
     /// OP-Code: `0x32`
     /// Mnemonic: `INC Sd16P`
@@ -1100,6 +1097,13 @@ impl Cpu {
         4
     }
 
+    /// OP-Code: `0xF3`
+    /// Mnemonic: `DI`
+    pub fn di(&mut self) -> u8 {
+        self.registers.ime = false;
+        // TODO: cancel scheduled interrupts.
+        1
+    }
 
     // **** 0xCB extended set *****
 

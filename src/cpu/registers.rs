@@ -19,6 +19,8 @@ pub struct Registers {
 
     pub sp: u16,
     pub pc: u16,
+
+    pub ime: bool,
 }
 
 impl Registers {
@@ -34,6 +36,8 @@ impl Registers {
             l: 0x00,
             sp: 0x000,
             pc: 0x100,
+
+            ime: false,
         }
     }
 
