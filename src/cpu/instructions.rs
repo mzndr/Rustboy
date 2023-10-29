@@ -4,24 +4,38 @@ impl Cpu {
     #[allow(clippy::too_many_lines)]
     pub fn exec_instruction(&mut self, opcode: u8) -> u8 {
         match opcode {
+            // misc
             0x00 => Self::nop(),
-            0x10 => todo!(), // STOP
-            0x76 => todo!(), // HALT
 
             // ld
             0x01 => self.ld_bc_u16(),
-            0x02 => self.ld_bcp_a(),
-            0x06 => self.ld_b_u8(),
-            0x08 => self.ld_a16p_sp(),
-            0x0e => self.ld_c_u8(),
+            0x11 => self.ld_de_u16(),
             0x21 => self.ld_hl_u16(),
-            0x22 => self.ld_hlp_inc_a(),
-            0x2e => self.ld_l_u8(),
             0x31 => self.ld_sp_u16(),
-            0x32 => self.ld_hlp_dec_a(),
-            0x3e => self.ld_a_u8(),
-            0x40 => Self::ld_b_b(),
 
+            0x02 => self.ld_bcp_a(),
+            0x12 => self.ld_dep_a(),
+            0x22 => self.ld_hlp_inc_a(),
+            0x32 => self.ld_hlp_dec_a(),
+
+            0x06 => self.ld_b_u8(),
+            0x16 => self.ld_d_u8(),
+            0x26 => self.ld_h_u8(),
+            0x36 => self.ld_hlp_u8(),
+
+            0x08 => self.ld_a16p_sp(),
+
+            0x0a => self.ld_a_bcp(),
+            0x1a => self.ld_a_dep(),
+            0x2a => self.ld_a_hlp_inc(),
+            0x3a => self.ld_a_hlp_dec(),
+
+            0x0e => self.ld_c_u8(),
+            0x1e => self.ld_e_u8(),
+            0x2e => self.ld_l_u8(),
+            0x3e => self.ld_a_u8(),
+
+            0x40 => Self::ld_b_b(),
             0x41 => self.ld_b_c(),
             0x42 => self.ld_b_d(),
             0x43 => self.ld_b_e(),
@@ -91,22 +105,36 @@ impl Cpu {
             0x7e => self.ld_a_hlp(),
             0x7f => Self::ld_a_a(),
 
-            // inc
+            // inc/dec
             0x03 => self.inc_bc(),
-            0x04 => self.inc_b(),
             0x13 => self.inc_de(),
-            0x14 => self.inc_d(),
             0x23 => self.inc_hl(),
-            0x24 => self.inc_h(),
-            0x2c => self.inc_l(),
             0x33 => self.inc_sp(),
 
-            // dec
+            0x04 => self.inc_b(),
+            0x14 => self.inc_d(),
+            0x24 => self.inc_h(),
+            0x34 => self.inc_hlp(),
+
             0x05 => self.dec_b(),
             0x15 => self.dec_d(),
-            0x1d => self.dec_e(),
             0x25 => self.dec_h(),
+            0x35 => self.dec_hlp(),
+
+            0x0b => self.dec_bc(),
+            0x1b => self.dec_de(),
+            0x2b => self.dec_hl(),
+            0x3b => self.dec_sp(),
+
+            0x0c => self.inc_c(),
+            0x1c => self.inc_e(),
+            0x2c => self.inc_l(),
+            0x3c => self.inc_a(),
+
+            0x0d => self.dec_c(),
+            0x1d => self.dec_e(),
             0x2d => self.dec_l(),
+            0x3d => self.dec_a(),
 
             //add
             0x09 => self.add_hl_bc(),
@@ -213,14 +241,31 @@ impl Cpu {
             0xe5 => self.push_hl(),
             0xf5 => self.push_af(),
 
-            0x07 => self.rlca(),
-            0x18 => self.jr_r8(),
-            0x1f => self.rra(),
-            0x20 => self.jr_nz_r8(),
+            //rst
+            0xcf => self.rst_08h(),
+            0xdf => self.rst_18h(),
+            0xef => self.rst_28h(),
+            0xff => self.rst_38h(),
+
+            //jp
             0xc3 => self.jp_a16(),
-            0xcb => self.exec_cb_instruction(),
+
+            //jr
+            0x18 => self.jr_r8(),
+            0x20 => self.jr_nz_r8(),
+
+            //interrupt enable/disable
             0xf3 => self.di(),
             0xfa => self.ei(),
+
+            //rr
+            0x07 => self.rlca(),
+            0x17 => self.rla(),
+            0x0f => self.rrca(),
+            0x1f => self.rra(),
+
+            //cb
+            0xcb => self.exec_cb_instruction(),
 
             _ => panic!("Unknown instruction: 0x{opcode:x}"),
         }
@@ -240,10 +285,25 @@ impl Cpu {
         3
     }
 
+    /// OP-Code: `0x11`
+    /// Mnemonic: `LD DE, d16`
+    pub fn ld_de_u16(&mut self) -> u8 {
+        let val = self.read_u16_at_pc_and_increase();
+        self.registers.set_de(val);
+        3
+    }
+
     /// OP-Code: `0x02`
     /// Mnemonic: `LD (BC), A`
     pub fn ld_bcp_a(&mut self) -> u8 {
         self.write_u8(self.registers.get_bc(), self.registers.a);
+        2
+    }
+
+    /// OP-Code: `0x12`
+    /// Mnemonic: `LD (DE), A`
+    pub fn ld_dep_a(&mut self) -> u8 {
+        self.write_u8(self.registers.get_de(), self.registers.a);
         2
     }
 
@@ -253,6 +313,42 @@ impl Cpu {
         let r = self.registers.get_bc();
         let res = Self::inc16(r);
         self.registers.set_bc(res);
+        2
+    }
+
+    /// OP-Code: `0x0b`
+    /// Mnemonic: `DEC BC`
+    pub fn dec_bc(&mut self) -> u8 {
+        let r = self.registers.get_bc();
+        let res = Self::dec16(r);
+        self.registers.set_bc(res);
+        2
+    }
+
+    /// OP-Code: `0x1b`
+    /// Mnemonic: `DEC DE`
+    pub fn dec_de(&mut self) -> u8 {
+        let r = self.registers.get_de();
+        let res = Self::dec16(r);
+        self.registers.set_de(res);
+        2
+    }
+
+    /// OP-Code: `0x2b`
+    /// Mnemonic: `DEC HL`
+    pub fn dec_hl(&mut self) -> u8 {
+        let r = self.registers.get_hl();
+        let res = Self::dec16(r);
+        self.registers.set_hl(res);
+        2
+    }
+
+    /// OP-Code: `0x3b`
+    /// Mnemonic: `DEC SP`
+    pub fn dec_sp(&mut self) -> u8 {
+        let r = self.registers.get_sp();
+        let res = Self::dec16(r);
+        self.registers.set_sp(res);
         2
     }
 
@@ -278,16 +374,29 @@ impl Cpu {
         2
     }
 
-    /// OP-Code: `0x07`
-    /// Mnemonic: `RLCA`
-    pub fn rlca(&mut self) -> u8 {
-        let a = self.registers.a;
-        self.registers.set_flag_c(((a & 0b1000_0000) >> 7) == 1);
-        self.registers.a = a.rotate_left(1);
-        self.registers.set_flag_z(self.registers.a == 0);
-        self.registers.set_flag_n(false);
-        self.registers.set_flag_h(false);
+    /// OP-Code: `0x16`
+    /// Mnemonic: `LD D, d8`
+    pub fn ld_d_u8(&mut self) -> u8 {
+        let val = self.read_u8_at_pc_and_increase();
+        self.registers.d = val;
         2
+    }
+
+    /// OP-Code: `0x26`
+    /// Mnemonic: `LD H, d8`
+    pub fn ld_h_u8(&mut self) -> u8 {
+        let val = self.read_u8_at_pc_and_increase();
+        self.registers.h = val;
+        2
+    }
+
+    /// OP-Code: `0x36`
+    /// Mnemonic: `LD (HL), d8`
+    pub fn ld_hlp_u8(&mut self) -> u8 {
+        let val = self.read_u8_at_pc_and_increase();
+        let address = self.read_u16_at_pc_and_increase();
+        self.write_u8(address, val);
+        3
     }
 
     /// OP-Code: `0x08`
@@ -297,6 +406,38 @@ impl Cpu {
         let sp = self.registers.get_sp();
         self.write_u16(address, sp);
         5
+    }
+
+    /// OP-Code: `0x0A`
+    /// Mnemonic: `LD A, (BC)`
+    pub fn ld_a_bcp(&mut self) -> u8 {
+        self.registers.a = self.read(self.registers.get_bc());
+        2
+    }
+
+    /// OP-Code: `0x1A`
+    /// Mnemonic: `LD A, (DE)`
+    pub fn ld_a_dep(&mut self) -> u8 {
+        self.registers.a = self.read(self.registers.get_de());
+        2
+    }
+
+    /// OP-Code: `0x2A`
+    /// Mnemonic: `LD A, (DE)`
+    pub fn ld_a_hlp_inc(&mut self) -> u8 {
+        self.registers
+            .set_hl(self.registers.get_hl().wrapping_add(1));
+        self.registers.a = self.read(self.registers.get_hl());
+        2
+    }
+
+    /// OP-Code: `0x3A`
+    /// Mnemonic: `LD A, (DE)`
+    pub fn ld_a_hlp_dec(&mut self) -> u8 {
+        self.registers
+            .set_hl(self.registers.get_hl().wrapping_sub(1));
+        self.registers.a = self.read(self.registers.get_hl());
+        2
     }
 
     /// OP-Code: `0x09`
@@ -311,6 +452,13 @@ impl Cpu {
     /// Mnemonic: `LD C, d8`
     pub fn ld_c_u8(&mut self) -> u8 {
         self.registers.c = self.read_u8_at_pc_and_increase();
+        4
+    }
+
+    /// OP-Code: `0x1E`
+    /// Mnemonic: `LD C, d8`
+    pub fn ld_e_u8(&mut self) -> u8 {
+        self.registers.e = self.read_u8_at_pc_and_increase();
         4
     }
 
@@ -353,6 +501,13 @@ impl Cpu {
         2
     }
 
+    /// OP-Code: `0x0D`
+    /// Mnemonic: `DEC C`
+    pub fn dec_c(&mut self) -> u8 {
+        self.registers.c = self.dec8(self.registers.c);
+        1
+    }
+
     /// OP-Code: `0x1D`
     /// Mnemonic: `DEC E`
     pub fn dec_e(&mut self) -> u8 {
@@ -363,12 +518,62 @@ impl Cpu {
     /// OP-Code: `0x1F`
     /// Mnemonic: `RRA`
     pub fn rra(&mut self) -> u8 {
+        //todo: do this properly.
+        tracing::warn!("do this properly");
+
         let a = self.registers.a;
         self.registers.set_flag_c(((a & 0b1000_0000) >> 7) == 1);
         self.registers.a = a.rotate_right(1);
         self.registers.set_flag_z(false);
         self.registers.set_flag_n(false);
         self.registers.set_flag_h(false);
+        1
+    }
+
+    /// OP-Code: `0x07`
+    /// Mnemonic: `RLA`
+    pub fn rla(&mut self) -> u8 {
+        //todo: do this properly.
+        tracing::warn!("do this properly");
+
+        let a = self.registers.a;
+        self.registers.set_flag_c(((a & 0b1000_0000) << 7) == 1);
+        self.registers.a = a.rotate_left(1);
+        self.registers.set_flag_z(false);
+        self.registers.set_flag_n(false);
+        self.registers.set_flag_h(false);
+        1
+    }
+
+    /// OP-Code: `0x07`
+    /// Mnemonic: `RLCA`
+    pub fn rlca(&mut self) -> u8 {
+        //todo: do this properly.
+        tracing::warn!("do this properly");
+
+        let a = self.registers.a;
+        self.registers.set_flag_c(((a & 0b1000_0000) >> 7) == 1);
+        self.registers.a = a.rotate_left(1);
+        self.registers.set_flag_z(self.registers.a == 0);
+        self.registers.set_flag_n(false);
+        self.registers.set_flag_h(false);
+        self.registers.set_flag_c(false);
+        1
+    }
+
+    /// OP-Code: `0x0F`
+    /// Mnemonic: `RRCA`
+    pub fn rrca(&mut self) -> u8 {
+        //todo: do this properly.
+        tracing::warn!("do this properly");
+
+        let a = self.registers.a;
+        self.registers.set_flag_c(((a & 0b1000_0000) << 7) == 1);
+        self.registers.a = a.rotate_right(1);
+        self.registers.set_flag_z(self.registers.a == 0);
+        self.registers.set_flag_n(false);
+        self.registers.set_flag_h(false);
+        self.registers.set_flag_c(false);
         1
     }
 
@@ -390,6 +595,13 @@ impl Cpu {
     /// Mnemonic: `DEC L`
     pub fn dec_l(&mut self) -> u8 {
         self.registers.h = self.dec8(self.registers.l);
+        1
+    }
+
+    /// OP-Code: `0x3D`
+    /// Mnemonic: `DEC A`
+    pub fn dec_a(&mut self) -> u8 {
+        self.registers.a = self.dec8(self.registers.a);
         1
     }
 
@@ -437,7 +649,7 @@ impl Cpu {
     pub fn ld_hlp_inc_a(&mut self) -> u8 {
         let hl = self.registers.get_hl();
         self.write_u8(hl, self.registers.a);
-        self.registers.set_hl(hl + 1);
+        self.registers.set_hl(hl.wrapping_add(1));
         2
     }
 
@@ -466,10 +678,31 @@ impl Cpu {
         2
     }
 
+    /// OP-Code: `0x0C`
+    /// Mnemonic: `INC C`
+    pub fn inc_c(&mut self) -> u8 {
+        self.registers.c = self.inc8(self.registers.c);
+        1
+    }
+
+    /// OP-Code: `0x1C`
+    /// Mnemonic: `INC E`
+    pub fn inc_e(&mut self) -> u8 {
+        self.registers.e = self.inc8(self.registers.e);
+        1
+    }
+
     /// OP-Code: `0x2C`
     /// Mnemonic: `INC L`
     pub fn inc_l(&mut self) -> u8 {
         self.registers.l = self.inc8(self.registers.l);
+        1
+    }
+
+    /// OP-Code: `0x3C`
+    /// Mnemonic: `INC A`
+    pub fn inc_a(&mut self) -> u8 {
+        self.registers.a = self.inc8(self.registers.a);
         1
     }
 
@@ -1472,9 +1705,31 @@ impl Cpu {
         4
     }
 
+    /// OP-Code: `0xCF`
+    /// Mnemonic: `RST 0x08`
+    pub fn rst_08h(&mut self) -> u8 {
+        self.rst(0x08);
+        4
+    }
+
     /// OP-Code: `0xDF`
-    /// Mnemonic: `JP`
-    pub fn rst_08(&mut self) -> u8 {
+    /// Mnemonic: `RST 0x18`
+    pub fn rst_18h(&mut self) -> u8 {
+        self.rst(0x18);
+        4
+    }
+
+    /// OP-Code: `0xEF`
+    /// Mnemonic: `RST 0x28`
+    pub fn rst_28h(&mut self) -> u8 {
+        self.rst(0x28);
+        4
+    }
+
+    /// OP-Code: `0xFF`
+    /// Mnemonic: `RST 0x38`
+    pub fn rst_38h(&mut self) -> u8 {
+        self.rst(0x38);
         4
     }
 
@@ -1483,6 +1738,7 @@ impl Cpu {
     pub fn di(&mut self) -> u8 {
         self.registers.ime = false;
         // TODO: cancel scheduled interrupts.
+        tracing::warn!("todo: cancel scheduled interrupts");
         1
     }
 
@@ -1490,6 +1746,7 @@ impl Cpu {
     /// Mnemonic: `EI`
     pub fn ei(&mut self) -> u8 {
         self.registers.ime = true;
+        tracing::warn!("todo: schedule interrupts");
         // TODO: schedule interrupts.
         1
     }
@@ -1558,6 +1815,20 @@ impl Cpu {
 #[cfg(test)]
 mod tests {
     use crate::cpu::Cpu;
+
+    #[test]
+    fn test_exec_instruction() {
+        let unused_opcodes = [
+            0xd3, 0xdb, 0xdd, 0xe3, 0xe4, 0xeb, 0xec, 0xed, 0xf4, 0xfc, 0xfd,
+        ];
+        for opcode in 0x00..0xff {
+            if unused_opcodes.contains(&opcode) {
+                continue;
+            }
+            let mut cpu: Cpu = Cpu::new();
+            cpu.exec_instruction(opcode);
+        }
+    }
 
     #[test]
     fn nop() {

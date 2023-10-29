@@ -149,7 +149,10 @@ impl Cpu {
     }
 
     /// Wrappingly increase a 16 bit value by one.
-    pub fn rst(&mut self, address: u8) {}
+    pub fn rst(&mut self, address: u16) {
+        self.push_stack_u16(self.registers.get_sp());
+        self.registers.set_sp(address);
+    }
 
     /// Wrappingly increase a 16 bit value by one.
     pub fn inc16(val: u16) -> u16 {
