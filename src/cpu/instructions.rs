@@ -5,6 +5,8 @@ impl Cpu {
     pub fn exec_instruction(&mut self, opcode: u8) -> u8 {
         match opcode {
             0x00 => Self::nop(),
+            0x10 => todo!(), // STOP
+            0x76 => todo!(), // HALT
 
             // ld
             0x01 => self.ld_bc_u16(),
@@ -173,14 +175,14 @@ impl Cpu {
             0xb7 => self.or_a(),
 
             //cp
-            0xb8 => todo!(),
-            0xb9 => todo!(),
-            0xba => todo!(),
-            0xbb => todo!(),
-            0xbc => todo!(),
-            0xbd => todo!(),
-            0xbe => todo!(),
-            0xbf => todo!(),
+            0xb8 => self.cp_b(),
+            0xb9 => self.cp_c(),
+            0xba => self.cp_d(),
+            0xbb => self.cp_e(),
+            0xbc => self.cp_h(),
+            0xbd => self.cp_l(),
+            0xbe => self.cp_hlp(),
+            0xbf => self.cp_a(),
 
             0x07 => self.rlca(),
             0x18 => self.jr_r8(),
@@ -191,7 +193,7 @@ impl Cpu {
             0xf3 => self.di(),
             0xfe => self.ei(),
 
-            _ => panic!("Unknown opcode: 0x{opcode:x}"),
+            _ => panic!("Unknown instruction: 0x{opcode:x}"),
         }
     }
 
@@ -893,6 +895,70 @@ impl Cpu {
     pub fn or_a(&mut self) -> u8 {
         let val = self.registers.a;
         self.or(val);
+        1
+    }
+
+    /// OP-Code: `0xB8`
+    /// Mnemonic: `CP B`
+    pub fn cp_b(&mut self) -> u8 {
+        let val = self.registers.b;
+        self.cp(val);
+        1
+    }
+
+    /// OP-Code: `0xB9`
+    /// Mnemonic: `CP C`
+    pub fn cp_c(&mut self) -> u8 {
+        let val = self.registers.c;
+        self.cp(val);
+        1
+    }
+
+    /// OP-Code: `0xBA`
+    /// Mnemonic: `CP D`
+    pub fn cp_d(&mut self) -> u8 {
+        let val = self.registers.d;
+        self.cp(val);
+        1
+    }
+
+    /// OP-Code: `0xBB`
+    /// Mnemonic: `CP E`
+    pub fn cp_e(&mut self) -> u8 {
+        let val = self.registers.e;
+        self.cp(val);
+        1
+    }
+
+    /// OP-Code: `0xBC`
+    /// Mnemonic: `CP H`
+    pub fn cp_h(&mut self) -> u8 {
+        let val = self.registers.h;
+        self.cp(val);
+        1
+    }
+
+    /// OP-Code: `0xBD`
+    /// Mnemonic: `CP L`
+    pub fn cp_l(&mut self) -> u8 {
+        let val = self.registers.l;
+        self.cp(val);
+        1
+    }
+
+    /// OP-Code: `0xBE`
+    /// Mnemonic: `CP (HL)`
+    pub fn cp_hlp(&mut self) -> u8 {
+        let address = self.registers.get_hl();
+        self.cp(self.read(address));
+        2
+    }
+
+    /// OP-Code: `0xBF`
+    /// Mnemonic: `CP A`
+    pub fn cp_a(&mut self) -> u8 {
+        let val = self.registers.a;
+        self.cp(val);
         1
     }
 

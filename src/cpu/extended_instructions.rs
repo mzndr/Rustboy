@@ -5,7 +5,7 @@ impl Cpu {
         let opcode = self.read_u8_at_pc_and_increase();
         match opcode {
             0xFE => self.set_7_hlp(),
-            _ => panic!("Unknown extended opcode: 0xCB{opcode:x}"),
+            _ => panic!("Unknown extended instruction: 0xCB{opcode:x}"),
         }
     }
 
