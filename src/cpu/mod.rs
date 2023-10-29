@@ -205,6 +205,8 @@ impl Cpu {
         self.registers.set_flag_h(result & 0xf == 0xf);
         self.registers.set_flag_z(result == 0);
         self.registers.set_flag_n(false);
+        self.registers
+            .set_flag_c(u16::from(val) + u16::from(a) > 0xFF);
         self.registers.a = result;
     }
 
@@ -215,6 +217,7 @@ impl Cpu {
         self.registers.set_flag_h(Self::check_sub_u8_hc(a, val));
         self.registers.set_flag_z(result == 0);
         self.registers.set_flag_n(true);
+        self.registers.set_flag_c(u16::from(val) < u16::from(a));
         self.registers.a = result;
     }
 
@@ -255,6 +258,16 @@ impl Cpu {
         self.registers.set_flag_c(false);
     }
 
+    /// Compare with `a`, basicly a sub operation without setting `a`.
+    pub fn cp(&mut self, val: u8) {
+        let a = self.registers.a;
+        let result = a.wrapping_sub(val);
+        self.registers.set_flag_h(Self::check_sub_u8_hc(a, val));
+        self.registers.set_flag_z(result == 0);
+        self.registers.set_flag_n(true);
+        self.registers.set_flag_c(u16::from(val) < u16::from(a));
+    }
+
     /// Check for u8 half carries on additions. (carry from 3rd to 4th bit).
     fn check_add_u8_hc(left: u8, right: u8) -> bool {
         ((left & 0xf).wrapping_add(right & 0xf)) & 0x10 == 0x10
@@ -268,6 +281,11 @@ impl Cpu {
     /// Check for u8 half carries on subtractions. (carry from 3rd to 4th bit).
     fn check_sub_u8_hc(left: u8, right: u8) -> bool {
         ((left & 0xf).wrapping_sub(right & 0xf)) & 0x10 == 0x10
+    }
+
+    /// Check for u8 half carries on subtractions. (carry from 3rd to 4th bit).
+    fn check_sub_u8_c(left: u8, right: u8) -> bool {
+        ((left).wrapping_sub(right)) & 0x10 == 0x10
     }
 
     /// Check for u8 half carries on subtractions. (carry from 7th to 8th bit).
