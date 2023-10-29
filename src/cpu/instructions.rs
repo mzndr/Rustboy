@@ -1102,7 +1102,6 @@ impl Cpu {
     /// OP-Code: `0xDF`
     /// Mnemonic: `JP`
     pub fn rst_08(&mut self) -> u8 {
-
         4
     }
 
