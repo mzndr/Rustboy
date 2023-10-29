@@ -163,14 +163,14 @@ impl Cpu {
             0xaf => self.xor_a(),
 
             //or
-            0xb0 => todo!(),
-            0xb1 => todo!(),
-            0xb2 => todo!(),
-            0xb3 => todo!(),
-            0xb4 => todo!(),
-            0xb5 => todo!(),
-            0xb6 => todo!(),
-            0xb7 => todo!(),
+            0xb0 => self.or_b(),
+            0xb1 => self.or_c(),
+            0xb2 => self.or_d(),
+            0xb3 => self.or_e(),
+            0xb4 => self.or_h(),
+            0xb5 => self.or_l(),
+            0xb6 => self.or_hlp(),
+            0xb7 => self.or_a(),
 
             //cp
             0xb8 => todo!(),
@@ -829,6 +829,70 @@ impl Cpu {
     pub fn xor_a(&mut self) -> u8 {
         let val = self.registers.a;
         self.xor(val);
+        1
+    }
+
+    /// OP-Code: `0xB0`
+    /// Mnemonic: `OR B`
+    pub fn or_b(&mut self) -> u8 {
+        let val = self.registers.b;
+        self.or(val);
+        1
+    }
+
+    /// OP-Code: `0xB1`
+    /// Mnemonic: `OR C`
+    pub fn or_c(&mut self) -> u8 {
+        let val = self.registers.c;
+        self.or(val);
+        1
+    }
+
+    /// OP-Code: `0xB2`
+    /// Mnemonic: `OR D`
+    pub fn or_d(&mut self) -> u8 {
+        let val = self.registers.d;
+        self.or(val);
+        1
+    }
+
+    /// OP-Code: `0xB3`
+    /// Mnemonic: `OR E`
+    pub fn or_e(&mut self) -> u8 {
+        let val = self.registers.e;
+        self.or(val);
+        1
+    }
+
+    /// OP-Code: `0xB4`
+    /// Mnemonic: `OR H`
+    pub fn or_h(&mut self) -> u8 {
+        let val = self.registers.h;
+        self.or(val);
+        1
+    }
+
+    /// OP-Code: `0xB5`
+    /// Mnemonic: `OR L`
+    pub fn or_l(&mut self) -> u8 {
+        let val = self.registers.l;
+        self.or(val);
+        1
+    }
+
+    /// OP-Code: `0xB6`
+    /// Mnemonic: `OR (HL)`
+    pub fn or_hlp(&mut self) -> u8 {
+        let address = self.registers.get_hl();
+        self.or(self.read(address));
+        2
+    }
+
+    /// OP-Code: `0xB7`
+    /// Mnemonic: `OR A`
+    pub fn or_a(&mut self) -> u8 {
+        let val = self.registers.a;
+        self.or(val);
         1
     }
 
