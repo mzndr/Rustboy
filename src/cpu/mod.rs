@@ -237,6 +237,15 @@ impl Cpu {
         self.registers.set_flag_c(false);
     }
 
+    /// And value with a register and sets flags.
+    pub fn and(&mut self, val: u8) {
+        self.registers.a &= val;
+        self.registers.set_flag_z(self.registers.a == 0);
+        self.registers.set_flag_n(false);
+        self.registers.set_flag_h(true);
+        self.registers.set_flag_c(false);
+    }
+
     /// Check for u8 half carries on additions. (carry from 3rd to 4th bit).
     fn check_add_u8_hc(left: u8, right: u8) -> bool {
         ((left & 0xf).wrapping_add(right & 0xf)) & 0x10 == 0x10
