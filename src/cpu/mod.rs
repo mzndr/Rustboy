@@ -30,7 +30,8 @@ impl Cpu {
     /// Checks if an address is in valid space,
     /// prints an error message and quits if not.
     fn check_address(address: u16) {
-        assert!(address as usize >= WRAM_SIZE);
+        tracing::debug!("checking memory access at 0x{address:x}");
+        assert!((address as usize).lt(&WRAM_SIZE));
     }
 
     /// Needs to be changed for bigger games, since they
@@ -148,9 +149,7 @@ impl Cpu {
     }
 
     /// Wrappingly increase a 16 bit value by one.
-    pub fn rst(&mut self, address: u8) {
-
-    }
+    pub fn rst(&mut self, address: u8) {}
 
     /// Wrappingly increase a 16 bit value by one.
     pub fn inc16(val: u16) -> u16 {
