@@ -21,12 +21,14 @@ impl Cpu {
             0x32 => self.ld_hlp_dec_a(),
             0x3e => self.ld_a_u8(),
             0x40 => Self::ld_b_b(),
+
             0x41 => self.ld_b_c(),
             0x42 => self.ld_b_d(),
             0x43 => self.ld_b_e(),
             0x44 => self.ld_b_h(),
             0x45 => self.ld_b_l(),
             0x47 => self.ld_b_a(),
+
             0x48 => self.ld_c_b(),
             0x49 => Self::ld_c_c(),
             0x4a => self.ld_c_d(),
@@ -35,6 +37,7 @@ impl Cpu {
             0x4d => self.ld_c_l(),
             0x4e => self.ld_c_hlp(),
             0x4f => self.ld_c_a(),
+
             0x50 => Self::ld_d_b(),
             0x51 => self.ld_d_c(),
             0x52 => self.ld_d_d(),
@@ -43,6 +46,7 @@ impl Cpu {
             0x55 => self.ld_d_l(),
             0x56 => self.ld_d_hlp(),
             0x57 => self.ld_d_a(),
+
             0x58 => self.ld_e_b(),
             0x59 => self.ld_e_c(),
             0x5a => self.ld_e_d(),
@@ -51,6 +55,7 @@ impl Cpu {
             0x5d => self.ld_e_l(),
             0x5e => self.ld_e_hlp(),
             0x5f => self.ld_e_a(),
+
             0x60 => self.ld_h_b(),
             0x61 => self.ld_h_c(),
             0x62 => self.ld_h_d(),
@@ -59,6 +64,7 @@ impl Cpu {
             0x65 => self.ld_h_l(),
             0x66 => self.ld_h_hlp(),
             0x67 => self.ld_h_a(),
+
             0x68 => self.ld_l_b(),
             0x69 => self.ld_l_c(),
             0x6a => self.ld_l_d(),
@@ -67,6 +73,7 @@ impl Cpu {
             0x6d => Self::ld_l_l(),
             0x6e => self.ld_l_hlp(),
             0x6f => self.ld_l_a(),
+
             0x70 => self.ld_hlp_b(),
             0x71 => self.ld_hlp_c(),
             0x72 => self.ld_hlp_d(),
@@ -74,6 +81,7 @@ impl Cpu {
             0x74 => self.ld_hlp_h(),
             0x75 => self.ld_hlp_l(),
             0x77 => self.ld_hlp_a(),
+
             0x78 => self.ld_a_b(),
             0x79 => self.ld_a_c(),
             0x7a => self.ld_a_d(),
@@ -114,6 +122,8 @@ impl Cpu {
             0x85 => self.add_a_l(),
             0x86 => self.add_a_hlp(),
             0x87 => self.add_a_a(),
+            0xC6 => self.add_a_u8(),
+
             //adc
             0x88 => self.adc_a_b(),
             0x89 => self.adc_a_c(),
@@ -123,6 +133,7 @@ impl Cpu {
             0x8d => self.adc_a_l(),
             0x8e => self.adc_a_hlp(),
             0x8f => self.adc_a_a(),
+            0xce => self.adc_a_u8(),
 
             //sub
             0x90 => self.sub_a_b(),
@@ -133,6 +144,7 @@ impl Cpu {
             0x95 => self.sub_a_l(),
             0x96 => self.sub_a_hlp(),
             0x97 => self.sub_a_a(),
+            0xD6 => self.sub_a_u8(),
 
             //sbc
             0x98 => self.sbc_a_b(),
@@ -143,6 +155,7 @@ impl Cpu {
             0x9d => self.sbc_a_l(),
             0x9e => self.sbc_a_hlp(),
             0x9f => self.sbc_a_a(),
+            0xde => self.sbc_a_u8(),
 
             //and
             0xa0 => self.and_b(),
@@ -153,6 +166,7 @@ impl Cpu {
             0xa5 => self.and_l(),
             0xa6 => self.and_hlp(),
             0xa7 => self.and_a(),
+            0xE6 => self.and_u8(),
 
             //xor
             0xa8 => self.xor_b(),
@@ -163,6 +177,7 @@ impl Cpu {
             0xad => self.xor_l(),
             0xae => self.xor_hlp(),
             0xaf => self.xor_a(),
+            0xee => self.xor_u8(),
 
             //or
             0xb0 => self.or_b(),
@@ -173,6 +188,7 @@ impl Cpu {
             0xb5 => self.or_l(),
             0xb6 => self.or_hlp(),
             0xb7 => self.or_a(),
+            0xF6 => self.or_u8(),
 
             //cp
             0xb8 => self.cp_b(),
@@ -183,6 +199,19 @@ impl Cpu {
             0xbd => self.cp_l(),
             0xbe => self.cp_hlp(),
             0xbf => self.cp_a(),
+            0xfe => self.cp_u8(),
+
+            //pop
+            0xc1 => self.pop_bc(),
+            0xd1 => self.pop_de(),
+            0xe1 => self.pop_hl(),
+            0xf1 => self.pop_af(),
+
+            //push
+            0xc5 => self.push_bc(),
+            0xd5 => self.push_de(),
+            0xe5 => self.push_hl(),
+            0xf5 => self.push_af(),
 
             0x07 => self.rlca(),
             0x18 => self.jr_r8(),
@@ -191,7 +220,7 @@ impl Cpu {
             0xc3 => self.jp_a16(),
             0xcb => self.exec_cb_instruction(),
             0xf3 => self.di(),
-            0xfe => self.ei(),
+            0xfa => self.ei(),
 
             _ => panic!("Unknown instruction: 0x{opcode:x}"),
         }
@@ -214,9 +243,7 @@ impl Cpu {
     /// OP-Code: `0x02`
     /// Mnemonic: `LD (BC), A`
     pub fn ld_bcp_a(&mut self) -> u8 {
-        let address = self.registers.get_bc();
-        let val = self.registers.a;
-        self.write_u8(address, val);
+        self.write_u8(self.registers.get_bc(), self.registers.a);
         2
     }
 
@@ -709,129 +736,129 @@ impl Cpu {
     /// OP-Code: `0xA8`
     /// Mnemonic: `AND B`
     pub fn and_b(&mut self) -> u8 {
-        let val = self.registers.b;
-        self.and(val);
+        self.and(self.registers.b);
         1
     }
 
     /// OP-Code: `0xA9`
     /// Mnemonic: `AND C`
     pub fn and_c(&mut self) -> u8 {
-        let val = self.registers.c;
-        self.and(val);
+        self.and(self.registers.c);
         1
     }
 
     /// OP-Code: `0xAA`
     /// Mnemonic: `AND D`
     pub fn and_d(&mut self) -> u8 {
-        let val = self.registers.d;
-        self.and(val);
+        self.and(self.registers.d);
         1
     }
 
     /// OP-Code: `0xAB`
     /// Mnemonic: `AND E`
     pub fn and_e(&mut self) -> u8 {
-        let val = self.registers.e;
-        self.and(val);
+        self.and(self.registers.e);
         1
     }
 
     /// OP-Code: `0xAC`
     /// Mnemonic: `AND H`
     pub fn and_h(&mut self) -> u8 {
-        let val = self.registers.h;
-        self.and(val);
+        self.and(self.registers.h);
         1
     }
 
     /// OP-Code: `0xAD`
     /// Mnemonic: `AND L`
     pub fn and_l(&mut self) -> u8 {
-        let val = self.registers.l;
-        self.and(val);
+        self.and(self.registers.l);
         1
     }
 
     /// OP-Code: `0xAE`
     /// Mnemonic: `AND (HL)`
     pub fn and_hlp(&mut self) -> u8 {
-        let address = self.registers.get_hl();
-        self.and(self.read(address));
+        self.and(self.read(self.registers.get_hl()));
         2
     }
 
     /// OP-Code: `0xAF`
     /// Mnemonic: `AND A`
     pub fn and_a(&mut self) -> u8 {
-        let val = self.registers.a;
-        self.and(val);
+        self.and(self.registers.a);
         1
+    }
+
+    /// OP-Code: `0xE6`
+    /// Mnemonic: `AND u8`
+    pub fn and_u8(&mut self) -> u8 {
+        let val = self.read_u8_at_pc_and_increase();
+        self.and(val);
+        2
     }
 
     /// OP-Code: `0xA8`
     /// Mnemonic: `XOR B`
     pub fn xor_b(&mut self) -> u8 {
-        let val = self.registers.b;
-        self.xor(val);
+        self.xor(self.registers.b);
         1
     }
 
     /// OP-Code: `0xA9`
     /// Mnemonic: `XOR C`
     pub fn xor_c(&mut self) -> u8 {
-        let val = self.registers.c;
-        self.xor(val);
+        self.xor(self.registers.c);
         1
     }
 
     /// OP-Code: `0xAA`
     /// Mnemonic: `XOR D`
     pub fn xor_d(&mut self) -> u8 {
-        let val = self.registers.d;
-        self.xor(val);
+        self.xor(self.registers.d);
         1
     }
 
     /// OP-Code: `0xAB`
     /// Mnemonic: `XOR E`
     pub fn xor_e(&mut self) -> u8 {
-        let val = self.registers.e;
-        self.xor(val);
+        self.xor(self.registers.e);
         1
     }
 
     /// OP-Code: `0xAC`
     /// Mnemonic: `XOR H`
     pub fn xor_h(&mut self) -> u8 {
-        let val = self.registers.h;
-        self.xor(val);
+        self.xor(self.registers.h);
         1
     }
 
     /// OP-Code: `0xAD`
     /// Mnemonic: `XOR L`
     pub fn xor_l(&mut self) -> u8 {
-        let val = self.registers.l;
-        self.xor(val);
+        self.xor(self.registers.l);
         1
     }
 
     /// OP-Code: `0xAE`
     /// Mnemonic: `XOR (HL)`
     pub fn xor_hlp(&mut self) -> u8 {
-        let address = self.registers.get_hl();
-        self.xor(self.read(address));
+        self.xor(self.read(self.registers.get_hl()));
         2
     }
 
     /// OP-Code: `0xAF`
     /// Mnemonic: `XOR A`
     pub fn xor_a(&mut self) -> u8 {
-        let val = self.registers.a;
-        self.xor(val);
+        self.xor(self.registers.a);
         1
+    }
+
+    /// OP-Code: `0xEE`
+    /// Mnemonic: `XOR u8`
+    pub fn xor_u8(&mut self) -> u8 {
+        let val = self.read_u8_at_pc_and_increase();
+        self.xor(val);
+        2
     }
 
     /// OP-Code: `0xB0`
@@ -845,104 +872,99 @@ impl Cpu {
     /// OP-Code: `0xB1`
     /// Mnemonic: `OR C`
     pub fn or_c(&mut self) -> u8 {
-        let val = self.registers.c;
-        self.or(val);
+        self.or(self.registers.c);
         1
     }
 
     /// OP-Code: `0xB2`
     /// Mnemonic: `OR D`
     pub fn or_d(&mut self) -> u8 {
-        let val = self.registers.d;
-        self.or(val);
+        self.or(self.registers.d);
         1
     }
 
     /// OP-Code: `0xB3`
     /// Mnemonic: `OR E`
     pub fn or_e(&mut self) -> u8 {
-        let val = self.registers.e;
-        self.or(val);
+        self.or(self.registers.e);
         1
     }
 
     /// OP-Code: `0xB4`
     /// Mnemonic: `OR H`
     pub fn or_h(&mut self) -> u8 {
-        let val = self.registers.h;
-        self.or(val);
+        self.or(self.registers.h);
         1
     }
 
     /// OP-Code: `0xB5`
     /// Mnemonic: `OR L`
     pub fn or_l(&mut self) -> u8 {
-        let val = self.registers.l;
-        self.or(val);
+        self.or(self.registers.l);
         1
     }
 
     /// OP-Code: `0xB6`
     /// Mnemonic: `OR (HL)`
     pub fn or_hlp(&mut self) -> u8 {
-        let address = self.registers.get_hl();
-        self.or(self.read(address));
+        self.or(self.read(self.registers.get_hl()));
         2
     }
 
     /// OP-Code: `0xB7`
     /// Mnemonic: `OR A`
     pub fn or_a(&mut self) -> u8 {
-        let val = self.registers.a;
-        self.or(val);
+        self.or(self.registers.a);
         1
+    }
+
+    /// OP-Code: `0xF6`
+    /// Mnemonic: `OR u8`
+    pub fn or_u8(&mut self) -> u8 {
+        let val = self.read_u8_at_pc_and_increase();
+        self.or(val);
+        2
     }
 
     /// OP-Code: `0xB8`
     /// Mnemonic: `CP B`
     pub fn cp_b(&mut self) -> u8 {
-        let val = self.registers.b;
-        self.cp(val);
+        self.cp(self.registers.b);
         1
     }
 
     /// OP-Code: `0xB9`
     /// Mnemonic: `CP C`
     pub fn cp_c(&mut self) -> u8 {
-        let val = self.registers.c;
-        self.cp(val);
+        self.cp(self.registers.c);
         1
     }
 
     /// OP-Code: `0xBA`
     /// Mnemonic: `CP D`
     pub fn cp_d(&mut self) -> u8 {
-        let val = self.registers.d;
-        self.cp(val);
+        self.cp(self.registers.d);
         1
     }
 
     /// OP-Code: `0xBB`
     /// Mnemonic: `CP E`
     pub fn cp_e(&mut self) -> u8 {
-        let val = self.registers.e;
-        self.cp(val);
+        self.cp(self.registers.e);
         1
     }
 
     /// OP-Code: `0xBC`
     /// Mnemonic: `CP H`
     pub fn cp_h(&mut self) -> u8 {
-        let val = self.registers.h;
-        self.cp(val);
+        self.cp(self.registers.h);
         1
     }
 
     /// OP-Code: `0xBD`
     /// Mnemonic: `CP L`
     pub fn cp_l(&mut self) -> u8 {
-        let val = self.registers.l;
-        self.cp(val);
+        self.cp(self.registers.l);
         1
     }
 
@@ -957,9 +979,16 @@ impl Cpu {
     /// OP-Code: `0xBF`
     /// Mnemonic: `CP A`
     pub fn cp_a(&mut self) -> u8 {
-        let val = self.registers.a;
-        self.cp(val);
+        self.cp(self.registers.a);
         1
+    }
+
+    /// OP-Code: `0xFE`
+    /// Mnemonic: `CP u8`
+    pub fn cp_u8(&mut self) -> u8 {
+        let val = self.read_u8_at_pc_and_increase();
+        self.cp(val);
+        2
     }
 
     /// OP-Code: `0x60`
@@ -1233,6 +1262,13 @@ impl Cpu {
         1
     }
 
+    /// OP-Code: `0xC6`
+    /// Mnemonic: `ADD A A`
+    pub fn add_a_u8(&mut self) -> u8 {
+        self.add8(self.registers.a);
+        2
+    }
+
     /// OP-Code: `0x88`
     /// Mnemonic: `ADC A B`
     pub fn adc_a_b(&mut self) -> u8 {
@@ -1290,6 +1326,14 @@ impl Cpu {
         1
     }
 
+    /// OP-Code: `0xce`
+    /// Mnemonic: `ADC A u8`
+    pub fn adc_a_u8(&mut self) -> u8 {
+        let val = self.read_u8_at_pc_and_increase();
+        self.add8c(val);
+        2
+    }
+
     /// OP-Code: `0x90`
     /// Mnemonic: `SUB A B`
     pub fn sub_a_b(&mut self) -> u8 {
@@ -1344,6 +1388,14 @@ impl Cpu {
     /// Mnemonic: `SUB A A`
     pub fn sub_a_a(&mut self) -> u8 {
         self.sub8(self.registers.a);
+        1
+    }
+
+    /// OP-Code: `0xD6`
+    /// Mnemonic: `SUB A u8`
+    pub fn sub_a_u8(&mut self) -> u8 {
+        let val = self.read_u8_at_pc_and_increase();
+        self.sub8(val);
         1
     }
 
@@ -1404,6 +1456,14 @@ impl Cpu {
         1
     }
 
+    /// OP-Code: `0xDE`
+    /// Mnemonic: `SBC A u8`
+    pub fn sbc_a_u8(&mut self) -> u8 {
+        let val = self.read_u8_at_pc_and_increase();
+        self.sub8c(val);
+        2
+    }
+
     /// OP-Code: `0xC3`
     /// Mnemonic: `JP`
     pub fn jp_a16(&mut self) -> u8 {
@@ -1434,7 +1494,65 @@ impl Cpu {
         1
     }
 
-    // **** 0xCB extended set *****
+    /// OP-Code: `0xC1`
+    /// Mnemonic: `POP BC`
+    pub fn pop_bc(&mut self) -> u8 {
+        let val = self.pop_stack_u16();
+        self.registers.set_bc(val);
+        3
+    }
+
+    /// OP-Code: `0xD1`
+    /// Mnemonic: `POP DE`
+    pub fn pop_de(&mut self) -> u8 {
+        let val = self.pop_stack_u16();
+        self.registers.set_de(val);
+        3
+    }
+
+    /// OP-Code: `0xE1`
+    /// Mnemonic: `POP HL`
+    pub fn pop_hl(&mut self) -> u8 {
+        let val = self.pop_stack_u16();
+        self.registers.set_hl(val);
+        3
+    }
+
+    /// OP-Code: `0xF1`
+    /// Mnemonic: `POP AF`
+    pub fn pop_af(&mut self) -> u8 {
+        let val = self.pop_stack_u16();
+        self.registers.set_af(val);
+        3
+    }
+
+    /// OP-Code: `0xC5`
+    /// Mnemonic: `PUSH BC`
+    pub fn push_bc(&mut self) -> u8 {
+        self.push_stack_u16(self.registers.get_bc());
+        4
+    }
+
+    /// OP-Code: `0xD5`
+    /// Mnemonic: `PUSH DE`
+    pub fn push_de(&mut self) -> u8 {
+        self.push_stack_u16(self.registers.get_de());
+        4
+    }
+
+    /// OP-Code: `0xE5`
+    /// Mnemonic: `PUSH HL`
+    pub fn push_hl(&mut self) -> u8 {
+        self.push_stack_u16(self.registers.get_hl());
+        4
+    }
+
+    /// OP-Code: `0xF5`
+    /// Mnemonic: `PUSH AF`
+    pub fn push_af(&mut self) -> u8 {
+        self.push_stack_u16(self.registers.get_af());
+        4
+    }
 }
 
 #[cfg(test)]
