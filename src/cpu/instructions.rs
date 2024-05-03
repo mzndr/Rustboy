@@ -4,37 +4,62 @@ impl Cpu {
     #[allow(clippy::too_many_lines)]
     pub fn exec_instruction(&mut self, opcode: u8) -> u8 {
         match opcode {
-            // misc
             0x00 => Self::nop(),
-
-            // ld
             0x01 => self.ld_bc_u16(),
-            0x11 => self.ld_de_u16(),
-            0x21 => self.ld_hl_u16(),
-            0x31 => self.ld_sp_u16(),
-
             0x02 => self.ld_bcp_a(),
-            0x12 => self.ld_dep_a(),
-            0x22 => self.ld_hlp_inc_a(),
-            0x32 => self.ld_hlp_dec_a(),
-
+            0x03 => self.inc_bc(),
+            0x04 => self.inc_b(),
+            0x05 => self.dec_b(),
             0x06 => self.ld_b_u8(),
-            0x16 => self.ld_d_u8(),
-            0x26 => self.ld_h_u8(),
-            0x36 => self.ld_hlp_u8(),
-
+            0x07 => self.rlca(),
             0x08 => self.ld_a16p_sp(),
-
+            0x09 => self.add_hl_bc(),
             0x0a => self.ld_a_bcp(),
-            0x1a => self.ld_a_dep(),
-            0x2a => self.ld_a_hlp_inc(),
-            0x3a => self.ld_a_hlp_dec(),
-
+            0x0b => self.dec_bc(),
+            0x0c => self.inc_c(),
+            0x0d => self.dec_c(),
             0x0e => self.ld_c_u8(),
+            0x0f => self.rrca(),
+            0x11 => self.ld_de_u16(),
+            0x12 => self.ld_dep_a(),
+            0x13 => self.inc_de(),
+            0x14 => self.inc_d(),
+            0x15 => self.dec_d(),
+            0x16 => self.ld_d_u8(),
+            0x17 => self.rla(),
+            0x18 => self.jr_r8(),
+            0x19 => self.add_hl_de(),
+            0x1a => self.ld_a_dep(),
+            0x1b => self.dec_de(),
+            0x1c => self.inc_e(),
+            0x1d => self.dec_e(),
             0x1e => self.ld_e_u8(),
+            0x1f => self.rra(),
+            0x20 => self.jr_nz_r8(),
+            0x21 => self.ld_hl_u16(),
+            0x22 => self.ld_hlp_inc_a(),
+            0x23 => self.inc_hl(),
+            0x24 => self.inc_h(),
+            0x25 => self.dec_h(),
+            0x26 => self.ld_h_u8(),
+            0x29 => self.add_hl_hl(),
+            0x2a => self.ld_a_hlp_inc(),
+            0x2b => self.dec_hl(),
+            0x2c => self.inc_l(),
+            0x2d => self.dec_l(),
             0x2e => self.ld_l_u8(),
+            0x31 => self.ld_sp_u16(),
+            0x32 => self.ld_hlp_dec_a(),
+            0x33 => self.inc_sp(),
+            0x34 => self.inc_hlp(),
+            0x35 => self.dec_hlp(),
+            0x36 => self.ld_hlp_u8(),
+            0x39 => self.add_hl_sp(),
+            0x3a => self.ld_a_hlp_dec(),
+            0x3b => self.dec_sp(),
+            0x3c => self.inc_a(),
+            0x3d => self.dec_a(),
             0x3e => self.ld_a_u8(),
-
             0x40 => Self::ld_b_b(),
             0x41 => self.ld_b_c(),
             0x42 => self.ld_b_d(),
@@ -42,7 +67,6 @@ impl Cpu {
             0x44 => self.ld_b_h(),
             0x45 => self.ld_b_l(),
             0x47 => self.ld_b_a(),
-
             0x48 => self.ld_c_b(),
             0x49 => Self::ld_c_c(),
             0x4a => self.ld_c_d(),
@@ -51,7 +75,6 @@ impl Cpu {
             0x4d => self.ld_c_l(),
             0x4e => self.ld_c_hlp(),
             0x4f => self.ld_c_a(),
-
             0x50 => Self::ld_d_b(),
             0x51 => self.ld_d_c(),
             0x52 => self.ld_d_d(),
@@ -60,7 +83,6 @@ impl Cpu {
             0x55 => self.ld_d_l(),
             0x56 => self.ld_d_hlp(),
             0x57 => self.ld_d_a(),
-
             0x58 => self.ld_e_b(),
             0x59 => self.ld_e_c(),
             0x5a => self.ld_e_d(),
@@ -69,7 +91,6 @@ impl Cpu {
             0x5d => self.ld_e_l(),
             0x5e => self.ld_e_hlp(),
             0x5f => self.ld_e_a(),
-
             0x60 => self.ld_h_b(),
             0x61 => self.ld_h_c(),
             0x62 => self.ld_h_d(),
@@ -78,7 +99,6 @@ impl Cpu {
             0x65 => self.ld_h_l(),
             0x66 => self.ld_h_hlp(),
             0x67 => self.ld_h_a(),
-
             0x68 => self.ld_l_b(),
             0x69 => self.ld_l_c(),
             0x6a => self.ld_l_d(),
@@ -87,7 +107,6 @@ impl Cpu {
             0x6d => Self::ld_l_l(),
             0x6e => self.ld_l_hlp(),
             0x6f => self.ld_l_a(),
-
             0x70 => self.ld_hlp_b(),
             0x71 => self.ld_hlp_c(),
             0x72 => self.ld_hlp_d(),
@@ -95,7 +114,6 @@ impl Cpu {
             0x74 => self.ld_hlp_h(),
             0x75 => self.ld_hlp_l(),
             0x77 => self.ld_hlp_a(),
-
             0x78 => self.ld_a_b(),
             0x79 => self.ld_a_c(),
             0x7a => self.ld_a_d(),
@@ -104,44 +122,6 @@ impl Cpu {
             0x7d => self.ld_a_l(),
             0x7e => self.ld_a_hlp(),
             0x7f => Self::ld_a_a(),
-
-            // inc/dec
-            0x03 => self.inc_bc(),
-            0x13 => self.inc_de(),
-            0x23 => self.inc_hl(),
-            0x33 => self.inc_sp(),
-
-            0x04 => self.inc_b(),
-            0x14 => self.inc_d(),
-            0x24 => self.inc_h(),
-            0x34 => self.inc_hlp(),
-
-            0x05 => self.dec_b(),
-            0x15 => self.dec_d(),
-            0x25 => self.dec_h(),
-            0x35 => self.dec_hlp(),
-
-            0x0b => self.dec_bc(),
-            0x1b => self.dec_de(),
-            0x2b => self.dec_hl(),
-            0x3b => self.dec_sp(),
-
-            0x0c => self.inc_c(),
-            0x1c => self.inc_e(),
-            0x2c => self.inc_l(),
-            0x3c => self.inc_a(),
-
-            0x0d => self.dec_c(),
-            0x1d => self.dec_e(),
-            0x2d => self.dec_l(),
-            0x3d => self.dec_a(),
-
-            //add
-            0x09 => self.add_hl_bc(),
-            0x19 => self.add_hl_de(),
-            0x29 => self.add_hl_hl(),
-            0x39 => self.add_hl_sp(),
-
             0x80 => self.add_a_b(),
             0x81 => self.add_a_c(),
             0x82 => self.add_a_d(),
@@ -150,9 +130,6 @@ impl Cpu {
             0x85 => self.add_a_l(),
             0x86 => self.add_a_hlp(),
             0x87 => self.add_a_a(),
-            0xC6 => self.add_a_u8(),
-
-            //adc
             0x88 => self.adc_a_b(),
             0x89 => self.adc_a_c(),
             0x8a => self.adc_a_d(),
@@ -161,9 +138,6 @@ impl Cpu {
             0x8d => self.adc_a_l(),
             0x8e => self.adc_a_hlp(),
             0x8f => self.adc_a_a(),
-            0xce => self.adc_a_u8(),
-
-            //sub
             0x90 => self.sub_a_b(),
             0x91 => self.sub_a_c(),
             0x92 => self.sub_a_d(),
@@ -172,9 +146,6 @@ impl Cpu {
             0x95 => self.sub_a_l(),
             0x96 => self.sub_a_hlp(),
             0x97 => self.sub_a_a(),
-            0xD6 => self.sub_a_u8(),
-
-            //sbc
             0x98 => self.sbc_a_b(),
             0x99 => self.sbc_a_c(),
             0x9a => self.sbc_a_d(),
@@ -183,9 +154,10 @@ impl Cpu {
             0x9d => self.sbc_a_l(),
             0x9e => self.sbc_a_hlp(),
             0x9f => self.sbc_a_a(),
-            0xde => self.sbc_a_u8(),
-
-            //and
+            0xC6 => self.add_a_u8(),
+            0xD6 => self.sub_a_u8(),
+            0xE6 => self.and_u8(),
+            0xF6 => self.or_u8(),
             0xa0 => self.and_b(),
             0xa1 => self.and_c(),
             0xa2 => self.and_d(),
@@ -194,9 +166,6 @@ impl Cpu {
             0xa5 => self.and_l(),
             0xa6 => self.and_hlp(),
             0xa7 => self.and_a(),
-            0xE6 => self.and_u8(),
-
-            //xor
             0xa8 => self.xor_b(),
             0xa9 => self.xor_c(),
             0xaa => self.xor_d(),
@@ -205,9 +174,6 @@ impl Cpu {
             0xad => self.xor_l(),
             0xae => self.xor_hlp(),
             0xaf => self.xor_a(),
-            0xee => self.xor_u8(),
-
-            //or
             0xb0 => self.or_b(),
             0xb1 => self.or_c(),
             0xb2 => self.or_d(),
@@ -216,9 +182,6 @@ impl Cpu {
             0xb5 => self.or_l(),
             0xb6 => self.or_hlp(),
             0xb7 => self.or_a(),
-            0xF6 => self.or_u8(),
-
-            //cp
             0xb8 => self.cp_b(),
             0xb9 => self.cp_c(),
             0xba => self.cp_d(),
@@ -227,46 +190,26 @@ impl Cpu {
             0xbd => self.cp_l(),
             0xbe => self.cp_hlp(),
             0xbf => self.cp_a(),
-            0xfe => self.cp_u8(),
-
-            //pop
             0xc1 => self.pop_bc(),
-            0xd1 => self.pop_de(),
-            0xe1 => self.pop_hl(),
-            0xf1 => self.pop_af(),
-
-            //push
-            0xc5 => self.push_bc(),
-            0xd5 => self.push_de(),
-            0xe5 => self.push_hl(),
-            0xf5 => self.push_af(),
-
-            //rst
-            0xcf => self.rst_08h(),
-            0xdf => self.rst_18h(),
-            0xef => self.rst_28h(),
-            0xff => self.rst_38h(),
-
-            //jp
             0xc3 => self.jp_a16(),
-
-            //jr
-            0x18 => self.jr_r8(),
-            0x20 => self.jr_nz_r8(),
-
-            //interrupt enable/disable
-            0xf3 => self.di(),
-            0xfa => self.ei(),
-
-            //rr
-            0x07 => self.rlca(),
-            0x17 => self.rla(),
-            0x0f => self.rrca(),
-            0x1f => self.rra(),
-
-            //cb
+            0xc5 => self.push_bc(),
             0xcb => self.exec_cb_instruction(),
-
+            0xce => self.adc_a_u8(),
+            0xcf => self.rst_08h(),
+            0xd1 => self.pop_de(),
+            0xd5 => self.push_de(),
+            0xde => self.sbc_a_u8(),
+            0xdf => self.rst_18h(),
+            0xe1 => self.pop_hl(),
+            0xe5 => self.push_hl(),
+            0xee => self.xor_u8(),
+            0xef => self.rst_28h(),
+            0xf1 => self.pop_af(),
+            0xf3 => self.di(),
+            0xf5 => self.push_af(),
+            0xfa => self.ei(),
+            0xfe => self.cp_u8(),
+            0xff => self.rst_38h(),
             _ => panic!("Unknown instruction: 0x{opcode:x}"),
         }
     }
