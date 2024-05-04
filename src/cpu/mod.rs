@@ -85,7 +85,7 @@ impl Cpu {
 
     /// Pop a u8 value from the stack.
     pub fn pop_stack_u8(&mut self) -> u8 {
-        let val = self.read(self.registers.sp);
+        let val = *self.read(self.registers.sp);
         self.registers.sp += 1;
         val
     }
@@ -105,10 +105,17 @@ impl Cpu {
     }
 
     /// Reads from wram at address.
-    pub fn read(&self, address: u16) -> u8 {
+    pub fn read_mut(&mut self, address: u16) -> &mut u8 {
         let u_addr = address as usize;
         Self::check_address(address);
-        self.wram[u_addr]
+        &mut self.wram[u_addr]
+    }
+
+    /// Reads from wram at address.
+    pub fn read(&self, address: u16) -> &u8 {
+        let u_addr = address as usize;
+        Self::check_address(address);
+        &self.wram[u_addr]
     }
 
     /// Writes u8 to wram at address.
@@ -127,7 +134,7 @@ impl Cpu {
 
     /// Reads a byte from wram at pc and increases pc by one.
     pub fn read_u8_at_pc_and_increase(&mut self) -> u8 {
-        let val = self.read(self.registers.pc);
+        let val = *self.read(self.registers.pc);
         self.registers.pc = self.registers.pc.wrapping_add(1);
         val
     }
