@@ -2,6 +2,7 @@ use super::Cpu;
 
 impl Cpu {
     /// XXX dst, src
+    /// TODO: Clean up this mess.
     #[allow(clippy::too_many_lines)]
     pub fn exec_instruction(&mut self, opcode: u8) -> u8 {
         let dst_idx = opcode & 0b1111_0000 >> 4;
