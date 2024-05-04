@@ -164,6 +164,12 @@ impl Cpu {
         val.wrapping_sub(1)
     }
 
+    /// Load src into dst.
+    pub fn ld(src: u8, dst: &mut u8) -> u8 {
+        *dst = src;
+        1
+    }
+
     pub fn inc8(&mut self, val: u8) -> u8 {
         let w = val.wrapping_add(1);
         self.registers.set_flag_h(Self::check_add_u8_hc(w, 1));
