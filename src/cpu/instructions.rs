@@ -38,10 +38,7 @@ impl Cpu {
 
             0x08 => {
                 let addr = self.read_u16_at_pc_and_increase();
-                self.write_u16(
-                    addr,
-                    self.registers.pc.wrapping_sub(2),
-                );
+                self.write_u16(addr, self.registers.pc.wrapping_sub(2));
                 5
             }
 
@@ -293,7 +290,7 @@ impl Cpu {
             0xd3 | 0xdb | 0xdd | 0xe3 | 0xe4 | 0xeb | 0xec | 0xed | 0xf4 | 0xfc | 0xfd => {
                 tracing::warn!("unused opcode called {:x}", opcode);
                 Self::nop()
-            },
+            }
         }
     }
 
