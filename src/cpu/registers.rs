@@ -1,5 +1,8 @@
 use super::utils;
-use std::{fmt, ops::{Index, IndexMut}};
+use std::{
+    fmt,
+    ops::{Index, IndexMut},
+};
 
 const FLAG_Z_INDEX: u8 = 0x07;
 const FLAG_N_INDEX: u8 = 0x06;
@@ -57,7 +60,6 @@ impl IndexMut<u8> for Registers {
         }
     }
 }
-
 
 impl Registers {
     pub fn new() -> Registers {
