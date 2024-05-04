@@ -1,5 +1,3 @@
-use std::process;
-
 use self::registers::Registers;
 mod extended_instructions;
 mod instructions;
