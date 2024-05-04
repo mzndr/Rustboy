@@ -155,6 +155,13 @@ impl Cpu {
         byte | mask
     }
 
+
+
+    /// Do nothing.
+    pub fn nop() -> u8 {
+        1
+    }
+
     /// Wrappingly increase a 16 bit value by one.
     pub fn rst(&mut self, address: u16) {
         self.push_stack_u16(self.registers.get_sp());
