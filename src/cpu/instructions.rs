@@ -151,7 +151,6 @@ impl Cpu {
             }
             0x88..=0x8F => self.add8c(self.registers[src_idx]),
 
-
             0x96 => {
                 self.sub8(*self.read(self.registers.get_hl()));
                 2
@@ -189,44 +188,43 @@ impl Cpu {
                 let d8 = self.read_u8_at_pc_and_increase();
                 self.add8(d8);
                 2
-            },
+            }
             0xd6 => {
                 let d8 = self.read_u8_at_pc_and_increase();
                 self.sub8(d8);
                 2
-            },
+            }
             0xe6 => {
                 let d8 = self.read_u8_at_pc_and_increase();
                 self.and(d8);
                 2
-            },
+            }
             0xf6 => {
                 let d8 = self.read_u8_at_pc_and_increase();
                 self.or(d8);
                 2
-            },
-
+            }
 
             0xce => {
                 let d8 = self.read_u8_at_pc_and_increase();
                 self.add8c(d8);
                 2
-            },
+            }
             0xde => {
                 let d8 = self.read_u8_at_pc_and_increase();
                 self.sub8c(d8);
                 2
-            },
+            }
             0xee => {
                 let d8 = self.read_u8_at_pc_and_increase();
                 self.xor(d8);
                 2
-            },
+            }
             0xfe => {
                 let d8 = self.read_u8_at_pc_and_increase();
                 self.cp(d8);
                 2
-            },
+            }
 
             0xc1 => self.pop_bc(),
             0xc3 => self.jp_a16(),
