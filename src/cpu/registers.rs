@@ -11,6 +11,8 @@ const FLAG_C_INDEX: u8 = 0x04;
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Registers {
+    /// Maybe swap these out for an actual array to do better 
+    /// combined register access.
     pub a: u8,
     pub f: u8,
     pub b: u8,
