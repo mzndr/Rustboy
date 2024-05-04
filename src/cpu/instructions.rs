@@ -250,12 +250,6 @@ impl Cpu {
         }
     }
 
-    /// OP-Code: `0x00`
-    /// Mnemonic: `NOP`
-    pub fn nop() -> u8 {
-        1
-    }
-
     /// OP-Code: `0x03`
     /// Mnemonic: `INC BC`
     pub fn inc_bc(&mut self) -> u8 {
