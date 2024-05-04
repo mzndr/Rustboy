@@ -14,22 +14,22 @@ impl Cpu {
                 let val = self.read_u16_at_pc_and_increase();
                 self.registers.set_bc(val);
                 3
-            }
+            },
             0x11 => {
                 let val = self.read_u16_at_pc_and_increase();
                 self.registers.set_de(val);
                 3
-            }
+            },
             0x21 => {
                 let val = self.read_u16_at_pc_and_increase();
                 self.registers.set_hl(val);
                 3
-            }
+            },
             0x31 => {
                 let val = self.read_u16_at_pc_and_increase();
                 self.registers.set_sp(val);
                 3
-            }
+            },
 
             0x03 => self.inc_bc(),
             0x04 => self.inc_b(),
@@ -40,7 +40,7 @@ impl Cpu {
                 let addr = self.read_u16_at_pc_and_increase();
                 self.write_u16(addr, self.registers.pc.wrapping_sub(2));
                 5
-            }
+            },
 
             0x09 => self.add_hl_bc(),
             0x0b => self.dec_bc(),
@@ -91,81 +91,81 @@ impl Cpu {
             0x02 => {
                 Self::ld(self.registers.a, self.read_mut(self.registers.get_bc()));
                 2
-            }
+            },
             0x12 => {
                 Self::ld(self.registers.a, self.read_mut(self.registers.get_de()));
                 2
-            }
+            },
             0x22 => {
                 let hl = self.registers.get_hl();
                 Self::ld(self.registers.a, self.read_mut(hl));
                 self.registers.set_hl(hl.wrapping_add(1));
                 2
-            }
+            },
             0x32 => {
                 let hl = self.registers.get_hl();
                 Self::ld(self.registers.a, self.read_mut(hl));
                 self.registers.set_hl(hl.wrapping_sub(1));
                 2
-            }
+            },
 
             0x06 => {
                 Self::ld(self.read_u8_at_pc_and_increase(), &mut self.registers.b);
                 2
-            }
+            },
             0x16 => {
                 Self::ld(self.read_u8_at_pc_and_increase(), &mut self.registers.d);
                 2
-            }
+            },
             0x26 => {
                 Self::ld(self.read_u8_at_pc_and_increase(), &mut self.registers.h);
                 2
-            }
+            },
             0x36 => {
                 Self::ld(
                     self.read_u8_at_pc_and_increase(),
                     self.read_mut(self.registers.get_hl()),
                 );
                 3
-            }
+            },
 
             0x0a => {
                 Self::ld(*self.read(self.registers.get_bc()), &mut self.registers.a);
                 2
-            }
+            },
             0x1a => {
                 Self::ld(*self.read(self.registers.get_de()), &mut self.registers.a);
                 2
-            }
+            },
             0x2a => {
                 let hl = self.registers.get_hl();
                 Self::ld(*self.read(hl), &mut self.registers.a);
                 self.registers.set_hl(hl.wrapping_add(1));
                 2
-            }
+            },
             0x3a => {
                 let hl = self.registers.get_hl();
                 Self::ld(*self.read(hl), &mut self.registers.a);
                 self.registers.set_hl(hl.wrapping_sub(1));
                 2
-            }
+            },
 
             0x0e => {
                 Self::ld(self.read_u8_at_pc_and_increase(), &mut self.registers.c);
                 2
-            }
+            },
             0x1e => {
                 Self::ld(self.read_u8_at_pc_and_increase(), &mut self.registers.e);
                 2
-            }
+            },
             0x2e => {
                 Self::ld(self.read_u8_at_pc_and_increase(), &mut self.registers.l);
                 2
-            }
+            },
             0x3e => {
                 Self::ld(self.read_u8_at_pc_and_increase(), &mut self.registers.a);
                 2
-            }
+            },
 
             0x4e | 0x5e | 0x6e | 0x7e | 0x46 | 0x56 | 0x66 => {
                 Self::ld(
@@ -173,7 +173,7 @@ impl Cpu {
                     &mut self.registers[dst_idx],
                 );
                 2
-            }
+            },
             0x76 => todo!("HLT"),
             0x70..=0x77 => {
                 Self::ld(
@@ -181,94 +181,94 @@ impl Cpu {
                     self.read_mut(self.registers.get_hl()),
                 );
                 2
-            }
+            },
             0x40..=0x7f => Self::ld(self.registers[src_idx], &mut self.registers[dst_idx]),
 
             0x86 => {
                 self.add8(*self.read(self.registers.get_hl()));
                 2
-            }
+            },
             0x80..=0x87 => self.add8(self.registers[src_idx]),
             0x8e => {
                 self.add8c(*self.read(self.registers.get_hl()));
                 2
-            }
+            },
             0x88..=0x8f => self.add8c(self.registers[src_idx]),
 
             0x96 => {
                 self.sub8(*self.read(self.registers.get_hl()));
                 2
-            }
+            },
             0x90..=0x97 => self.sub8(self.registers[src_idx]),
             0x9e => {
                 self.sub8c(*self.read(self.registers.get_hl()));
                 2
-            }
+            },
             0x98..=0x9f => self.sub8c(self.registers[src_idx]),
 
             0xa6 => {
                 self.and(*self.read(self.registers.get_hl()));
                 2
-            }
+            },
             0xa0..=0xa7 => self.and(self.registers[src_idx]),
             0xae => {
                 self.xor(*self.read(self.registers.get_hl()));
                 2
-            }
+            },
             0xa8..=0xaf => self.xor(self.registers[src_idx]),
 
             0xb6 => {
                 self.or(*self.read(self.registers.get_hl()));
                 2
-            }
+            },
             0xb0..=0xb7 => self.or(self.registers[src_idx]),
             0xbe => {
                 self.cp(*self.read(self.registers.get_hl()));
                 2
-            }
+            },
             0xb8..=0xbf => self.cp(self.registers[src_idx]),
 
             0xc6 => {
                 let d8 = self.read_u8_at_pc_and_increase();
                 self.add8(d8);
                 2
-            }
+            },
             0xd6 => {
                 let d8 = self.read_u8_at_pc_and_increase();
                 self.sub8(d8);
                 2
-            }
+            },
             0xe6 => {
                 let d8 = self.read_u8_at_pc_and_increase();
                 self.and(d8);
                 2
-            }
+            },
             0xf6 => {
                 let d8 = self.read_u8_at_pc_and_increase();
                 self.or(d8);
                 2
-            }
+            },
 
             0xce => {
                 let d8 = self.read_u8_at_pc_and_increase();
                 self.add8c(d8);
                 2
-            }
+            },
             0xde => {
                 let d8 = self.read_u8_at_pc_and_increase();
                 self.sub8c(d8);
                 2
-            }
+            },
             0xee => {
                 let d8 = self.read_u8_at_pc_and_increase();
                 self.xor(d8);
                 2
-            }
+            },
             0xfe => {
                 let d8 = self.read_u8_at_pc_and_increase();
                 self.cp(d8);
                 2
-            }
+            },
 
             0xc1 => self.pop_bc(),
             0xc3 => self.jp_a16(),
@@ -288,9 +288,9 @@ impl Cpu {
             0xff => self.rst_38h(),
 
             0xd3 | 0xdb | 0xdd | 0xe3 | 0xe4 | 0xeb | 0xec | 0xed | 0xf4 | 0xfc | 0xfd => {
-                tracing::warn!("unused opcode called {:x}", opcode);
+                tracing::warn!("unused opcode called {:x},", opcode);
                 Self::nop()
-            }
+            },
         }
     }
 
