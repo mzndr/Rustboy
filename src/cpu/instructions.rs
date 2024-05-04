@@ -242,7 +242,11 @@ impl Cpu {
             0xf5 => self.push_af(),
             0xfa => self.ei(),
             0xff => self.rst_38h(),
-            _ => panic!("Unknown instruction: 0x{opcode:x}"),
+
+            0xd3 | 0xdb | 0xdd | 0xe3 | 0xe4 | 0xeb | 0xec | 0xed | 0xf4 | 0xfc | 0xfd => {
+                tracing::warn!("unused opcode called {:x}", opcode);
+                Self::nop()
+            }
         }
     }
 
