@@ -205,17 +205,21 @@ impl Cpu {
     }
 
     // 8 bit addition with carry flag and value
-    pub fn add8c(&mut self, val: u8) {
+    pub fn add8c(&mut self, val: u8) -> u8 {
         self.add8(val.wrapping_add(self.registers.get_flag_c().into()));
+
+        1
     }
 
     // 8 bit sub with carry flag and value
-    pub fn sub8c(&mut self, val: u8) {
+    pub fn sub8c(&mut self, val: u8) -> u8 {
         self.sub8(val.wrapping_sub(self.registers.get_flag_c().into()));
+
+        1
     }
 
     /// Adds two value with A, sets flags, and stores result in A
-    pub fn add8(&mut self, val: u8) {
+    pub fn add8(&mut self, val: u8) -> u8 {
         let a = self.registers.a;
         let result = a.wrapping_add(val);
         self.registers.set_flag_h(result & 0xf == 0xf);
@@ -224,10 +228,12 @@ impl Cpu {
         self.registers
             .set_flag_c(u16::from(val) + u16::from(a) > 0xFF);
         self.registers.a = result;
+
+        1
     }
 
     /// Subs two 8 bit integers and sets flags and sotres result in A
-    pub fn sub8(&mut self, val: u8) {
+    pub fn sub8(&mut self, val: u8) -> u8 {
         let a = self.registers.a;
         let result = a.wrapping_sub(val);
         self.registers.set_flag_h(Self::check_sub_u8_hc(a, val));
@@ -235,6 +241,8 @@ impl Cpu {
         self.registers.set_flag_n(true);
         self.registers.set_flag_c(u16::from(val) < u16::from(a));
         self.registers.a = result;
+
+        1
     }
 
     /// Absolute jump by setting PC to address
@@ -248,40 +256,48 @@ impl Cpu {
     }
 
     /// Xors value with a register and sets flags.
-    pub fn xor(&mut self, val: u8) {
+    pub fn xor(&mut self, val: u8) -> u8 {
         self.registers.a ^= val;
         self.registers.set_flag_z(self.registers.a == 0);
         self.registers.set_flag_n(false);
         self.registers.set_flag_h(false);
         self.registers.set_flag_c(false);
+
+        1
     }
 
     /// And value with a register and sets flags.
-    pub fn and(&mut self, val: u8) {
+    pub fn and(&mut self, val: u8) -> u8 {
         self.registers.a &= val;
         self.registers.set_flag_z(self.registers.a == 0);
         self.registers.set_flag_n(false);
         self.registers.set_flag_h(true);
         self.registers.set_flag_c(false);
+
+        1
     }
 
     /// Or value with a register and sets flags.
-    pub fn or(&mut self, val: u8) {
+    pub fn or(&mut self, val: u8) -> u8 {
         self.registers.a |= val;
         self.registers.set_flag_z(self.registers.a == 0);
         self.registers.set_flag_n(false);
         self.registers.set_flag_h(false);
         self.registers.set_flag_c(false);
+
+        1
     }
 
     /// Compare with `a`, basicly a sub operation without setting `a`.
-    pub fn cp(&mut self, val: u8) {
+    pub fn cp(&mut self, val: u8) -> u8 {
         let a = self.registers.a;
         let result = a.wrapping_sub(val);
         self.registers.set_flag_h(Self::check_sub_u8_hc(a, val));
         self.registers.set_flag_z(result == 0);
         self.registers.set_flag_n(true);
         self.registers.set_flag_c(u16::from(val) < u16::from(a));
+
+        1
     }
 
     /// Check for u8 half carries on additions. (carry from 3rd to 4th bit).
