@@ -28,7 +28,7 @@ pub struct Registers {
 impl Index<u8> for Registers {
     type Output = u8;
     fn index(&self, index: u8) -> &Self::Output {
-        match index % 7 {
+        match index % 8 {
             0 => &self.b,
             1 => &self.c,
             2 => &self.d,
@@ -44,7 +44,7 @@ impl Index<u8> for Registers {
 
 impl IndexMut<u8> for Registers {
     fn index_mut(&mut self, index: u8) -> &mut Self::Output {
-        match index % 7 {
+        match index % 8 {
             0 => &mut self.b,
             1 => &mut self.c,
             2 => &mut self.d,
