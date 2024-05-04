@@ -10,10 +10,36 @@ impl Cpu {
 
         match opcode {
             0x00 => Self::nop(),
+            0x01 => {
+                self.registers.set_bc(self.read_u16_at_pc_and_increase());
+                3
+            }
+            0x11 => {
+                self.registers.set_de(self.read_u16_at_pc_and_increase());
+                3
+            }
+            0x21 => {
+                self.registers.set_hl(self.read_u16_at_pc_and_increase());
+                3
+            }
+            0x31 => {
+                self.registers.set_sp(self.read_u16_at_pc_and_increase());
+                3
+            }
+
             0x03 => self.inc_bc(),
             0x04 => self.inc_b(),
             0x05 => self.dec_b(),
             0x07 => self.rlca(),
+
+            0x08 => {
+                self.write_u16(
+                    self.read_u16_at_pc_and_increase(),
+                    self.registers.pc.wrapping_sub(2),
+                );
+                5
+            }
+
             0x09 => self.add_hl_bc(),
             0x0b => self.dec_bc(),
             0x0c => self.inc_c(),
