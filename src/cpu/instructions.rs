@@ -11,19 +11,23 @@ impl Cpu {
         match opcode {
             0x00 => Self::nop(),
             0x01 => {
-                self.registers.set_bc(self.read_u16_at_pc_and_increase());
+                let val = self.read_u16_at_pc_and_increase();
+                self.registers.set_bc(val);
                 3
             }
             0x11 => {
-                self.registers.set_de(self.read_u16_at_pc_and_increase());
+                let val = self.read_u16_at_pc_and_increase();
+                self.registers.set_de(val);
                 3
             }
             0x21 => {
-                self.registers.set_hl(self.read_u16_at_pc_and_increase());
+                let val = self.read_u16_at_pc_and_increase();
+                self.registers.set_hl(val);
                 3
             }
             0x31 => {
-                self.registers.set_sp(self.read_u16_at_pc_and_increase());
+                let val = self.read_u16_at_pc_and_increase();
+                self.registers.set_sp(val);
                 3
             }
 
@@ -33,8 +37,9 @@ impl Cpu {
             0x07 => self.rlca(),
 
             0x08 => {
+                let addr = self.read_u16_at_pc_and_increase();
                 self.write_u16(
-                    self.read_u16_at_pc_and_increase(),
+                    addr,
                     self.registers.pc.wrapping_sub(2),
                 );
                 5
@@ -285,7 +290,8 @@ impl Cpu {
             0xd3 | 0xdb | 0xdd | 0xe3 | 0xe4 | 0xeb | 0xec | 0xed | 0xf4 | 0xfc | 0xfd => {
                 tracing::warn!("unused opcode called {:x}", opcode);
                 Self::nop()
-            }
+            },
+            _ => todo!(),
         }
     }
 
