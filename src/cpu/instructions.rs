@@ -76,6 +76,9 @@ impl Cpu {
             0x2c => self.inc_l(),
             0x2d => self.dec_l(),
 
+            0x2f => self.cpl(),
+            0x3f => self.ccf(),
+            0x37 => self.ccf(),
 
             0x30 => self.jr_nc_r8(),
 

@@ -188,6 +188,30 @@ impl Cpu {
         w
     }
 
+    /// Flip all bytes in `a` register.
+    pub fn cpl(&mut self) -> u8 {
+        self.registers.set_flag_n(true);
+        self.registers.set_flag_h(true);
+        self.registers.a = self.registers.a ^ 0xFF;
+        1
+    }
+
+    /// Flip carry flag and unset `n` and `h` flags.
+    pub fn ccf(&mut self) -> u8 {
+        self.registers.set_flag_n(false);
+        self.registers.set_flag_h(false);
+        self.registers.set_flag_c(!self.registers.get_flag_c());
+        1
+    }
+
+    /// Set carry flag and unset `n` and `h` flags.
+    pub fn scf(&mut self) -> u8 {
+        self.registers.set_flag_n(false);
+        self.registers.set_flag_h(false);
+        self.registers.set_flag_c(true);
+        1
+    }
+
     pub fn dec8(&mut self, val: u8) -> u8 {
         let w = val.wrapping_sub(1);
         self.registers.set_flag_h(Self::check_sub_u8_hc(w, 1));
