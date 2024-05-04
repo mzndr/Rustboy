@@ -48,6 +48,9 @@ impl Cpu {
             0x13 => self.inc_de(),
             0x14 => self.inc_d(),
             0x15 => self.dec_d(),
+
+            0x10 => todo!("STOP"),
+
             0x17 => self.rla(),
             0x18 => self.jr_r8(),
             0x19 => self.add_hl_de(),
