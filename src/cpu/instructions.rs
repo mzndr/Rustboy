@@ -291,7 +291,6 @@ impl Cpu {
                 tracing::warn!("unused opcode called {:x}", opcode);
                 Self::nop()
             },
-            _ => todo!(),
         }
     }
 
