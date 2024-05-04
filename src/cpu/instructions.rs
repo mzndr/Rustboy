@@ -129,45 +129,45 @@ impl Cpu {
                 3
             }
 
-            0x0A => {
+            0x0a => {
                 Self::ld(*self.read(self.registers.get_bc()), &mut self.registers.a);
                 2
             }
-            0x1A => {
+            0x1a => {
                 Self::ld(*self.read(self.registers.get_de()), &mut self.registers.a);
                 2
             }
-            0x2A => {
+            0x2a => {
                 let hl = self.registers.get_hl();
                 Self::ld(*self.read(hl), &mut self.registers.a);
                 self.registers.set_hl(hl.wrapping_add(1));
                 2
             }
-            0x3A => {
+            0x3a => {
                 let hl = self.registers.get_hl();
                 Self::ld(*self.read(hl), &mut self.registers.a);
                 self.registers.set_hl(hl.wrapping_sub(1));
                 2
             }
 
-            0x0E => {
+            0x0e => {
                 Self::ld(self.read_u8_at_pc_and_increase(), &mut self.registers.c);
                 2
             }
-            0x1E => {
+            0x1e => {
                 Self::ld(self.read_u8_at_pc_and_increase(), &mut self.registers.e);
                 2
             }
-            0x2E => {
+            0x2e => {
                 Self::ld(self.read_u8_at_pc_and_increase(), &mut self.registers.l);
                 2
             }
-            0x3E => {
+            0x3e => {
                 Self::ld(self.read_u8_at_pc_and_increase(), &mut self.registers.a);
                 2
             }
 
-            0x4E | 0x5E | 0x6E | 0x7E | 0x46 | 0x56 | 0x66 => {
+            0x4e | 0x5e | 0x6e | 0x7e | 0x46 | 0x56 | 0x66 => {
                 Self::ld(
                     *self.read(self.registers.get_hl()),
                     &mut self.registers[dst_idx],
@@ -189,22 +189,22 @@ impl Cpu {
                 2
             }
             0x80..=0x87 => self.add8(self.registers[src_idx]),
-            0x8E => {
+            0x8e => {
                 self.add8c(*self.read(self.registers.get_hl()));
                 2
             }
-            0x88..=0x8F => self.add8c(self.registers[src_idx]),
+            0x88..=0x8f => self.add8c(self.registers[src_idx]),
 
             0x96 => {
                 self.sub8(*self.read(self.registers.get_hl()));
                 2
             }
             0x90..=0x97 => self.sub8(self.registers[src_idx]),
-            0x9E => {
+            0x9e => {
                 self.sub8c(*self.read(self.registers.get_hl()));
                 2
             }
-            0x98..=0x9F => self.sub8c(self.registers[src_idx]),
+            0x98..=0x9f => self.sub8c(self.registers[src_idx]),
 
             0xa6 => {
                 self.and(*self.read(self.registers.get_hl()));
