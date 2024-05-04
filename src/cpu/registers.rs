@@ -1,5 +1,5 @@
 use super::utils;
-use std::fmt;
+use std::{fmt, ops::{Index, IndexMut}};
 
 const FLAG_Z_INDEX: u8 = 0x07;
 const FLAG_N_INDEX: u8 = 0x06;
@@ -22,6 +22,42 @@ pub struct Registers {
 
     pub ime: bool,
 }
+
+/// Impl index for registers to easilly decode
+/// register access by opcode.
+impl Index<u8> for Registers {
+    type Output = u8;
+    fn index(&self, index: u8) -> &Self::Output {
+        match index % 7 {
+            0 => &self.b,
+            1 => &self.c,
+            2 => &self.d,
+            3 => &self.e,
+            4 => &self.h,
+            5 => &self.l,
+            // HL
+            7 => &self.a,
+            _ => panic!("invalid register at 0x{:x}", &index),
+        }
+    }
+}
+
+impl IndexMut<u8> for Registers {
+    fn index_mut(&mut self, index: u8) -> &mut Self::Output {
+        match index % 7 {
+            0 => &mut self.b,
+            1 => &mut self.c,
+            2 => &mut self.d,
+            3 => &mut self.e,
+            4 => &mut self.h,
+            5 => &mut self.l,
+            // HL
+            7 => &mut self.a,
+            _ => panic!("invalid register at 0x{:x}", &index),
+        }
+    }
+}
+
 
 impl Registers {
     pub fn new() -> Registers {
