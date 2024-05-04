@@ -153,8 +153,6 @@ impl Cpu {
         byte | mask
     }
 
-
-
     /// Do nothing.
     pub fn nop() -> u8 {
         1
