@@ -62,13 +62,22 @@ impl Cpu {
             0x23 => self.inc_hl(),
             0x24 => self.inc_h(),
             0x25 => self.dec_h(),
+
+            0x27 => todo!("DAA"),
+            0x28 => self.jr_z_r8(),
+
             0x29 => self.add_hl_hl(),
             0x2b => self.dec_hl(),
             0x2c => self.inc_l(),
             0x2d => self.dec_l(),
+
+
+            0x30 => self.jr_nc_r8(),
+
             0x33 => self.inc_sp(),
             0x34 => self.inc_hlp(),
             0x35 => self.dec_hlp(),
+            0x38 => self.jr_c_r8(),
             0x39 => self.add_hl_sp(),
             0x3b => self.dec_sp(),
             0x3c => self.inc_a(),
@@ -515,6 +524,39 @@ impl Cpu {
     pub fn jr_nz_r8(&mut self) -> u8 {
         let val = self.read_u8_at_pc_and_increase();
         if !self.registers.get_flag_z() {
+            self.jr(val);
+            return 3;
+        }
+        2
+    }
+
+    /// OP-Code: `0x28`
+    /// Mnemonic: `JR Z, r8`
+    pub fn jr_z_r8(&mut self) -> u8 {
+        let val = self.read_u8_at_pc_and_increase();
+        if self.registers.get_flag_z() {
+            self.jr(val);
+            return 3;
+        }
+        2
+    }
+
+    /// OP-Code: `0x30`
+    /// Mnemonic: `JR NC, r8`
+    pub fn jr_nc_r8(&mut self) -> u8 {
+        let val = self.read_u8_at_pc_and_increase();
+        if !self.registers.get_flag_c() {
+            self.jr(val);
+            return 3;
+        }
+        2
+    }
+
+    /// OP-Code: `0x38`
+    /// Mnemonic: `JR C, r8`
+    pub fn jr_c_r8(&mut self) -> u8 {
+        let val = self.read_u8_at_pc_and_increase();
+        if self.registers.get_flag_c() {
             self.jr(val);
             return 3;
         }
