@@ -158,6 +158,12 @@ impl Cpu {
         1
     }
 
+    /// Return from function
+    pub fn ret(&mut self) -> u8 {
+        self.registers.sp = self.pop_stack_u16();
+        4
+    }
+
     /// Wrappingly increase a 16 bit value by one.
     pub fn rst(&mut self, address: u16) {
         self.push_stack_u16(self.registers.get_sp());
@@ -172,6 +178,46 @@ impl Cpu {
     /// Wrappingly decrease a 16 bit value by one.
     pub fn dec16(val: u16) -> u16 {
         val.wrapping_sub(1)
+    }
+
+    pub fn call(&mut self, addr: u16) -> u8 {
+        self.push_stack_u16(self.registers.pc);
+        self.registers.pc = addr;
+        4
+    }
+
+    pub fn call_a16(&mut self) -> u8 {
+        let addr = self.read_u16_at_pc_and_increase();
+        self.call(addr);
+        6
+    }
+
+    pub fn call_nz_a16(&mut self) -> u8 {
+        if self.registers.get_flag_z() {
+            return 4
+        }
+        self.call_a16()
+    }
+
+    pub fn call_z_a16(&mut self) -> u8 {
+        if !self.registers.get_flag_z() {
+            return 4
+        }
+        self.call_a16()
+    }
+
+    pub fn call_nc_a16(&mut self) -> u8 {
+        if self.registers.get_flag_c() {
+            return 4
+        }
+        self.call_a16()
+    }
+
+    pub fn call_c_a16(&mut self) -> u8 {
+        if !self.registers.get_flag_c() {
+            return 4
+        }
+        self.call_a16()
     }
 
     /// Load src into dst.
@@ -273,8 +319,37 @@ impl Cpu {
     }
 
     /// Absolute jump by setting PC to address
-    pub fn jp(&mut self, address: u16) {
+    pub fn jp(&mut self, address: u16) -> u8 {
         self.registers.set_pc(address);
+        4
+    }
+
+    pub fn jp_nz_a16(&mut self) -> u8 {
+        if self.registers.get_flag_z() {
+            return 3;
+        }
+        self.jp_a16()
+    }
+
+    pub fn jp_nc_a16(&mut self) -> u8 {
+        if self.registers.get_flag_c() {
+            return 3;
+        }
+        self.jp_a16()
+    }
+
+    pub fn jp_z_a16(&mut self) -> u8 {
+        if !self.registers.get_flag_z() {
+            return 3;
+        }
+        self.jp_a16()
+    }
+
+    pub fn jp_c_a16(&mut self) -> u8 {
+        if !self.registers.get_flag_c() {
+            return 3;
+        }
+        self.jp_a16()
     }
 
     /// Relative jump by adding val to PC
