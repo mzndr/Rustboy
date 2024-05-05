@@ -194,28 +194,28 @@ impl Cpu {
 
     pub fn call_nz_a16(&mut self) -> u8 {
         if self.registers.get_flag_z() {
-            return 4
+            return 4;
         }
         self.call_a16()
     }
 
     pub fn call_z_a16(&mut self) -> u8 {
         if !self.registers.get_flag_z() {
-            return 4
+            return 4;
         }
         self.call_a16()
     }
 
     pub fn call_nc_a16(&mut self) -> u8 {
         if self.registers.get_flag_c() {
-            return 4
+            return 4;
         }
         self.call_a16()
     }
 
     pub fn call_c_a16(&mut self) -> u8 {
         if !self.registers.get_flag_c() {
-            return 4
+            return 4;
         }
         self.call_a16()
     }
