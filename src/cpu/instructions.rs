@@ -72,6 +72,22 @@ impl Cpu {
             0x3d => self.dec_a(),
             0x3e => self.ld_a_d8(),
             0x3f => self.ccf(),
+            0x46 => self.ld_b_hl_ptr(),
+            0x4e => self.ld_c_hl_ptr(),
+            0x56 => self.ld_d_hl_ptr(),
+            0x5e => self.ld_e_hl_ptr(),
+            0x66 => self.ld_h_hl_ptr(),
+            0x6e => self.ld_l_hl_ptr(),
+            0x76 => todo!("HLT"),
+            0x7e => self.ld_a_hl_ptr(),
+            0x86 => self.add_hl_ptr(),
+            0x8e => self.adc_hl_ptr(),
+            0x96 => self.sub_hl_ptr(),
+            0x9e => self.sbc_hl_ptr(),
+            0xa6 => self.and_hl_ptr(),
+            0xae => self.xor_hl_ptr(),
+            0xb6 => self.or_hl_ptr(),
+            0xbe => self.cp_hl(),
             0xc0 => self.ret_nz(),
             0xc1 => self.pop_bc(),
             0xc2 => self.jp_nz_a16(),
@@ -126,27 +142,15 @@ impl Cpu {
             0xfe => self.cp_d8(),
             0xff => self.call(0x38),
 
-
-            // Don't sort, order matters.
-            0x4e | 0x5e | 0x6e | 0x7e | 0x46 | 0x56 | 0x66 => self.ld_n_hl_ptr(dst_idx),
-            0x76 => todo!("HLT"),
             0x70..=0x77 => self.ld_hl_ptr_n(dst_idx),
             0x40..=0x7f => Self::ld(self.registers[src_idx], &mut self.registers[dst_idx]),
-            0x86 => self.add_hl_ptr(),
             0x80..=0x87 => self.add8(self.registers[src_idx]),
-            0x8e => self.adc_hl_ptr(),
             0x88..=0x8f => self.add8c(self.registers[src_idx]),
-            0x96 => self.sub_hl_ptr(),
             0x90..=0x97 => self.sub8(self.registers[src_idx]),
-            0x9e => self.sbc_hl_ptr(),
             0x98..=0x9f => self.sub8c(self.registers[src_idx]),
-            0xa6 => self.and_hl_ptr(),
             0xa0..=0xa7 => self.and(self.registers[src_idx]),
-            0xae => self.xor_hl_ptr(),
             0xa8..=0xaf => self.xor(self.registers[src_idx]),
-            0xb6 => self.or_hl_ptr(),
             0xb0..=0xb7 => self.or(self.registers[src_idx]),
-            0xbe => self.cp_hl(),
             0xb8..=0xbf => self.cp(self.registers[src_idx]),
 
             0xd3 | 0xdb | 0xdd | 0xe3 | 0xe4 | 0xeb | 0xec | 0xed | 0xf4 | 0xfc | 0xfd => {
@@ -154,6 +158,41 @@ impl Cpu {
                 Self::nop()
             }
         }
+    }
+
+    pub fn ld_b_hl_ptr(&mut self) -> u8 {
+        self.registers.b = *self.read(self.registers.get_hl());
+        2
+    }
+
+    pub fn ld_d_hl_ptr(&mut self) -> u8 {
+        self.registers.d = *self.read(self.registers.get_hl());
+        2
+    }
+
+    pub fn ld_h_hl_ptr(&mut self) -> u8 {
+        self.registers.h = *self.read(self.registers.get_hl());
+        2
+    }
+
+    pub fn ld_c_hl_ptr(&mut self) -> u8 {
+        self.registers.c = *self.read(self.registers.get_hl());
+        2
+    }
+
+    pub fn ld_e_hl_ptr(&mut self) -> u8 {
+        self.registers.e = *self.read(self.registers.get_hl());
+        2
+    }
+
+    pub fn ld_l_hl_ptr(&mut self) -> u8 {
+        self.registers.l = *self.read(self.registers.get_hl());
+        2
+    }
+
+    pub fn ld_a_hl_ptr(&mut self) -> u8 {
+        self.registers.a = *self.read(self.registers.get_hl());
+        2
     }
 
     pub fn ld_hl_sp_r8(&mut self) -> u8 {
