@@ -630,8 +630,9 @@ impl Cpu {
     pub fn rla(&mut self) -> u8 {
         //todo: do this properly.
         tracing::warn!("do this properly");
+        let prev_carry = self.registers.c;
         let a = self.registers.a;
-        self.registers.set_flag_c(((a & 0b1000_0000) << 7) == 1);
+        self.registers.set_flag_c(((a & 0b1000_0000) >> 7) == 1);
         self.registers.a = a.rotate_left(1);
         self.registers.set_flag_z(false);
         self.registers.set_flag_n(false);
@@ -640,29 +641,18 @@ impl Cpu {
     }
 
     pub fn rlca(&mut self) -> u8 {
-        //todo: do this properly.
-        tracing::warn!("do this properly");
-        let a = self.registers.a;
-        self.registers.set_flag_c(((a & 0b1000_0000) >> 7) == 1);
-        self.registers.a = a.rotate_left(1);
-        self.registers.set_flag_z(self.registers.a == 0);
+        self.registers.a = self.registers.a.rotate_left(1);
+        self.registers.set_flag_c((self.registers.a & 1) == 1);
         self.registers.set_flag_n(false);
         self.registers.set_flag_h(false);
-        self.registers.set_flag_c(false);
         1
     }
 
     pub fn rrca(&mut self) -> u8 {
-        //todo: do this properly.
-        tracing::warn!("do this properly");
-
-        let a = self.registers.a;
-        self.registers.set_flag_c(((a & 0b1000_0000) << 7) == 1);
-        self.registers.a = a.rotate_right(1);
-        self.registers.set_flag_z(self.registers.a == 0);
+        self.registers.set_flag_c((self.registers.a & 1) == 1);
+        self.registers.a = self.registers.a.rotate_right(1);
         self.registers.set_flag_n(false);
         self.registers.set_flag_h(false);
-        self.registers.set_flag_c(false);
         1
     }
 
