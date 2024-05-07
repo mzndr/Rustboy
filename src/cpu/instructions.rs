@@ -31,7 +31,7 @@ impl Cpu {
             0x14 => self.inc_d(),
             0x15 => self.dec_d(),
             0x16 => self.ld_d_d8(),
-            0x17 => self.rla(),
+            0x17 => self.rl(REGISTER_A_INDEX),
             0x18 => self.jr_r8(),
             0x19 => self.add_hl_de(),
             0x1a => self.ld_a_de_ptr(),
@@ -39,7 +39,7 @@ impl Cpu {
             0x1c => self.inc_e(),
             0x1d => self.dec_e(),
             0x1e => self.ld_e_d8(),
-            0x1f => self.rra(),
+            0x1f => self.rr(REGISTER_A_INDEX),
             0x20 => self.jr_nz_r8(),
             0x21 => self.ld_hl_d16(),
             0x22 => self.ld_hl_inc_ptr_a(),
@@ -611,12 +611,12 @@ impl Cpu {
     /// The contents of A are rotated right one bit position.
     /// The contents of bit 0 are copied to the carry flag and the
     /// previous contents of the carry flag are copied to bit 7.
-    pub fn rra(&mut self) -> u8 {
+    pub fn rr(&mut self, register_idx: u8) -> u8 {
         let prev_carry = u8::from(self.registers.get_flag_c());
         self.registers
-            .set_flag_c((self.registers.a & 0b0000_0001) == 1);
-        self.registers.a = self.registers.a.rotate_right(1);
-        self.registers.a |= prev_carry << 7;
+            .set_flag_c((self.registers[register_idx] & 0b0000_0001) == 1);
+        self.registers[register_idx] = self.registers[register_idx].rotate_right(1);
+        self.registers[register_idx] |= prev_carry << 7;
         self.registers.set_flag_n(false);
         self.registers.set_flag_h(false);
         1
@@ -625,12 +625,12 @@ impl Cpu {
     /// The contents of A are rotated left one bit position. The contents of
     /// bit 7 are copied to the carry flag and the previous contents of the carry
     /// flag are copied to bit 0.
-    pub fn rla(&mut self) -> u8 {
+    pub fn rl(&mut self, register_idx: u8) -> u8 {
         let prev_carry = u8::from(self.registers.get_flag_c());
         self.registers
-            .set_flag_c(((self.registers.a & 0b1000_0000) >> 7) == 1);
-        self.registers.a = self.registers.a.rotate_left(1);
-        self.registers.a |= prev_carry;
+            .set_flag_c(((self.registers[register_idx] & 0b1000_0000) >> 7) == 1);
+        self.registers[register_idx] = self.registers[register_idx].rotate_left(1);
+        self.registers[register_idx] |= prev_carry;
         self.registers.set_flag_n(false);
         self.registers.set_flag_h(false);
         1
