@@ -4,10 +4,10 @@ use std::{
     ops::{Index, IndexMut},
 };
 
-const FLAG_Z_INDEX: u8 = 0x07;
-const FLAG_N_INDEX: u8 = 0x06;
-const FLAG_H_INDEX: u8 = 0x05;
-const FLAG_C_INDEX: u8 = 0x04;
+pub const FLAG_Z_INDEX: u8 = 0x07;
+pub const FLAG_N_INDEX: u8 = 0x06;
+pub const FLAG_H_INDEX: u8 = 0x05;
+pub const FLAG_C_INDEX: u8 = 0x04;
 
 pub const REGISTER_B_INDEX: u8 = 0;
 pub const REGISTER_C_INDEX: u8 = 1;
@@ -17,8 +17,6 @@ pub const REGISTER_H_INDEX: u8 = 4;
 pub const REGISTER_L_INDEX: u8 = 5;
 pub const REGISTER_F_INDEX: u8 = 6;
 pub const REGISTER_A_INDEX: u8 = 7;
-
-
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Registers {
