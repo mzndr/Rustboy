@@ -238,7 +238,7 @@ impl Cpu {
     pub fn cpl(&mut self) -> u8 {
         self.registers.set_flag_n(true);
         self.registers.set_flag_h(true);
-        self.registers.a = self.registers.a ^ 0xFF;
+        self.registers.a ^= 0xFF;
         1
     }
 

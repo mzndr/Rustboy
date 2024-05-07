@@ -616,7 +616,7 @@ impl Cpu {
         self.registers
             .set_flag_c((self.registers.a & 0b0000_0001) == 1);
         self.registers.a = self.registers.a.rotate_right(1);
-        self.registers.a = self.registers.a | (prev_carry << 7);
+        self.registers.a |= prev_carry << 7;
         self.registers.set_flag_n(false);
         self.registers.set_flag_h(false);
         1
@@ -630,7 +630,7 @@ impl Cpu {
         self.registers
             .set_flag_c(((self.registers.a & 0b1000_0000) >> 7) == 1);
         self.registers.a = self.registers.a.rotate_left(1);
-        self.registers.a = self.registers.a | prev_carry;
+        self.registers.a |= prev_carry;
         self.registers.set_flag_n(false);
         self.registers.set_flag_h(false);
         1
