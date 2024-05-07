@@ -9,6 +9,17 @@ const FLAG_N_INDEX: u8 = 0x06;
 const FLAG_H_INDEX: u8 = 0x05;
 const FLAG_C_INDEX: u8 = 0x04;
 
+pub const REGISTER_B_INDEX: u8 = 0;
+pub const REGISTER_C_INDEX: u8 = 1;
+pub const REGISTER_D_INDEX: u8 = 2;
+pub const REGISTER_E_INDEX: u8 = 3;
+pub const REGISTER_H_INDEX: u8 = 4;
+pub const REGISTER_L_INDEX: u8 = 5;
+pub const REGISTER_F_INDEX: u8 = 6;
+pub const REGISTER_A_INDEX: u8 = 7;
+
+
+
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Registers {
     /// Maybe swap these out for an actual array to do better
@@ -34,14 +45,14 @@ impl Index<u8> for Registers {
     type Output = u8;
     fn index(&self, index: u8) -> &Self::Output {
         match index % 8 {
-            0 => &self.b,
-            1 => &self.c,
-            2 => &self.d,
-            3 => &self.e,
-            4 => &self.h,
-            5 => &self.l,
-            // HL
-            7 => &self.a,
+            REGISTER_B_INDEX => &self.b,
+            REGISTER_C_INDEX => &self.c,
+            REGISTER_D_INDEX => &self.d,
+            REGISTER_E_INDEX => &self.e,
+            REGISTER_H_INDEX => &self.h,
+            REGISTER_L_INDEX => &self.l,
+            REGISTER_F_INDEX => &self.f,
+            REGISTER_A_INDEX => &self.a,
             _ => panic!("invalid register at 0x{:x}", &index),
         }
     }
@@ -50,14 +61,14 @@ impl Index<u8> for Registers {
 impl IndexMut<u8> for Registers {
     fn index_mut(&mut self, index: u8) -> &mut Self::Output {
         match index % 8 {
-            0 => &mut self.b,
-            1 => &mut self.c,
-            2 => &mut self.d,
-            3 => &mut self.e,
-            4 => &mut self.h,
-            5 => &mut self.l,
-            // HL
-            7 => &mut self.a,
+            REGISTER_B_INDEX => &mut self.b,
+            REGISTER_C_INDEX => &mut self.c,
+            REGISTER_D_INDEX => &mut self.d,
+            REGISTER_E_INDEX => &mut self.e,
+            REGISTER_H_INDEX => &mut self.h,
+            REGISTER_L_INDEX => &mut self.l,
+            REGISTER_F_INDEX => &mut self.f,
+            REGISTER_A_INDEX => &mut self.a,
             _ => panic!("invalid register at 0x{:x}", &index),
         }
     }
