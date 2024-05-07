@@ -359,13 +359,6 @@ impl Cpu {
         2
     }
 
-    pub fn ld_n_hl_ptr(&mut self, register_idx: u8) -> u8 {
-        let val = *self.read(self.registers.get_hl());
-        let register = &mut self.registers[register_idx];
-        Self::ld(val, register);
-        2
-    }
-
     pub fn ld_hl_ptr_n(&mut self, register_idx: u8) -> u8 {
         Self::ld(
             self.registers[register_idx],
@@ -784,26 +777,6 @@ impl Cpu {
     pub fn jp_a16(&mut self) -> u8 {
         let address = self.read_u16_at_pc_and_increase();
         self.jp(address);
-        4
-    }
-
-    pub fn rst_08h(&mut self) -> u8 {
-        self.rst(0x08);
-        4
-    }
-
-    pub fn rst_18h(&mut self) -> u8 {
-        self.rst(0x18);
-        4
-    }
-
-    pub fn rst_28h(&mut self) -> u8 {
-        self.rst(0x28);
-        4
-    }
-
-    pub fn rst_38h(&mut self) -> u8 {
-        self.rst(0x38);
         4
     }
 
