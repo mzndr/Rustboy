@@ -809,15 +809,13 @@ impl Cpu {
 
     pub fn di(&mut self) -> u8 {
         self.registers.ime = false;
-        // TODO: cancel scheduled interrupts.
-        tracing::warn!("todo: cancel scheduled interrupts");
+        todo!("cancel scheduled interrupts");
         1
     }
 
     pub fn ei(&mut self) -> u8 {
         self.registers.ime = true;
-        tracing::warn!("todo: schedule interrupts");
-        // TODO: schedule interrupts.
+        todo!("schedule interrupts");
         1
     }
 
