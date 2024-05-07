@@ -197,11 +197,11 @@ impl Cpu {
 
     pub fn ld_hl_sp_r8(&mut self) -> u8 {
         let e = self.read_u8_at_pc_and_increase();
-        let result = (e as u16) + self.registers.sp;
+        let result = u16::from(e) + self.registers.sp;
         self.registers.set_flag_z(false);
         self.registers.set_flag_n(false);
         self.registers
-            .set_flag_h(Self::check_add_u16_hc(e as u16, self.registers.get_sp()));
+            .set_flag_h(Self::check_add_u16_hc(u16::from(e), self.registers.get_sp()));
         self.registers
             .set_flag_c(u32::from(e) + u32::from(self.registers.get_sp()) > 0xFFFF);
         self.registers.set_hl(result);
@@ -232,11 +232,11 @@ impl Cpu {
         self.registers.set_flag_z(false);
         self.registers.set_flag_n(false);
         self.registers
-            .set_flag_h(Self::check_add_u16_hc(e as u16, self.registers.get_sp()));
+            .set_flag_h(Self::check_add_u16_hc(u16::from(e), self.registers.get_sp()));
         self.registers
             .set_flag_c(u32::from(e) + u32::from(self.registers.get_sp()) > 0xFFFF);
 
-        let result = self.registers.get_sp() + (e as u16);
+        let result = self.registers.get_sp() + u16::from(e);
 
         self.registers.set_sp(result);
         4
