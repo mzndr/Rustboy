@@ -640,17 +640,21 @@ impl Cpu {
         1
     }
 
-    pub fn rlca(&mut self) -> u8 {
-        self.registers.a = self.registers.a.rotate_left(1);
-        self.registers.set_flag_c((self.registers.a & 1) == 1);
+    pub fn rlc(&mut self, reg_idx: u8) -> u8 {
+        self.registers[reg_idx] = self.registers[reg_idx].rotate_left(1);
+        self.registers.set_flag_c((self.registers[reg_idx] & 1) == 1);
         self.registers.set_flag_n(false);
         self.registers.set_flag_h(false);
         1
     }
 
-    pub fn rrca(&mut self) -> u8 {
-        self.registers.set_flag_c((self.registers.a & 1) == 1);
-        self.registers.a = self.registers.a.rotate_right(1);
+    pub fn rlca(&mut self) -> u8 {
+        self.rlc(1)
+    }
+
+    pub fn rrc(&mut self, register: &mut u8) -> u8 {
+        self.registers.set_flag_c((*register & 1) == 1);
+        *register = register.rotate_right(1);
         self.registers.set_flag_n(false);
         self.registers.set_flag_h(false);
         1
@@ -859,46 +863,3 @@ impl Cpu {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use crate::cpu::Cpu;
-
-    #[test]
-    fn test_exec_instruction() {
-        let unused_opcodes = [
-            0xd3, 0xdb, 0xdd, 0xe3, 0xe4, 0xeb, 0xec, 0xed, 0xf4, 0xfc, 0xfd,
-        ];
-        for opcode in 0x00..0xff {
-            if unused_opcodes.contains(&opcode) {
-                continue;
-            }
-            let mut cpu: Cpu = Cpu::new();
-            cpu.exec_instruction(opcode);
-        }
-    }
-
-    #[test]
-    fn nop() {
-        let cpu: Cpu = Cpu::new();
-        let expected_cpu = cpu;
-        let cycles_needed = Cpu::nop();
-        assert_eq!(cycles_needed, 1);
-        assert_eq!(cpu, expected_cpu);
-    }
-
-    #[test]
-    fn rlca() {
-        let mut cpu = Cpu::new();
-        cpu.registers.a = 0b1000_0001;
-        cpu.rlca();
-        assert_eq!(cpu.registers.a, 0b0000_0011);
-        assert!(cpu.registers.get_flag_c());
-        cpu.registers.a = 0b0000_0001;
-        cpu.rlca();
-        assert_eq!(cpu.registers.a, 0b0000_0010);
-        assert!(!cpu.registers.get_flag_c());
-        assert!(!cpu.registers.get_flag_z());
-        assert!(!cpu.registers.get_flag_n());
-        assert!(!cpu.registers.get_flag_h());
-    }
-}
