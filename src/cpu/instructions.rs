@@ -1,4 +1,4 @@
-use super::{utils::merge_u8s, Cpu};
+use super::{registers::REGISTER_A_INDEX, utils::merge_u8s, Cpu};
 
 impl Cpu {
     /// XXX dst, src
@@ -15,7 +15,7 @@ impl Cpu {
             0x04 => self.inc_b(),
             0x05 => self.dec_b(),
             0x06 => self.ld_b_d8(),
-            0x07 => self.rlca(),
+            0x07 => self.rlc(REGISTER_A_INDEX),
             0x08 => self.ld_a16_sp(),
             0x09 => self.add_hl_bc(),
             0x0a => self.ld_a_bc_ptr(),
@@ -23,7 +23,7 @@ impl Cpu {
             0x0c => self.inc_c(),
             0x0d => self.dec_c(),
             0x0e => self.ld_c_d8(),
-            0x0f => self.rrca(),
+            0x0f => self.rrc(REGISTER_A_INDEX),
             0x10 => todo!("STOP"),
             0x11 => self.ld_de_d16(),
             0x12 => self.ld_de_ptr_a(),
@@ -615,26 +615,29 @@ impl Cpu {
         1
     }
 
+    /// The contents of A are rotated right one bit position.
+    /// The contents of bit 0 are copied to the carry flag and the
+    /// previous contents of the carry flag are copied to bit 7.
     pub fn rra(&mut self) -> u8 {
-        //todo: do this properly.
-        tracing::warn!("do this properly");
-        let a = self.registers.a;
-        self.registers.set_flag_c(((a & 0b1000_0000) >> 7) == 1);
-        self.registers.a = a.rotate_right(1);
-        self.registers.set_flag_z(false);
+        let prev_carry = self.registers.get_flag_c() as u8;
+        self.registers
+            .set_flag_c((self.registers.a & 0b0000_0001) == 1);
+        self.registers.a = self.registers.a.rotate_right(1);
+        self.registers.a = self.registers.a | (prev_carry << 7);
         self.registers.set_flag_n(false);
         self.registers.set_flag_h(false);
         1
     }
 
+    /// The contents of A are rotated left one bit position. The contents of
+    /// bit 7 are copied to the carry flag and the previous contents of the carry
+    /// flag are copied to bit 0.
     pub fn rla(&mut self) -> u8 {
-        //todo: do this properly.
-        tracing::warn!("do this properly");
-        let prev_carry = self.registers.c;
-        let a = self.registers.a;
-        self.registers.set_flag_c(((a & 0b1000_0000) >> 7) == 1);
-        self.registers.a = a.rotate_left(1);
-        self.registers.set_flag_z(false);
+        let prev_carry = self.registers.get_flag_c() as u8;
+        self.registers
+            .set_flag_c(((self.registers.a & 0b1000_0000) >> 7) == 1);
+        self.registers.a = self.registers.a.rotate_left(1);
+        self.registers.a = self.registers.a | prev_carry;
         self.registers.set_flag_n(false);
         self.registers.set_flag_h(false);
         1
@@ -642,19 +645,19 @@ impl Cpu {
 
     pub fn rlc(&mut self, reg_idx: u8) -> u8 {
         self.registers[reg_idx] = self.registers[reg_idx].rotate_left(1);
-        self.registers.set_flag_c((self.registers[reg_idx] & 1) == 1);
+        // Right most bit, that has wrapped around gets copied to the carry flag.
+        self.registers
+            .set_flag_c((self.registers[reg_idx] & 1) == 1);
         self.registers.set_flag_n(false);
         self.registers.set_flag_h(false);
         1
     }
 
-    pub fn rlca(&mut self) -> u8 {
-        self.rlc(1)
-    }
-
-    pub fn rrc(&mut self, register: &mut u8) -> u8 {
-        self.registers.set_flag_c((*register & 1) == 1);
-        *register = register.rotate_right(1);
+    pub fn rrc(&mut self, reg_idx: u8) -> u8 {
+        // Right most bit, that will wrap around gets copied to the carry flag.
+        self.registers
+            .set_flag_c((self.registers[reg_idx] & 1) == 1);
+        self.registers[reg_idx] = self.registers[reg_idx].rotate_right(1);
         self.registers.set_flag_n(false);
         self.registers.set_flag_h(false);
         1
@@ -862,4 +865,3 @@ impl Cpu {
         4
     }
 }
-
