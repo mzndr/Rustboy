@@ -612,7 +612,7 @@ impl Cpu {
     /// The contents of bit 0 are copied to the carry flag and the
     /// previous contents of the carry flag are copied to bit 7.
     pub fn rra(&mut self) -> u8 {
-        let prev_carry = self.registers.get_flag_c() as u8;
+        let prev_carry = u8::from(self.registers.get_flag_c());
         self.registers
             .set_flag_c((self.registers.a & 0b0000_0001) == 1);
         self.registers.a = self.registers.a.rotate_right(1);
@@ -626,7 +626,7 @@ impl Cpu {
     /// bit 7 are copied to the carry flag and the previous contents of the carry
     /// flag are copied to bit 0.
     pub fn rla(&mut self) -> u8 {
-        let prev_carry = self.registers.get_flag_c() as u8;
+        let prev_carry = u8::from(self.registers.get_flag_c());
         self.registers
             .set_flag_c(((self.registers.a & 0b1000_0000) >> 7) == 1);
         self.registers.a = self.registers.a.rotate_left(1);
