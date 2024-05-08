@@ -4,7 +4,7 @@ impl Cpu {
     /// XXX dst, src
     #[allow(clippy::too_many_lines)]
     pub fn exec_instruction(&mut self, opcode: u8) -> u8 {
-        let dst_idx = opcode & 0b1111_0000 >> 4;
+        let dst_idx = opcode >> 4;
         let src_idx = opcode & 0b1111;
 
         match opcode {
@@ -628,7 +628,7 @@ impl Cpu {
     pub fn rl(&mut self, register_idx: u8) -> u8 {
         let prev_carry = u8::from(self.registers.get_flag_c());
         self.registers
-            .set_flag_c(((self.registers[register_idx] & 0b1000_0000) >> 7) == 1);
+            .set_flag_c((self.registers[register_idx] >> 7) == 1);
         self.registers[register_idx] = self.registers[register_idx].rotate_left(1);
         self.registers[register_idx] |= prev_carry;
         self.registers.set_flag_n(false);
