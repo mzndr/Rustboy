@@ -10,6 +10,8 @@ impl Cpu {
         match opcode {
             0x06 => self.rlc_hl(),
             0x0e => self.rrc_hl(),
+            0x16 => self.rl_hl(),
+            0x1e => self.rr_hl(),
             0x46 => self.bit_hl(0),
             0x4e => self.bit_hl(1),
             0x56 => self.bit_hl(2),
@@ -23,6 +25,7 @@ impl Cpu {
             0x08..=0x0F => self.rrc(dst_idx),
             0x10..=0x17 => self.rl(dst_idx),
             0x18..=0x1F => self.rr(dst_idx),
+
             0x40..=0x47 => self.bit(0, dst_idx),
             0x48..=0x4f => self.bit(1, dst_idx),
             0x50..=0x57 => self.bit(2, dst_idx),
@@ -38,6 +41,20 @@ impl Cpu {
                 panic!("{msg}")
             }
         }
+    }
+
+    fn rr_hl(&mut self) -> u8 {
+        let address = self.registers.get_hl();
+        let result = self.rr_val(*self.read(address));
+        self.write_u8(address, result);
+        2
+    }
+
+    fn rl_hl(&mut self) -> u8 {
+        let address = self.registers.get_hl();
+        let result = self.rl_val(*self.read(address));
+        self.write_u8(address, result);
+        2
     }
 
     fn rrc_hl(&mut self) -> u8 {
