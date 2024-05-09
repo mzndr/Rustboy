@@ -645,23 +645,32 @@ impl Cpu {
         1
     }
 
-    pub fn rlc(&mut self, reg_idx: u8) -> u8 {
-        self.registers[reg_idx] = self.registers[reg_idx].rotate_left(1);
+    pub fn rlc_val(&mut self, val: u8) -> u8 {
+        let result = val.rotate_left(1);
         // Right most bit, that has wrapped around gets copied to the carry flag.
-        self.registers
-            .set_flag_c((self.registers[reg_idx] & 1) == 1);
+        self.registers.set_flag_c((result & 1) == 1);
         self.registers.set_flag_n(false);
         self.registers.set_flag_h(false);
+        result
+    }
+
+    pub fn rlc(&mut self, reg_idx: u8) -> u8 {
+        self.registers[reg_idx] = self.rlc_val(self.registers[reg_idx]);
         1
+    }
+
+    pub fn rrc_val(&mut self, val: u8) -> u8 {
+        // Right most bit, that will wrap around gets copied to the carry flag.
+        self.registers.set_flag_c((val & 1) == 1);
+        let result = val.rotate_right(1);
+        self.registers.set_flag_n(false);
+        self.registers.set_flag_h(false);
+        result
     }
 
     pub fn rrc(&mut self, reg_idx: u8) -> u8 {
         // Right most bit, that will wrap around gets copied to the carry flag.
-        self.registers
-            .set_flag_c((self.registers[reg_idx] & 1) == 1);
-        self.registers[reg_idx] = self.registers[reg_idx].rotate_right(1);
-        self.registers.set_flag_n(false);
-        self.registers.set_flag_h(false);
+        self.registers[reg_idx] = self.rrc_val(self.registers[reg_idx]);
         1
     }
 
