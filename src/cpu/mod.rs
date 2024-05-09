@@ -131,13 +131,6 @@ impl Cpu {
         utils::merge_u8s(b, a)
     }
 
-    /// Sets the bit specified in pos {0-7} of byte
-    pub fn set_nth_bit(pos: u8, byte: u8) -> u8 {
-        assert!(pos <= 7);
-        let mask: u8 = 0b100_0000 >> pos;
-        byte | mask
-    }
-
     /// Do nothing.
     pub fn nop() -> u8 {
         1
@@ -402,16 +395,6 @@ impl Cpu {
     fn check_sub_u8_hc(left: u8, right: u8) -> bool {
         ((left & 0xf).wrapping_sub(right & 0xf)) & 0x10 == 0x10
     }
-
-    /// Check for u8 half carries on subtractions. (carry from 3rd to 4th bit).
-    fn check_sub_u8_c(left: u8, right: u8) -> bool {
-        ((left).wrapping_sub(right)) & 0x10 == 0x10
-    }
-
-    /// Check for u8 half carries on subtractions. (carry from 7th to 8th bit).
-    fn check_sub_u16_hc(left: u16, right: u16) -> bool {
-        ((left & 0xff).wrapping_sub(right & 0xff)) & 0x100 == 0x100
-    }
 }
 
 #[cfg(test)]
@@ -436,9 +419,4 @@ mod tests {
         assert!(!Cpu::check_sub_u8_hc(0xF, 0xE));
     }
 
-    #[test]
-    fn test_check_sub_u16_hc() {
-        assert!(Cpu::check_sub_u16_hc(1, 0xFF));
-        assert!(!Cpu::check_sub_u16_hc(0xFF, 0xFE));
-    }
 }
