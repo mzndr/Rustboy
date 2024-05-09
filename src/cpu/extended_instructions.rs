@@ -41,11 +41,17 @@ impl Cpu {
     }
 
     fn rrc_hl(&mut self) -> u8 {
-        todo!("rrc (hl)")
+        let address = self.registers.get_hl();
+        let result = self.rrc_val(*self.read(address));
+        self.write_u8(address, result);
+        2
     }
 
     fn rlc_hl(&mut self) -> u8 {
-        todo!("rlc (hl)")
+        let address = self.registers.get_hl();
+        let result = self.rlc_val(*self.read(address));
+        self.write_u8(address, result);
+        2
     }
 
     fn test_bit(&mut self, bit_idx: u8, val: u8) -> u8 {
