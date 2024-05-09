@@ -418,5 +418,4 @@ mod tests {
         assert!(Cpu::check_sub_u8_hc(1, 0xF));
         assert!(!Cpu::check_sub_u8_hc(0xF, 0xE));
     }
-
 }
