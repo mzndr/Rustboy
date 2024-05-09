@@ -617,31 +617,39 @@ impl Cpu {
         1
     }
 
+    pub fn rr_val(&mut self, val: u8) -> u8 {
+        let prev_carry = u8::from(self.registers.get_flag_c());
+        self.registers.set_flag_c((val & 0b0000_0001) == 1);
+        let mut result = val.rotate_right(1);
+        result |= prev_carry << 7;
+        self.registers.set_flag_n(false);
+        self.registers.set_flag_h(false);
+        result
+    }
+
     /// The contents of A are rotated right one bit position.
     /// The contents of bit 0 are copied to the carry flag and the
     /// previous contents of the carry flag are copied to bit 7.
     pub fn rr(&mut self, register_idx: u8) -> u8 {
+        self.registers[register_idx] = self.rr_val(self.registers[register_idx]);
+        1
+    }
+
+    pub fn rl_val(&mut self, val: u8) -> u8 {
         let prev_carry = u8::from(self.registers.get_flag_c());
-        self.registers
-            .set_flag_c((self.registers[register_idx] & 0b0000_0001) == 1);
-        self.registers[register_idx] = self.registers[register_idx].rotate_right(1);
-        self.registers[register_idx] |= prev_carry << 7;
+        self.registers.set_flag_c((val >> 7) == 1);
+        let mut result = val.rotate_left(1);
+        result |= prev_carry;
         self.registers.set_flag_n(false);
         self.registers.set_flag_h(false);
-        1
+        result
     }
 
     /// The contents of A are rotated left one bit position. The contents of
     /// bit 7 are copied to the carry flag and the previous contents of the carry
     /// flag are copied to bit 0.
     pub fn rl(&mut self, register_idx: u8) -> u8 {
-        let prev_carry = u8::from(self.registers.get_flag_c());
-        self.registers
-            .set_flag_c((self.registers[register_idx] >> 7) == 1);
-        self.registers[register_idx] = self.registers[register_idx].rotate_left(1);
-        self.registers[register_idx] |= prev_carry;
-        self.registers.set_flag_n(false);
-        self.registers.set_flag_h(false);
+        self.registers[register_idx] = self.rl_val(self.registers[register_idx]);
         1
     }
 
