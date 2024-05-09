@@ -637,7 +637,8 @@ impl Cpu {
 
     pub fn rl_val(&mut self, val: u8) -> u8 {
         let prev_carry = u8::from(self.registers.get_flag_c());
-        self.registers.set_flag_c((val >> 7) == 1);
+        self.registers
+            .set_flag_c((val >> 7) == 1);
         let mut result = val.rotate_left(1);
         result |= prev_carry;
         self.registers.set_flag_n(false);
