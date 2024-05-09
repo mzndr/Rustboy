@@ -1,8 +1,11 @@
 use super::Cpu;
 
 impl Cpu {
+    #[tracing::instrument(name = "extended", target = "", skip(self), fields(c))]
     pub fn exec_cb_instruction(&mut self) -> u8 {
         let opcode = self.read_u8_at_pc_and_increase();
+        tracing::Span::current().record("c", format!("0x{opcode:x}"));
+
         let dst_idx = opcode >> 4;
         match opcode {
             0x06 => self.rlc_hl(),
@@ -29,7 +32,11 @@ impl Cpu {
             0x70..=0x77 => self.bit(6, dst_idx),
             0x78..=0x7f => self.bit(7, dst_idx),
 
-            _ => panic!("Unknown extended instruction: 0xCB{opcode:x}"),
+            _ => {
+                let msg = "unknown extended instruction";
+                tracing::error!(msg);
+                panic!("{msg}")
+            }
         }
     }
 
@@ -41,11 +48,8 @@ impl Cpu {
         todo!("rlc (hl)")
     }
 
-
     fn test_bit(&mut self, bit_idx: u8, val: u8) -> u8 {
-        self.registers.set_flag_z(
-            ((val >> bit_idx) & 1) == 1
-        );
+        self.registers.set_flag_z(((val >> bit_idx) & 1) == 1);
         self.registers.set_flag_h(true);
         self.registers.set_flag_n(false);
         3

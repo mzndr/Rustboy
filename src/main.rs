@@ -24,7 +24,7 @@ fn main() {
     tracing_subscriber::fmt::init();
 
     let args = Args::parse();
-    tracing::debug!(?args, "starting emulator");
+    tracing::info!(?args, "starting emulator");
 
     let mut cpu = Cpu::new();
 
