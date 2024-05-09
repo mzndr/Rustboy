@@ -3,10 +3,14 @@ use super::{registers::REGISTER_A_INDEX, utils::merge_u8s, Cpu};
 impl Cpu {
     /// XXX dst, src
     #[allow(clippy::too_many_lines)]
-    pub fn exec_instruction(&mut self, opcode: u8) -> u8 {
+    #[tracing::instrument(name = "exec", target = "", skip(self), fields(c))]
+    pub fn exec_instruction(&mut self) -> u8 {
+        let opcode = self.read_u8_at_pc_and_increase();
         let dst_idx = opcode >> 4;
         let src_idx = opcode & 0b1111;
+        tracing::Span::current().record("c", format!("0x{opcode:x}"));
 
+        tracing::trace!("executing instruction");
         match opcode {
             0x00 => Self::nop(),
             0x01 => self.ld_bc_d16(),
@@ -154,8 +158,9 @@ impl Cpu {
             0xb8..=0xbf => self.cp(self.registers[src_idx]),
 
             0xd3 | 0xdb | 0xdd | 0xe3 | 0xe4 | 0xeb | 0xec | 0xed | 0xf4 | 0xfc | 0xfd => {
-                tracing::warn!("unused opcode called {:x},", opcode);
-                Self::nop()
+                let msg = "unused opcode called";
+                tracing::error!(msg);
+                panic!("{msg}")
             }
         }
     }
@@ -200,8 +205,10 @@ impl Cpu {
         let result = u16::from(e) + self.registers.sp;
         self.registers.set_flag_z(false);
         self.registers.set_flag_n(false);
-        self.registers
-            .set_flag_h(Self::check_add_u16_hc(u16::from(e), self.registers.get_sp()));
+        self.registers.set_flag_h(Self::check_add_u16_hc(
+            u16::from(e),
+            self.registers.get_sp(),
+        ));
         self.registers
             .set_flag_c(u32::from(e) + u32::from(self.registers.get_sp()) > 0xFFFF);
         self.registers.set_hl(result);
@@ -231,8 +238,10 @@ impl Cpu {
         let e = self.read_u8_at_pc_and_increase();
         self.registers.set_flag_z(false);
         self.registers.set_flag_n(false);
-        self.registers
-            .set_flag_h(Self::check_add_u16_hc(u16::from(e), self.registers.get_sp()));
+        self.registers.set_flag_h(Self::check_add_u16_hc(
+            u16::from(e),
+            self.registers.get_sp(),
+        ));
         self.registers
             .set_flag_c(u32::from(e) + u32::from(self.registers.get_sp()) > 0xFFFF);
 
@@ -782,13 +791,11 @@ impl Cpu {
 
     pub fn di(&mut self) -> u8 {
         self.registers.ime = false;
-        todo!("cancel scheduled interrupts");
         1
     }
 
     pub fn ei(&mut self) -> u8 {
         self.registers.ime = true;
-        todo!("schedule interrupts");
         1
     }
 
