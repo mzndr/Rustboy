@@ -175,7 +175,7 @@ impl Cpu {
     }
 
     pub fn rst(&mut self, address: u16) -> u8 {
-        self.push_stack_u16(self.registers.get_sp() + 1);
+        self.push_stack_u16(self.registers.get_sp().wrapping_add(1));
         self.registers.set_sp(address);
         3
     }
