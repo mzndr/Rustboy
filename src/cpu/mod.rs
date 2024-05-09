@@ -62,14 +62,14 @@ impl Cpu {
 
     /// Push a u8 value onto the stack.
     pub fn push_stack_u8(&mut self, val: u8) {
-        self.registers.sp -= 1;
+        self.registers.sp = self.registers.sp.wrapping_sub(1);
         self.write_u8(self.registers.sp, val);
     }
 
     /// Pop a u8 value from the stack.
     pub fn pop_stack_u8(&mut self) -> u8 {
         let val = *self.read(self.registers.sp);
-        self.registers.sp += 1;
+        self.registers.sp = self.registers.sp.wrapping_add(1);
         val
     }
 
