@@ -28,7 +28,6 @@ impl Cpu {
     /// Checks if an address is in valid space,
     /// prints an error message and quits if not.
     fn check_address(address: u16) {
-        tracing::debug!("checking memory access at 0x{address:x}");
         assert!((address as usize).lt(&WRAM_SIZE));
     }
 
@@ -51,25 +50,11 @@ impl Cpu {
         }
     }
 
-    /// Handles an instruction according to specifications.
-    /// For specifications see: <https://www.pastraiser.com/cpu/gameboy/gameboy_opcodes.html>
-    fn execute_current_instruction(&mut self) -> u8 {
-        let pc = self.registers.get_pc();
-        let instruction = self.read_u8_at_pc_and_increase();
-        tracing::trace!("[0x{pc:x}] Executing instruction 0x{instruction:x}... ");
-        let cycled_needed = self.exec_instruction(instruction);
-
-        // Something went wrong when no cycles were needed.
-        assert_ne!(cycled_needed, 0);
-
-        tracing::trace!("Needed {cycled_needed} cycles.");
-        cycled_needed
-    }
-
     // Execute a machine cycle.
+    #[tracing::instrument(skip(self), fields(regs = %self.registers))]
     pub fn cycle(&mut self) {
         if self.busy_for == 0 {
-            self.busy_for = self.execute_current_instruction();
+            self.busy_for = self.exec_instruction();
         } else {
             self.busy_for -= 1;
         }
