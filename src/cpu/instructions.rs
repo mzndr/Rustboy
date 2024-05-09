@@ -165,6 +165,236 @@ impl Cpu {
         }
     }
 
+    pub fn nop() -> u8 {
+        1
+    }
+
+    pub fn ret(&mut self) -> u8 {
+        self.registers.sp = self.pop_stack_u16();
+        4
+    }
+
+    pub fn rst(&mut self, address: u16) -> u8 {
+        self.push_stack_u16(self.registers.get_sp() + 1);
+        self.registers.set_sp(address);
+        3
+    }
+
+    pub fn inc16(val: u16) -> u16 {
+        val.wrapping_add(1)
+    }
+
+    pub fn dec16(val: u16) -> u16 {
+        val.wrapping_sub(1)
+    }
+
+    pub fn call(&mut self, addr: u16) -> u8 {
+        self.push_stack_u16(self.registers.pc);
+        self.registers.pc = addr;
+        4
+    }
+
+    pub fn call_a16(&mut self) -> u8 {
+        let addr = self.read_u16_at_pc_and_increase();
+        self.call(addr);
+        6
+    }
+
+    pub fn call_nz_a16(&mut self) -> u8 {
+        if self.registers.get_flag_z() {
+            return 4;
+        }
+        self.call_a16()
+    }
+
+    pub fn call_z_a16(&mut self) -> u8 {
+        if !self.registers.get_flag_z() {
+            return 4;
+        }
+        self.call_a16()
+    }
+
+    pub fn call_nc_a16(&mut self) -> u8 {
+        if self.registers.get_flag_c() {
+            return 4;
+        }
+        self.call_a16()
+    }
+
+    pub fn call_c_a16(&mut self) -> u8 {
+        if !self.registers.get_flag_c() {
+            return 4;
+        }
+        self.call_a16()
+    }
+
+    pub fn ld(src: u8, dst: &mut u8) -> u8 {
+        *dst = src;
+        1
+    }
+
+    pub fn inc8(&mut self, val: u8) -> u8 {
+        let w = val.wrapping_add(1);
+        self.registers.set_flag_h(Self::check_add_u8_hc(w, 1));
+        self.registers.set_flag_z(w == 0);
+        self.registers.set_flag_n(false);
+        w
+    }
+
+    pub fn cpl(&mut self) -> u8 {
+        self.registers.set_flag_n(true);
+        self.registers.set_flag_h(true);
+        self.registers.a ^= 0xFF;
+        1
+    }
+
+    pub fn ccf(&mut self) -> u8 {
+        self.registers.set_flag_n(false);
+        self.registers.set_flag_h(false);
+        self.registers.set_flag_c(!self.registers.get_flag_c());
+        1
+    }
+
+    pub fn scf(&mut self) -> u8 {
+        self.registers.set_flag_n(false);
+        self.registers.set_flag_h(false);
+        self.registers.set_flag_c(true);
+        1
+    }
+
+    pub fn dec8(&mut self, val: u8) -> u8 {
+        let w = val.wrapping_sub(1);
+        self.registers.set_flag_h(Self::check_sub_u8_hc(w, 1));
+        self.registers.set_flag_z(w == 0);
+        self.registers.set_flag_n(true);
+        w
+    }
+
+    pub fn add16(&mut self, val: u16) {
+        let hl = self.registers.get_hl();
+        let sum = val.wrapping_add(hl);
+        self.registers.set_flag_h(Self::check_add_u16_hc(val, hl));
+        self.registers
+            .set_flag_c(u32::from(val) + u32::from(hl) > 0xFFFF);
+        self.registers.set_flag_n(false);
+        self.registers.set_hl(sum);
+    }
+
+    pub fn add8c(&mut self, val: u8) -> u8 {
+        self.add8(val.wrapping_add(self.registers.get_flag_c().into()));
+
+        1
+    }
+
+    pub fn sub8c(&mut self, val: u8) -> u8 {
+        self.sub8(val.wrapping_sub(self.registers.get_flag_c().into()));
+
+        1
+    }
+
+    pub fn add8(&mut self, val: u8) -> u8 {
+        let a = self.registers.a;
+        let result = a.wrapping_add(val);
+        self.registers.set_flag_h(result & 0xf == 0xf);
+        self.registers.set_flag_z(result == 0);
+        self.registers.set_flag_n(false);
+        self.registers
+            .set_flag_c(u16::from(val) + u16::from(a) > 0xFF);
+        self.registers.a = result;
+
+        1
+    }
+
+    pub fn sub8(&mut self, val: u8) -> u8 {
+        let a = self.registers.a;
+        let result = a.wrapping_sub(val);
+        self.registers.set_flag_h(Self::check_sub_u8_hc(a, val));
+        self.registers.set_flag_z(result == 0);
+        self.registers.set_flag_n(true);
+        self.registers.set_flag_c(u16::from(val) < u16::from(a));
+        self.registers.a = result;
+
+        1
+    }
+
+    pub fn jp(&mut self, address: u16) -> u8 {
+        self.registers.set_pc(address);
+        4
+    }
+
+    pub fn jp_nz_a16(&mut self) -> u8 {
+        if self.registers.get_flag_z() {
+            return 3;
+        }
+        self.jp_a16()
+    }
+
+    pub fn jp_nc_a16(&mut self) -> u8 {
+        if self.registers.get_flag_c() {
+            return 3;
+        }
+        self.jp_a16()
+    }
+
+    pub fn jp_z_a16(&mut self) -> u8 {
+        if !self.registers.get_flag_z() {
+            return 3;
+        }
+        self.jp_a16()
+    }
+
+    pub fn jp_c_a16(&mut self) -> u8 {
+        if !self.registers.get_flag_c() {
+            return 3;
+        }
+        self.jp_a16()
+    }
+
+    pub fn jr(&mut self, val: u8) {
+        self.registers.pc = self.registers.pc.wrapping_add(val.into());
+    }
+
+    pub fn xor(&mut self, val: u8) -> u8 {
+        self.registers.a ^= val;
+        self.registers.set_flag_z(self.registers.a == 0);
+        self.registers.set_flag_n(false);
+        self.registers.set_flag_h(false);
+        self.registers.set_flag_c(false);
+
+        1
+    }
+
+    pub fn and(&mut self, val: u8) -> u8 {
+        self.registers.a &= val;
+        self.registers.set_flag_z(self.registers.a == 0);
+        self.registers.set_flag_n(false);
+        self.registers.set_flag_h(true);
+        self.registers.set_flag_c(false);
+
+        1
+    }
+
+    pub fn or(&mut self, val: u8) -> u8 {
+        self.registers.a |= val;
+        self.registers.set_flag_z(self.registers.a == 0);
+        self.registers.set_flag_n(false);
+        self.registers.set_flag_h(false);
+        self.registers.set_flag_c(false);
+
+        1
+    }
+
+    pub fn cp(&mut self, val: u8) -> u8 {
+        let a = self.registers.a;
+        let result = a.wrapping_sub(val);
+        self.registers.set_flag_h(Self::check_sub_u8_hc(a, val));
+        self.registers.set_flag_z(result == 0);
+        self.registers.set_flag_n(true);
+        self.registers.set_flag_c(u16::from(val) < u16::from(a));
+
+        1
+    }
+
     pub fn ld_b_hl_ptr(&mut self) -> u8 {
         self.registers.b = *self.read(self.registers.get_hl());
         2
@@ -627,9 +857,6 @@ impl Cpu {
         result
     }
 
-    /// The contents of A are rotated right one bit position.
-    /// The contents of bit 0 are copied to the carry flag and the
-    /// previous contents of the carry flag are copied to bit 7.
     pub fn rr(&mut self, register_idx: u8) -> u8 {
         self.registers[register_idx] = self.rr_val(self.registers[register_idx]);
         1
@@ -645,9 +872,6 @@ impl Cpu {
         result
     }
 
-    /// The contents of A are rotated left one bit position. The contents of
-    /// bit 7 are copied to the carry flag and the previous contents of the carry
-    /// flag are copied to bit 0.
     pub fn rl(&mut self, register_idx: u8) -> u8 {
         self.registers[register_idx] = self.rl_val(self.registers[register_idx]);
         1
