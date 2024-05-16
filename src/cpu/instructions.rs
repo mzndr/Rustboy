@@ -10,9 +10,10 @@ impl Cpu {
         let dst_idx = opcode >> 4;
         let src_idx = opcode & 0b1111;
         let mnemonic = decode_instruction(opcode);
-        tracing::Span::current().record("c", format!("0x{opcode:0>2x}: {mnemonic}"));
+        let pc_mem = self.read_u16_at_pc();
+        tracing::Span::current().record("c", format!("(PC):0x{pc_mem:0>4x} 0x{opcode:0>2x} 0x{opcode:0>2x}: {mnemonic}"));
 
-        tracing::trace!("executing instruction");
+        tracing::debug!("executing instruction");
         match opcode {
             0x00 => Self::nop(),
             0x01 => self.ld_bc_d16(),
