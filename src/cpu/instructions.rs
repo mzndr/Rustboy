@@ -10,7 +10,7 @@ impl Cpu {
         let dst_idx = opcode >> 4;
         let src_idx = opcode & 0b1111;
         let mnemonic = decode_instruction(opcode);
-        tracing::Span::current().record("c", format!("0x{opcode:x}: {mnemonic}"));
+        tracing::Span::current().record("c", format!("0x{opcode:0>2x}: {mnemonic}"));
 
         tracing::trace!("executing instruction");
         match opcode {
@@ -169,6 +169,11 @@ impl Cpu {
 
     pub fn nop() -> u8 {
         1
+    }
+
+    pub fn daa(&mut self) -> u8 {
+        todo!();
+
     }
 
     pub fn ret(&mut self) -> u8 {

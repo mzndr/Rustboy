@@ -1,10 +1,11 @@
-use super::Cpu;
+use super::{disassembler::decode_instruction, Cpu};
 
 impl Cpu {
     #[tracing::instrument(name = "extended", target = "", skip(self), fields(c))]
     pub fn exec_cb_instruction(&mut self) -> u8 {
         let opcode = self.read_u8_at_pc_and_increase();
-        tracing::Span::current().record("c", format!("0x{opcode:x}"));
+        let mnemonic = decode_instruction(opcode);
+        tracing::Span::current().record("c", format!("0x{opcode:0>2x}: {mnemonic}"));
 
         let dst_idx = opcode >> 4;
         match opcode {
