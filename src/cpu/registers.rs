@@ -72,6 +72,9 @@ impl IndexMut<u8> for Registers {
     }
 }
 
+/// Initial `PC` value
+pub const PC_INIT_VAL: u16 = 0x0100;
+
 impl Registers {
     pub fn new() -> Registers {
         Registers {
@@ -84,7 +87,7 @@ impl Registers {
             h: 0x01,
             l: 0x4d,
             sp: 0xfffe,
-            pc: 0x0100,
+            pc: PC_INIT_VAL,
 
             ime: false,
         }
