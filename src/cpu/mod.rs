@@ -32,6 +32,11 @@ impl Cpu {
         assert!((address as usize).lt(&WRAM_SIZE));
     }
 
+    pub fn print_wram(&self, from: usize, to: usize) {
+        let string = String::from_utf8_lossy(&self.wram[from..to]).to_ascii_lowercase();
+        tracing::info!("{}", string);
+    }
+
     /// Needs to be changed for bigger games, since they
     /// are too big to fit into ram, so banking has to be
     /// implemented.
@@ -56,6 +61,7 @@ impl Cpu {
     pub fn cycle(&mut self) {
         if self.busy_for == 0 {
             self.busy_for = self.exec_instruction();
+            self.print_wram(0x0026, 0x003a);
         } else {
             self.busy_for -= 1;
         }
@@ -121,6 +127,20 @@ impl Cpu {
         let val = *self.read(self.registers.pc);
         self.registers.pc = self.registers.pc.wrapping_add(1);
         val
+    }
+
+    /// Reads a byte from wram at pc.
+    pub fn read_u8_at_pc(&self) -> u8 {
+        let val = *self.read(self.registers.pc);
+        val
+    }
+
+    /// Reads two bytes from wram at pc.
+    pub fn read_u16_at_pc(&self) -> u16 {
+        let a = self.read_u8_at_pc();
+        let b = self.read_u8_at_pc();
+        // Little endian in memory
+        utils::merge_u8s(b, a)
     }
 
     /// Reads two bytes from wram at pc and increases pc by two.
