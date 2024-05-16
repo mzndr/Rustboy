@@ -8,6 +8,7 @@ use std::{thread, time};
 use clap::Parser;
 use time::Duration;
 
+use crate::cpu::disassembler::disassemble_rom;
 use crate::cpu::Cpu;
 
 mod cpu;
@@ -18,6 +19,8 @@ const CLOCK_SPEED: f32 = 4100f32;
 #[derive(Parser, Debug)]
 struct Args {
     rom_path: String,
+    #[arg(short, long, action)]
+    disassemble: bool,
 }
 
 fn main() {
@@ -27,12 +30,17 @@ fn main() {
     tracing::info!(?args, "starting emulator");
 
     let mut cpu = Cpu::new();
+    let rom = fs::read(path::Path::new(&args.rom_path))
+        .expect("cannot read ROM");
 
-    cpu.load_rom(
-        fs::read(path::Path::new(&args.rom_path))
-            .expect("cannot read ROM")
-            .as_slice(),
-    );
+
+    if args.disassemble {
+        let asm = disassemble_rom(&rom);
+        print!("{asm}");
+        return;
+    }
+
+    cpu.load_rom(&rom);
     clock_loop(&mut cpu);
 }
 
