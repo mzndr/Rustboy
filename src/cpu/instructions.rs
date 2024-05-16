@@ -1,4 +1,5 @@
 use super::{registers::REGISTER_A_INDEX, utils::merge_u8s, Cpu};
+use super::disassembler::decode_instruction;
 
 impl Cpu {
     /// XXX dst, src
@@ -8,7 +9,8 @@ impl Cpu {
         let opcode = self.read_u8_at_pc_and_increase();
         let dst_idx = opcode >> 4;
         let src_idx = opcode & 0b1111;
-        tracing::Span::current().record("c", format!("0x{opcode:x}"));
+        let mnemonic = decode_instruction(opcode);
+        tracing::Span::current().record("c", format!("0x{opcode:x}: {mnemonic}"));
 
         tracing::trace!("executing instruction");
         match opcode {
