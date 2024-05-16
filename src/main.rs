@@ -13,7 +13,7 @@ use crate::cpu::Cpu;
 
 mod cpu;
 
-const CLOCK_SPEED: f32 = 4100f32;
+const CLOCK_SPEED: f32 = 0.055f32;
 
 /// Command line arguments, parsed by [`clap`].
 #[derive(Parser, Debug)]
