@@ -3,6 +3,7 @@ use super::{registers::REGISTER_A_INDEX, utils::merge_u8s, Cpu};
 
 impl Cpu {
     /// XXX dst, src
+    /// TODO: Streamline everything
     #[allow(clippy::too_many_lines)]
     #[tracing::instrument(name = "exec", target = "", skip(self), fields(c))]
     pub fn exec_instruction(&mut self) -> u8 {

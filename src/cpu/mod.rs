@@ -33,15 +33,6 @@ impl Cpu {
         assert!((address as usize).lt(&WRAM_SIZE));
     }
 
-    /// Needs to be changed for bigger games, since they
-    /// are too big to fit into ram, so banking has to be
-    /// implemented.
-    pub fn load_rom(&mut self, rom: &[u8]) {
-        for (address, byte) in rom.iter().enumerate() {
-            self.wram[address] = *byte;
-        }
-    }
-
     /// Initialize cpu memory
     pub fn new() -> Cpu {
         tracing::info!("initializing cpu");
