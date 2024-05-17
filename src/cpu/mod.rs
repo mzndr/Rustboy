@@ -32,11 +32,6 @@ impl Cpu {
         assert!((address as usize).lt(&WRAM_SIZE));
     }
 
-    pub fn print_wram(&self, from: usize, to: usize) {
-        let string = String::from_utf8_lossy(&self.wram[from..to]).to_ascii_lowercase();
-        tracing::info!("{}", string);
-    }
-
     /// Needs to be changed for bigger games, since they
     /// are too big to fit into ram, so banking has to be
     /// implemented.
