@@ -210,7 +210,7 @@ impl fmt::Display for Registers {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
-            "AF: 0x{:0>4x} BC: 0x{:0>4x} DE: 0x{:0>4x} HL: 0x{:0>4x} SP: 0x{:0>4x} PC: 0x{:0>4x}",
+            "AF: {:0>4x} BC: {:0>4x} DE: {:0>4x} HL: {:0>4x} SP: {:0>4x} PC: {:0>4x}",
             self.get_af(),
             self.get_bc(),
             self.get_de(),

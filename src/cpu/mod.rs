@@ -61,7 +61,7 @@ impl Cpu {
     pub fn cycle(&mut self) {
         if self.busy_for == 0 {
             self.busy_for = self.exec_instruction();
-            self.print_wram(0x0026, 0x003a);
+            //self.print_wram(0x0026, 0x003a);
         } else {
             self.busy_for -= 1;
         }
