@@ -21,8 +21,9 @@ type WRam = [u8; WRAM_SIZE];
 pub struct Cpu {
     pub registers: Registers,
 
-    busy_for: u8,
-    wram: WRam,
+    pub busy_for: u8,
+    pub wram: WRam,
+    pub halted: bool,
 }
 
 impl Cpu {
@@ -48,6 +49,7 @@ impl Cpu {
             registers: registers::Registers::new(),
             wram: [0x00; WRAM_SIZE],
             busy_for: 0x00,
+            halted: false,
         }
     }
 
