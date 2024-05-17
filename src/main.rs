@@ -7,13 +7,14 @@ use std::{thread, time};
 
 use clap::Parser;
 use time::Duration;
+use tracing_subscriber::EnvFilter;
 
 use crate::cpu::disassembler::disassemble_rom;
 use crate::cpu::Cpu;
 
 mod cpu;
 
-const CLOCK_SPEED: f32 = 0.055f32;
+const CLOCK_SPEED: f32 = 4100f32;
 
 /// Command line arguments, parsed by [`clap`].
 #[derive(Parser, Debug)]
@@ -24,15 +25,16 @@ struct Args {
 }
 
 fn main() {
-    tracing_subscriber::fmt::init();
+    tracing_subscriber::fmt::fmt()
+        .with_env_filter(EnvFilter::from_default_env())
+        .without_time()
+        .init();
 
     let args = Args::parse();
     tracing::info!(?args, "starting emulator");
 
     let mut cpu = Cpu::new();
-    let rom = fs::read(path::Path::new(&args.rom_path))
-        .expect("cannot read ROM");
-
+    let rom = fs::read(path::Path::new(&args.rom_path)).expect("cannot read ROM");
 
     if args.disassemble {
         let asm = disassemble_rom(&rom);
