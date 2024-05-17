@@ -34,7 +34,7 @@ impl Cpu {
             0x0d => self.dec_c(),
             0x0e => self.ld_c_d8(),
             0x0f => self.rrc(REGISTER_A_INDEX),
-            0x10 => todo!("STOP"),
+            0x10 => self.stop(),
             0x11 => self.ld_de_d16(),
             0x12 => self.ld_de_ptr_a(),
             0x13 => self.inc_de(),
@@ -172,6 +172,16 @@ impl Cpu {
     }
 
     pub fn nop() -> u8 {
+        1
+    }
+
+    pub fn stop(&mut self) -> u8 {
+        self.halted = true;
+        let after_stop = self.read_u8_at_pc_and_increase();
+        if after_stop != 0x00 {
+            tracing::warn!("corrupted stop");
+        }
+
         1
     }
 
