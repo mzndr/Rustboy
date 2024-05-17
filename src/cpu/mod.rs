@@ -1,7 +1,7 @@
 use self::registers::Registers;
+pub mod disassembler;
 mod extended_instructions;
 mod instructions;
-pub mod disassembler;
 
 pub mod registers;
 pub mod utils;
