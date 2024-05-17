@@ -57,7 +57,7 @@ impl Cpu {
             0x24 => self.inc_h(),
             0x25 => self.dec_h(),
             0x26 => self.ld_h_d8(),
-            0x27 => todo!("DAA"),
+            0x27 => self.daa(),
             0x28 => self.jr_z_r8(),
             0x29 => self.add_hl_hl(),
             0x2a => self.ld_a_hl_inc_ptr(),
@@ -176,7 +176,26 @@ impl Cpu {
     }
 
     pub fn daa(&mut self) -> u8 {
-        todo!();
+        if !self.registers.get_flag_n() {
+            if self.registers.get_flag_c() || self.registers.a > 0x99 {
+                self.registers.a += 0x60;
+                self.registers.set_flag_c(true);
+            }
+            if self.registers.get_flag_h() || self.registers.a & 0xf > 0x9 {
+                self.registers.a += 0x06;
+                self.registers.set_flag_h(false);
+            }
+        } else if self.registers.get_flag_c() && self.registers.get_flag_h() {
+            self.registers.a += 0x9a;
+            self.registers.set_flag_h(false);
+        } else if self.registers.get_flag_c() {
+            self.registers.a += 0xa0;
+        } else if self.registers.get_flag_h() {
+            self.registers.a += 0xfa;
+            self.registers.set_flag_h(false);
+        }
+        self.registers.set_flag_z(self.registers.a == 0);
+        2
     }
 
     pub fn ret(&mut self) -> u8 {
