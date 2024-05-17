@@ -1,5 +1,5 @@
-use super::{registers::REGISTER_A_INDEX, utils::merge_u8s, Cpu};
 use super::disassembler::decode_instruction;
+use super::{registers::REGISTER_A_INDEX, utils::merge_u8s, Cpu};
 
 impl Cpu {
     /// XXX dst, src
@@ -11,7 +11,10 @@ impl Cpu {
         let src_idx = opcode & 0b1111;
         let mnemonic = decode_instruction(opcode);
         let pc_mem = self.read_u16_at_pc();
-        tracing::Span::current().record("c", format!("(PC):{pc_mem:0>4x} {opcode:0>2x} {opcode:0>2x}: {mnemonic}"));
+        tracing::Span::current().record(
+            "c",
+            format!("(PC):{pc_mem:0>4x} {opcode:0>2x} {opcode:0>2x}: {mnemonic}"),
+        );
 
         tracing::debug!("executing instruction");
         match opcode {
@@ -174,7 +177,6 @@ impl Cpu {
 
     pub fn daa(&mut self) -> u8 {
         todo!();
-
     }
 
     pub fn ret(&mut self) -> u8 {
