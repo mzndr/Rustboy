@@ -13,10 +13,13 @@ use crate::{
     ppu::Ppu,
 };
 
+/// Default gameboy clock speed.
 const DEFAULT_CLOCK_SPEED: f32 = 4100f32;
 
-const MEMORY_SIZE: usize = 0x10000; //0x20 * 0x400;
+/// Gameboy memory size.
+const MEMORY_SIZE: usize = 0x20 * 0x400;
 
+/// Memory as cells to be shared mutable between chips.
 pub type Cells = [Cell<u8>; MEMORY_SIZE];
 
 #[derive(Debug, Clone, PartialEq)]
