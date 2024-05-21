@@ -16,27 +16,22 @@ pub mod utils;
 * For Opcodes see: <https://www.pastraiser.com/cpu/gameboy/gameboy_opcodes.html>
 */
 
-/** Working RAM **/
-// TODO: Fixen, es ist nicht WRAM sondern der gesammte memory.
-const WRAM_SIZE: usize = 0x10000; //0x20 * 0x400;
-type WRam = [u8; WRAM_SIZE];
-
 #[derive(Debug, Clone, PartialEq)]
 pub struct Cpu {
     pub registers: Registers,
 
     pub busy_for: u8,
-    pub wram: Rc<Memory>,
+    pub memory: Rc<Memory>,
     pub halted: bool,
 }
 
 impl Cpu {
     /// Initialize cpu memory
-    pub fn new(wram: Rc<Memory>) -> Cpu {
+    pub fn new(memory: Rc<Memory>) -> Cpu {
         tracing::info!("initializing cpu");
         Cpu {
             registers: registers::Registers::new(),
-            wram,
+            memory,
             busy_for: 0x00,
             halted: false,
         }
@@ -56,12 +51,12 @@ impl Cpu {
     /// Push a u8 value onto the stack.
     pub fn push_stack_u8(&mut self, val: u8) {
         self.registers.sp = self.registers.sp.wrapping_sub(1);
-        self.wram.write_u8(self.registers.sp, val);
+        self.memory.write_u8(self.registers.sp, val);
     }
 
     /// Pop a u8 value from the stack.
     pub fn pop_stack_u8(&mut self) -> u8 {
-        let val = self.wram.read(self.registers.sp);
+        let val = self.memory.read(self.registers.sp);
         self.registers.sp = self.registers.sp.wrapping_add(1);
         val
     }
@@ -80,19 +75,19 @@ impl Cpu {
         utils::merge_u8s(l, h)
     }
 
-    /// Reads a byte from wram at pc and increases pc by one.
+    /// Reads a byte from memory at pc and increases pc by one.
     pub fn read_u8_at_pc_and_increase(&mut self) -> u8 {
-        let val = self.wram.read(self.registers.pc);
+        let val = self.memory.read(self.registers.pc);
         self.registers.pc = self.registers.pc.wrapping_add(1);
         val
     }
 
-    /// Reads a byte from wram at pc.
+    /// Reads a byte from memory at pc.
     pub fn read_u8_at_pc(&self) -> u8 {
-        self.wram.read(self.registers.pc)
+        self.memory.read(self.registers.pc)
     }
 
-    /// Reads two bytes from wram at pc.
+    /// Reads two bytes from memory at pc.
     pub fn read_u16_at_pc(&self) -> u16 {
         let a = self.read_u8_at_pc();
         let b = self.read_u8_at_pc();
@@ -100,7 +95,7 @@ impl Cpu {
         utils::merge_u8s(b, a)
     }
 
-    /// Reads two bytes from wram at pc and increases pc by two.
+    /// Reads two bytes from memory at pc and increases pc by two.
     pub fn read_u16_at_pc_and_increase(&mut self) -> u16 {
         let a = self.read_u8_at_pc_and_increase();
         let b = self.read_u8_at_pc_and_increase();
