@@ -1,5 +1,3 @@
-use std::cell::Cell;
-
 use super::disassembler::decode_instruction;
 use super::{registers::REGISTER_A_INDEX, utils::merge_u8s, Cpu};
 
@@ -212,12 +210,12 @@ impl Cpu {
     }
 
     pub fn ret(&mut self) -> u8 {
-        self.registers.sp = self.pop_stack_u16();
+        self.registers.pc = self.pop_stack_u16();
         4
     }
 
     pub fn rst(&mut self, address: u16) -> u8 {
-        self.push_stack_u16(self.registers.get_sp().wrapping_add(1));
+        self.push_stack_u16(self.registers.get_pc().wrapping_add(1));
         self.registers.set_pc(address);
         3
     }
