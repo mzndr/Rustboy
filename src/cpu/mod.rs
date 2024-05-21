@@ -1,3 +1,7 @@
+use std::rc::Rc;
+
+use crate::gb::Memory;
+
 use self::registers::Registers;
 pub mod disassembler;
 mod extended_instructions;
@@ -17,28 +21,22 @@ pub mod utils;
 const WRAM_SIZE: usize = 0x10000; //0x20 * 0x400;
 type WRam = [u8; WRAM_SIZE];
 
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Cpu {
     pub registers: Registers,
 
     pub busy_for: u8,
-    pub wram: WRam,
+    pub wram: Rc<Memory>,
     pub halted: bool,
 }
 
 impl Cpu {
-    /// Checks if an address is in valid space,
-    /// prints an error message and quits if not.
-    fn check_address(address: u16) {
-        assert!((address as usize).lt(&WRAM_SIZE));
-    }
-
     /// Initialize cpu memory
-    pub fn new() -> Cpu {
+    pub fn new(wram: Rc<Memory>) -> Cpu {
         tracing::info!("initializing cpu");
         Cpu {
             registers: registers::Registers::new(),
-            wram: [0x00; WRAM_SIZE],
+            wram,
             busy_for: 0x00,
             halted: false,
         }
@@ -58,12 +56,12 @@ impl Cpu {
     /// Push a u8 value onto the stack.
     pub fn push_stack_u8(&mut self, val: u8) {
         self.registers.sp = self.registers.sp.wrapping_sub(1);
-        self.write_u8(self.registers.sp, val);
+        self.wram.write_u8(self.registers.sp, val);
     }
 
     /// Pop a u8 value from the stack.
     pub fn pop_stack_u8(&mut self) -> u8 {
-        let val = *self.read(self.registers.sp);
+        let val = self.wram.read(self.registers.sp);
         self.registers.sp = self.registers.sp.wrapping_add(1);
         val
     }
@@ -82,45 +80,16 @@ impl Cpu {
         utils::merge_u8s(l, h)
     }
 
-    /// Reads from wram at address.
-    pub fn read_mut(&mut self, address: u16) -> &mut u8 {
-        let u_addr = address as usize;
-        Self::check_address(address);
-        &mut self.wram[u_addr]
-    }
-
-    /// Reads from wram at address.
-    pub fn read(&self, address: u16) -> &u8 {
-        let u_addr = address as usize;
-        Self::check_address(address);
-        &self.wram[u_addr]
-    }
-
-    /// Writes u8 to wram at address.
-    pub fn write_u8(&mut self, address: u16, val: u8) {
-        let u_addr = address as usize;
-        Self::check_address(address);
-        self.wram[u_addr] = val;
-    }
-
-    /// Writes u16 to wram at address.
-    pub fn write_u16(&mut self, address: u16, val: u16) {
-        let split = utils::split_u16(val);
-        self.write_u8(address, split.1);
-        self.write_u8(address + 1, split.0);
-    }
-
     /// Reads a byte from wram at pc and increases pc by one.
     pub fn read_u8_at_pc_and_increase(&mut self) -> u8 {
-        let val = *self.read(self.registers.pc);
+        let val = self.wram.read(self.registers.pc);
         self.registers.pc = self.registers.pc.wrapping_add(1);
         val
     }
 
     /// Reads a byte from wram at pc.
     pub fn read_u8_at_pc(&self) -> u8 {
-        let val = *self.read(self.registers.pc);
-        val
+        self.wram.read(self.registers.pc)
     }
 
     /// Reads two bytes from wram at pc.
