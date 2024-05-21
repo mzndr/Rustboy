@@ -4,7 +4,7 @@ use std::{
     ops::{Deref, DerefMut},
     rc::Rc,
     thread,
-    time::{self, Duration, Instant},
+    time::{self, Duration, Instant}, usize,
 };
 
 use crate::{
@@ -17,7 +17,7 @@ use crate::{
 const DEFAULT_CLOCK_SPEED: f32 = 4100f32;
 
 /// Gameboy memory size.
-const MEMORY_SIZE: usize = 0x20 * 0x400;
+const MEMORY_SIZE: usize = 0x10000;
 
 /// Memory as cells to be shared mutable between chips.
 pub type Cells = [Cell<u8>; MEMORY_SIZE];
@@ -47,7 +47,10 @@ impl Memory {
     /// Checks if an address is in valid space,
     /// prints an error message and quits if not.
     fn check_address(address: u16) {
-        assert!((address as usize).lt(&MEMORY_SIZE));
+        if address as usize > MEMORY_SIZE + 1 {
+            tracing::error!("bad memory access at 0x{:x}", &address);
+            panic!("bad memory access at 0x{:x}", &address)
+        }
     }
 
     /// Reads from wram at address.
@@ -86,7 +89,7 @@ impl Gameboy {
         let memory = Rc::new(Memory::new());
         Self {
             cpu: Cpu::new(memory.clone()),
-            ppu: Ppu::new(),
+            ppu: Ppu::new(memory.clone()),
             apu: Apu::new(),
             memory,
             clock_speed: DEFAULT_CLOCK_SPEED,
