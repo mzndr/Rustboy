@@ -1,6 +1,7 @@
 use std::{
     array,
     cell::Cell,
+    i128,
     ops::{Deref, DerefMut},
     rc::Rc,
     thread,
@@ -134,7 +135,16 @@ impl Gameboy {
         let after = Instant::now();
         let passed = after - start;
         let passed_nano = passed.as_nanos();
-        let delta = Duration::from_nanos(((1000.0 / cycles_per_ms) - passed_nano as f32) as u64);
+
+        let sleep_nanos = ((1000.0 / cycles_per_ms) - passed_nano as f32) as i128;
+        let sleep_ms = sleep_nanos / 1000;
+        if sleep_ms < 0 && !cfg!(debug_assertions) {
+            tracing::warn!("can't keep up with clock, {} ms behind", -sleep_ms);
+            return;
+        }
+
+        let delta = Duration::from_nanos(sleep_nanos as u64);
+
         thread::sleep(delta);
     }
 }
