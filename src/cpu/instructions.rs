@@ -764,7 +764,8 @@ impl Cpu {
 
     pub fn ld_a16_sp(&mut self) -> u8 {
         let addr = self.read_u16_at_pc_and_increase();
-        self.memory.write_u16(addr, self.registers.pc.wrapping_sub(2));
+        self.memory
+            .write_u16(addr, self.registers.pc.wrapping_sub(2));
         5
     }
 

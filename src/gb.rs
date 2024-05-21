@@ -4,7 +4,8 @@ use std::{
     ops::{Deref, DerefMut},
     rc::Rc,
     thread,
-    time::{self, Duration, Instant}, usize,
+    time::{self, Duration, Instant},
+    usize,
 };
 
 use crate::{
