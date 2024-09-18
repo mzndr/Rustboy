@@ -137,11 +137,18 @@ impl Gameboy {
         let passed_nano = passed.as_nanos();
 
         let sleep_nanos = ((1000.0 / cycles_per_ms) - passed_nano as f32) as i128;
-        let sleep_ms = sleep_nanos / 1000;
-        if sleep_ms < 0 && !cfg!(debug_assertions) {
-            tracing::warn!("can't keep up with clock, {} ms behind", -sleep_ms);
-            return;
-        }
+        match sleep_nanos.cmp(&0) {
+            std::cmp::Ordering::Equal => {
+                return;
+            },
+            std::cmp::Ordering::Less => {
+                tracing::warn!("can't keep up with clock, {} ns behind", -sleep_nanos);
+                return;
+            },
+            std::cmp::Ordering::Greater => {
+                tracing::trace!("{} ns ahead of clock", sleep_nanos);
+            },
+        };
 
         let delta = Duration::from_nanos(sleep_nanos as u64);
 
