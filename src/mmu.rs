@@ -1,45 +1,40 @@
-use std::{
-    array,
-    cell::Cell,
-    ops::{Deref, DerefMut},
-};
+//! Memory management unit. Handle and map memory access.
 
-use crate::cpu::utils;
+use crate::{cpu::utils, ppu::Ppu};
 
-/// Gameboy memory size.
-const MEMORY_SIZE: usize = 0x10000;
+/// Gameboy wram size.
+const WRAM_SIZE: usize = 0x10000;
 
-/// Memory as cells to be shared mutable between chips.
-pub type Cells = [Cell<u8>; MEMORY_SIZE];
-
-#[derive(Debug, Clone, PartialEq)]
-pub struct Memory(Cells);
-
-impl Deref for Memory {
-    type Target = Cells;
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
+#[derive(Debug, Clone)]
+pub struct Mmu {
+    wram: [u8; WRAM_SIZE],
+    ppu: Ppu,
 }
 
-impl DerefMut for Memory {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.0
-    }
-}
-
-impl Memory {
-    /// Create new memory.
+impl Mmu {
+    /// Create new wram.
     pub fn new() -> Self {
-        Self(array::from_fn(|_| Cell::new(0x00)))
+        Self {
+            wram: [0x00; WRAM_SIZE],
+            ppu: Ppu::new(),
+        }
+    }
+
+    /// Needs to be changed for bigger games, since they
+    /// are too big to fit into ram, so banking has to be
+    /// implemented.
+    pub fn load_rom(&mut self, rom: &[u8]) {
+        for (address, byte) in rom.iter().enumerate() {
+            self.write_u8(address as u16, *byte);
+        }
     }
 
     /// Checks if an address is in valid space,
     /// prints an error message and quits if not.
     fn check_address(address: u16) {
-        if address as usize > MEMORY_SIZE + 1 {
-            tracing::error!("bad memory access at 0x{:x}", &address);
-            panic!("bad memory access at 0x{:x}", &address)
+        if address as usize > WRAM_SIZE + 1 {
+            tracing::error!("bad wram access at 0x{:x}", &address);
+            panic!("bad wram access at 0x{:x}", &address)
         }
     }
 
@@ -47,18 +42,18 @@ impl Memory {
     pub fn read(&self, address: u16) -> u8 {
         let u_addr = address as usize;
         Self::check_address(address);
-        self[u_addr].get()
+        self.wram[u_addr]
     }
 
     /// Writes u8 to wram at address.
-    pub fn write_u8(&self, address: u16, val: u8) {
+    pub fn write_u8(&mut self, address: u16, val: u8) {
         let u_addr = address as usize;
         Self::check_address(address);
-        self[u_addr].set(val);
+        self.wram[u_addr] = val;
     }
 
     /// Writes u16 to wram at address.
-    pub fn write_u16(&self, address: u16, val: u16) {
+    pub fn write_u16(&mut self, address: u16, val: u16) {
         let split = utils::split_u16(val);
         self.write_u8(address, split.1);
         self.write_u8(address + 1, split.0);

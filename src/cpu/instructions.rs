@@ -436,37 +436,37 @@ impl Cpu {
     }
 
     pub fn ld_b_hl_ptr(&mut self) -> u8 {
-        self.registers.b = self.memory.read(self.registers.get_hl());
+        self.registers.b = self.mmu.read(self.registers.get_hl());
         2
     }
 
     pub fn ld_d_hl_ptr(&mut self) -> u8 {
-        self.registers.d = self.memory.read(self.registers.get_hl());
+        self.registers.d = self.mmu.read(self.registers.get_hl());
         2
     }
 
     pub fn ld_h_hl_ptr(&mut self) -> u8 {
-        self.registers.h = self.memory.read(self.registers.get_hl());
+        self.registers.h = self.mmu.read(self.registers.get_hl());
         2
     }
 
     pub fn ld_c_hl_ptr(&mut self) -> u8 {
-        self.registers.c = self.memory.read(self.registers.get_hl());
+        self.registers.c = self.mmu.read(self.registers.get_hl());
         2
     }
 
     pub fn ld_e_hl_ptr(&mut self) -> u8 {
-        self.registers.e = self.memory.read(self.registers.get_hl());
+        self.registers.e = self.mmu.read(self.registers.get_hl());
         2
     }
 
     pub fn ld_l_hl_ptr(&mut self) -> u8 {
-        self.registers.l = self.memory.read(self.registers.get_hl());
+        self.registers.l = self.mmu.read(self.registers.get_hl());
         2
     }
 
     pub fn ld_a_hl_ptr(&mut self) -> u8 {
-        self.registers.a = self.memory.read(self.registers.get_hl());
+        self.registers.a = self.mmu.read(self.registers.get_hl());
         2
     }
 
@@ -493,13 +493,13 @@ impl Cpu {
 
     pub fn ld_a16_ptr_a(&mut self) -> u8 {
         let addr = self.read_u16_at_pc_and_increase();
-        self.memory.write_u8(addr, self.registers.a);
+        self.mmu.write_u8(addr, self.registers.a);
         4
     }
 
     pub fn ld_a_a16_ptr(&mut self) -> u8 {
         let addr = self.read_u16_at_pc_and_increase();
-        let val = self.memory.read(addr);
+        let val = self.mmu.read(addr);
         self.registers.a = val;
         4
     }
@@ -523,26 +523,26 @@ impl Cpu {
 
     pub fn ld_c_ptr_a(&mut self) -> u8 {
         let addr = merge_u8s(self.registers.c, 0xff);
-        self.memory.write_u8(addr, self.registers.a);
+        self.mmu.write_u8(addr, self.registers.a);
         2
     }
 
     pub fn ld_a_c_ptr(&mut self) -> u8 {
         let addr = merge_u8s(self.registers.c, 0xff);
-        self.registers.a = self.memory.read(addr);
+        self.registers.a = self.mmu.read(addr);
         2
     }
 
     pub fn ldh_a8_ptr_a(&mut self) -> u8 {
         let addr = merge_u8s(self.read_u8_at_pc_and_increase(), 0xff);
-        self.memory.write_u8(addr, self.registers.a);
+        self.mmu.write_u8(addr, self.registers.a);
         3
     }
 
     pub fn ldh_a_a8_ptr(&mut self) -> u8 {
         let addr = merge_u8s(self.registers.a, 0xff);
         let val = self.read_u8_at_pc_and_increase();
-        self.memory.write_u8(addr, val);
+        self.mmu.write_u8(addr, val);
         3
     }
 
@@ -555,13 +555,13 @@ impl Cpu {
     pub fn ld_hl_ptr_d8(&mut self) -> u8 {
         let val = self.read_u8_at_pc_and_increase();
         let hl = self.registers.get_hl();
-        self.memory.write_u8(hl, val);
+        self.mmu.write_u8(hl, val);
         3
     }
 
     pub fn ld_a_bc_ptr(&mut self) -> u8 {
         Self::ld(
-            self.memory.read(self.registers.get_bc()),
+            self.mmu.read(self.registers.get_bc()),
             &mut self.registers.a,
         );
         2
@@ -569,7 +569,7 @@ impl Cpu {
 
     pub fn ld_a_de_ptr(&mut self) -> u8 {
         Self::ld(
-            self.memory.read(self.registers.get_de()),
+            self.mmu.read(self.registers.get_de()),
             &mut self.registers.a,
         );
         2
@@ -592,35 +592,35 @@ impl Cpu {
 
     pub fn ld_hl_inc_ptr_a(&mut self) -> u8 {
         let hl = self.registers.get_hl();
-        self.memory.write_u8(hl, self.registers.a);
+        self.mmu.write_u8(hl, self.registers.a);
         self.registers.set_hl(hl.wrapping_add(1));
         2
     }
 
     pub fn ld_hl_dec_ptr_a(&mut self) -> u8 {
         let hl = self.registers.get_hl();
-        self.memory.write_u8(hl, self.registers.a);
+        self.mmu.write_u8(hl, self.registers.a);
         self.registers.set_hl(hl.wrapping_sub(1));
         2
     }
 
     pub fn ld_a_hl_inc_ptr(&mut self) -> u8 {
         let hl = self.registers.get_hl();
-        Self::ld(self.memory.read(hl), &mut self.registers.a);
+        Self::ld(self.mmu.read(hl), &mut self.registers.a);
         self.registers.set_hl(hl.wrapping_add(1));
         2
     }
 
     pub fn ld_a_hl_dec_ptr(&mut self) -> u8 {
         let hl = self.registers.get_hl();
-        Self::ld(self.memory.read(hl), &mut self.registers.a);
+        Self::ld(self.mmu.read(hl), &mut self.registers.a);
         self.registers.set_hl(hl.wrapping_sub(1));
         2
     }
 
     pub fn ld_de_ptr_a(&mut self) -> u8 {
         let val = self.registers.a;
-        self.memory.write_u8(self.registers.get_de(), val);
+        self.mmu.write_u8(self.registers.get_de(), val);
         2
     }
 
@@ -646,17 +646,17 @@ impl Cpu {
 
     pub fn ld_hl_ptr_n(&mut self, register_idx: u8) -> u8 {
         let val = self.registers[register_idx];
-        self.memory.write_u8(self.registers.get_hl(), val);
+        self.mmu.write_u8(self.registers.get_hl(), val);
         2
     }
 
     pub fn add_hl_ptr(&mut self) -> u8 {
-        self.add8(self.memory.read(self.registers.get_hl()));
+        self.add8(self.mmu.read(self.registers.get_hl()));
         2
     }
 
     pub fn adc_hl_ptr(&mut self) -> u8 {
-        self.sub8c(self.memory.read(self.registers.get_hl()));
+        self.sub8c(self.mmu.read(self.registers.get_hl()));
         2
     }
 
@@ -667,12 +667,12 @@ impl Cpu {
     }
 
     pub fn sub_hl_ptr(&mut self) -> u8 {
-        self.sub8(self.memory.read(self.registers.get_hl()));
+        self.sub8(self.mmu.read(self.registers.get_hl()));
         2
     }
 
     pub fn sbc_hl_ptr(&mut self) -> u8 {
-        self.sub8c(self.memory.read(self.registers.get_hl()));
+        self.sub8c(self.mmu.read(self.registers.get_hl()));
         2
     }
 
@@ -695,17 +695,17 @@ impl Cpu {
     }
 
     pub fn or_hl_ptr(&mut self) -> u8 {
-        self.or(self.memory.read(self.registers.get_hl()));
+        self.or(self.mmu.read(self.registers.get_hl()));
         2
     }
 
     pub fn xor_hl_ptr(&mut self) -> u8 {
-        self.xor(self.memory.read(self.registers.get_hl()));
+        self.xor(self.mmu.read(self.registers.get_hl()));
         2
     }
 
     pub fn and_hl_ptr(&mut self) -> u8 {
-        self.and(self.memory.read(self.registers.get_hl()));
+        self.and(self.mmu.read(self.registers.get_hl()));
         2
     }
 
@@ -728,7 +728,7 @@ impl Cpu {
     }
 
     pub fn cp_hl(&mut self) -> u8 {
-        self.cp(self.memory.read(self.registers.get_hl()));
+        self.cp(self.mmu.read(self.registers.get_hl()));
         2
     }
 
@@ -764,7 +764,7 @@ impl Cpu {
 
     pub fn ld_a16_sp(&mut self) -> u8 {
         let addr = self.read_u16_at_pc_and_increase();
-        self.memory
+        self.mmu
             .write_u16(addr, self.registers.pc.wrapping_sub(2));
         5
     }
@@ -772,7 +772,7 @@ impl Cpu {
     pub fn ld_bc(&mut self) -> u8 {
         let val = self.registers.a;
         let hl = self.registers.get_bc();
-        self.memory.write_u8(hl, val);
+        self.mmu.write_u8(hl, val);
         2
     }
 
@@ -975,17 +975,17 @@ impl Cpu {
 
     pub fn inc_hlp(&mut self) -> u8 {
         let address = self.registers.get_hl();
-        let val = self.memory.read(address);
+        let val = self.mmu.read(address);
         let res = self.inc8(val);
-        self.memory.write_u8(address, res);
+        self.mmu.write_u8(address, res);
         3
     }
 
     pub fn dec_hlp(&mut self) -> u8 {
         let address = self.registers.get_hl();
-        let val = self.memory.read(address);
+        let val = self.mmu.read(address);
         let res = self.dec8(val);
-        self.memory.write_u8(address, res);
+        self.mmu.write_u8(address, res);
         3
     }
 
