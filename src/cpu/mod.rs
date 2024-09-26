@@ -42,10 +42,10 @@ impl Cpu {
     pub fn cycle(&mut self) {
         if self.busy_for == 0 {
             self.busy_for = self.exec_instruction();
-            //self.print_wram(0x0026, 0x003a);
         } else {
             self.busy_for -= 1;
         }
+        self.mmu.cycle(); // Not sure if this is the right place
     }
 
     /// Push a u8 value onto the stack.
