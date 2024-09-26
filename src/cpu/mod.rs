@@ -1,6 +1,6 @@
 use std::rc::Rc;
 
-use crate::gb::Memory;
+use crate::mmu::Memory;
 
 use self::registers::Registers;
 pub mod disassembler;
