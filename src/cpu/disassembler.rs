@@ -1,6 +1,4 @@
-use std::usize;
-
-use super::{registers::PC_INIT_VAL, Cpu};
+use super::registers::PC_INIT_VAL;
 
 pub type Instruction = (
     // Opcode
@@ -12,20 +10,12 @@ pub type Instruction = (
 );
 
 pub trait Instr {
-    fn opcode(&self) -> u8;
     fn mnemonic(&self) -> &'static str;
-    fn length(&self) -> u8;
 }
 
 impl Instr for Instruction {
-    fn opcode(&self) -> u8 {
-        self.0
-    }
     fn mnemonic(&self) -> &'static str {
         self.1
-    }
-    fn length(&self) -> u8 {
-        self.2
     }
 }
 
