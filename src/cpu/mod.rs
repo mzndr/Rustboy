@@ -1,6 +1,6 @@
 use std::rc::Rc;
 
-use crate::mmu::Memory;
+use crate::mmu::Mmu;
 
 use self::registers::Registers;
 pub mod disassembler;
@@ -16,22 +16,22 @@ pub mod utils;
 * For Opcodes see: <https://www.pastraiser.com/cpu/gameboy/gameboy_opcodes.html>
 */
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone)]
 pub struct Cpu {
     pub registers: Registers,
 
     pub busy_for: u8,
-    pub memory: Rc<Memory>,
+    pub mmu: Mmu,
     pub halted: bool,
 }
 
 impl Cpu {
     /// Initialize cpu memory
-    pub fn new(memory: Rc<Memory>) -> Cpu {
+    pub fn new() -> Cpu {
         tracing::info!("initializing cpu");
         Cpu {
             registers: registers::Registers::new(),
-            memory,
+            mmu: Mmu::new(),
             busy_for: 0x00,
             halted: false,
         }
@@ -51,12 +51,12 @@ impl Cpu {
     /// Push a u8 value onto the stack.
     pub fn push_stack_u8(&mut self, val: u8) {
         self.registers.sp = self.registers.sp.wrapping_sub(1);
-        self.memory.write_u8(self.registers.sp, val);
+        self.mmu.write_u8(self.registers.sp, val);
     }
 
     /// Pop a u8 value from the stack.
     pub fn pop_stack_u8(&mut self) -> u8 {
-        let val = self.memory.read(self.registers.sp);
+        let val = self.mmu.read(self.registers.sp);
         self.registers.sp = self.registers.sp.wrapping_add(1);
         val
     }
@@ -77,14 +77,14 @@ impl Cpu {
 
     /// Reads a byte from memory at pc and increases pc by one.
     pub fn read_u8_at_pc_and_increase(&mut self) -> u8 {
-        let val = self.memory.read(self.registers.pc);
+        let val = self.mmu.read(self.registers.pc);
         self.registers.pc = self.registers.pc.wrapping_add(1);
         val
     }
 
     /// Reads a byte from memory at pc.
     pub fn read_u8_at_pc(&self) -> u8 {
-        self.memory.read(self.registers.pc)
+        self.mmu.read(self.registers.pc)
     }
 
     /// Reads two bytes from memory at pc.
