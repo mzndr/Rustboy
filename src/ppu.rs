@@ -1,6 +1,6 @@
 use std::rc::Rc;
 
-use crate::gb::Memory;
+use crate::mmu::Memory;
 
 pub const MEMORY_OFFSET_VRAM: u16 = 0x8000;
 

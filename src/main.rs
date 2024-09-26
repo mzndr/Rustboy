@@ -13,6 +13,7 @@ use crate::gb::Gameboy;
 mod apu;
 mod cpu;
 mod gb;
+mod mmu;
 mod ppu;
 
 /// Command line arguments, parsed by [`clap`].
