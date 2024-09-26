@@ -29,7 +29,6 @@ impl Gameboy {
         self.cpu.mmu.load_rom(rom);
     }
 
-
     //TODO: Actually properly convert values
     #[allow(
         clippy::cast_precision_loss,

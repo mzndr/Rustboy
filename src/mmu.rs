@@ -1,14 +1,34 @@
 //! Memory management unit. Handle and map memory access.
+//!
+//! Memory map (see <https://gbdev.io/pandocs/Memory_Map.html>):
+//! Start   End     Description                        Notes
+//! 0000    3FFF    16 KiB ROM bank 00                 From cartridge, usually a fixed bank
+//! 4000    7FFF    16 KiB ROM Bank 01–NN              From cartridge, switchable bank via mapper (if any)
+//! 8000    9FFF    8 KiB Video RAM (VRAM)             In CGB mode, switchable bank 0/1
+//! A000    BFFF    8 KiB External RAM                 From cartridge, switchable bank if any
+//! C000    CFFF    4 KiB Work RAM (WRAM)
+//! D000    DFFF    4 KiB Work RAM (WRAM)              In CGB mode, switchable bank 1–7
+//! E000    FDFF    Echo RAM (mirror of C000–DDFF)     Nintendo says use of this area is prohibited.
+//! FE00    FE9F    Object attribute memory (OAM)
+//! FEA0    FEFF    Not Usable    =                    Nintendo says use of this area is prohibited.
+//! FF00    FF7F    I/O Registers
+//! FF80    FFFE    High RAM (HRAM)
+//! FFFF    FFFF    Interrupt Enable register (IE)
 
-use crate::{cpu::utils, ppu::Ppu};
+use crate::{apu::Apu, cpu::utils, ppu::Ppu};
 
 /// Gameboy wram size.
-const WRAM_SIZE: usize = 0x10000;
+const WRAM_SIZE: usize = 0x8000;
 
+/// Offset to handle echo ram redirection.
+const ECHO_RAM_OFFSET: u16 = 0x2000;
+
+/// Memory management unit. Handle and map memory access.
 #[derive(Debug, Clone)]
 pub struct Mmu {
     wram: [u8; WRAM_SIZE],
     ppu: Ppu,
+    apu: Apu,
 }
 
 impl Mmu {
@@ -17,7 +37,12 @@ impl Mmu {
         Self {
             wram: [0x00; WRAM_SIZE],
             ppu: Ppu::new(),
+            apu: Apu::new(),
         }
+    }
+
+    pub fn cycle(&self) {
+        self.ppu.cycle();
     }
 
     /// Needs to be changed for bigger games, since they
@@ -29,27 +54,27 @@ impl Mmu {
         }
     }
 
-    /// Checks if an address is in valid space,
-    /// prints an error message and quits if not.
-    fn check_address(address: u16) {
-        if address as usize > WRAM_SIZE + 1 {
-            tracing::error!("bad wram access at 0x{:x}", &address);
-            panic!("bad wram access at 0x{:x}", &address)
-        }
-    }
-
     /// Reads from wram at address.
     pub fn read(&self, address: u16) -> u8 {
         let u_addr = address as usize;
-        Self::check_address(address);
-        self.wram[u_addr]
+
+        match u_addr {
+            0x0000..=0x7FFF => self.wram[u_addr],
+            0x8000..=0xBFFF => self.ppu.read(address),
+            0xE000..=0xFDFF => self.read(address - ECHO_RAM_OFFSET),
+            _ => panic!("unsupported read access at {u_addr:x}"),
+        }
     }
 
     /// Writes u8 to wram at address.
     pub fn write_u8(&mut self, address: u16, val: u8) {
         let u_addr = address as usize;
-        Self::check_address(address);
-        self.wram[u_addr] = val;
+        match u_addr {
+            0x0000..=0x7FFF => self.wram[u_addr] = val,
+            0x8000..=0xBFFF => self.ppu.write_u8(address, val),
+            0xE000..=0xFDFF => self.write_u8(address - ECHO_RAM_OFFSET, val),
+            _ => panic!("unsupported write access at {u_addr:x}"),
+        }
     }
 
     /// Writes u16 to wram at address.
