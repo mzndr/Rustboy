@@ -18,7 +18,7 @@
 use crate::{apu::Apu, cpu::utils, ppu::Ppu};
 
 /// Gameboy wram size.
-const WRAM_SIZE: usize = 0x8000;
+const WRAM_SIZE: usize = 0x10000;
 
 /// Offset to handle echo ram redirection.
 const ECHO_RAM_OFFSET: u16 = 0x2000;
@@ -60,9 +60,10 @@ impl Mmu {
 
         match u_addr {
             0x0000..=0x7FFF => self.wram[u_addr],
-            0x8000..=0xBFFF => self.ppu.read(address),
+            0x8000..=0x9FFF => self.ppu.read(address),
             0xE000..=0xFDFF => self.read(address - ECHO_RAM_OFFSET),
-            _ => panic!("unsupported read access at {u_addr:x}"),
+            _ => self.wram[u_addr],
+            //_ => panic!("unsupported wram read access at {u_addr:x}"),
         }
     }
 
@@ -71,9 +72,10 @@ impl Mmu {
         let u_addr = address as usize;
         match u_addr {
             0x0000..=0x7FFF => self.wram[u_addr] = val,
-            0x8000..=0xBFFF => self.ppu.write_u8(address, val),
+            0x8000..=0x9FFF => self.ppu.write_u8(address, val),
             0xE000..=0xFDFF => self.write_u8(address - ECHO_RAM_OFFSET, val),
-            _ => panic!("unsupported write access at {u_addr:x}"),
+            _ => self.write_u8(address - ECHO_RAM_OFFSET, val),
+            //_ => panic!("unsupported wram write access at {u_addr:x}"),
         }
     }
 

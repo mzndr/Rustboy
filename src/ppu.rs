@@ -1,17 +1,18 @@
 //! Picture processing unit. Handle sprite loading, vram memory management and delegate information
 //! to the renderer.
+//!
+//! Start   End     Description                        Notes
+//! 8000    9FFF    8 KiB Video RAM (VRAM)             In CGB mode, switchable bank 0/1
 
 /// VRAM size.
-pub const VRAM_SIZE: usize = 0x1000;
+pub const VRAM_SIZE: usize = 0x2000;
 /// VRAM offset in WRAM.
-pub const VRAM_OFFSET: usize = 0x7FFF;
+pub const VRAM_OFFSET: usize = 0x8000;
 
 #[derive(Debug, Clone)]
 pub struct Ppu {
     vram: [u8; VRAM_SIZE],
 }
-
-pub type Tile = [u8; 8 * 2];
 
 impl Ppu {
     pub fn new() -> Self {
@@ -25,8 +26,8 @@ impl Ppu {
         let u_addr = (address as usize) - VRAM_OFFSET;
 
         match u_addr {
-            0x00..=0x7FFF => self.vram[u_addr],
-            _ => panic!("unsupported read access at {u_addr:x}"),
+            0x0000..=0x1FFF => self.vram[u_addr],
+            _ => panic!("unsupported vram read access at 0x{u_addr:x}, was 0x{address:x}"),
         }
     }
 
@@ -34,8 +35,8 @@ impl Ppu {
     pub fn write_u8(&mut self, address: u16, val: u8) {
         let u_addr = (address as usize) - VRAM_OFFSET;
         match u_addr {
-            0x00..=0x7FFF => self.vram[u_addr] = val,
-            _ => panic!("unsupported write access at {u_addr:x}"),
+            0x0000..=0x1FFF => self.vram[u_addr] = val,
+            _ => panic!("unsupported vram write access at 0x{u_addr:x}, was 0x{address:x}"),
         }
     }
 
