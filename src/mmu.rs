@@ -15,6 +15,8 @@
 //! FF80    FFFE    High RAM (HRAM)
 //! FFFF    FFFF    Interrupt Enable register (IE)
 
+use std::usize;
+
 use crate::{apu::Apu, cpu::utils, ppu::Ppu};
 
 /// Gameboy wram size.
@@ -74,7 +76,7 @@ impl Mmu {
             0x0000..=0x7FFF => self.wram[u_addr] = val,
             0x8000..=0x9FFF => self.ppu.write_u8(address, val),
             0xE000..=0xFDFF => self.write_u8(address - ECHO_RAM_OFFSET, val),
-            _ => self.write_u8(address, val),
+            _ => self.wram[address as usize] = val,
             //_ => panic!("unsupported wram write access at {u_addr:x}"),
         }
     }
