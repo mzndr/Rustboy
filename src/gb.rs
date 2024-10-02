@@ -47,7 +47,7 @@ impl Gameboy {
                 return;
             }
             std::cmp::Ordering::Less => {
-                tracing::warn!("can't keep up with clock, {} ns behind", -sleep_nanos);
+                tracing::trace!("can't keep up with clock, {} ns behind", -sleep_nanos);
                 return;
             }
             std::cmp::Ordering::Greater => {
