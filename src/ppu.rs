@@ -9,15 +9,26 @@ pub const VRAM_SIZE: usize = 0x2000;
 /// VRAM offset in WRAM.
 pub const VRAM_OFFSET: usize = 0x8000;
 
+/// PPU State. State cycles throughout operation and determines what the PPU does.
+#[derive(Debug, Clone)]
+pub enum State {
+    OAMSearch,
+    PixelTransfer,
+    HBlank,
+    VBlank,
+}
+
 #[derive(Debug, Clone)]
 pub struct Ppu {
     vram: [u8; VRAM_SIZE],
+    state: State,
 }
 
 impl Ppu {
     pub fn new() -> Self {
         Self {
             vram: [0; VRAM_SIZE],
+            state: State::OAMSearch,
         }
     }
 
