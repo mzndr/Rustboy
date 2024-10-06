@@ -1,5 +1,5 @@
 use std::{
-    i128, thread,
+    thread,
     time::{self, Duration, Instant},
 };
 
