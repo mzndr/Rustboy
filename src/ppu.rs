@@ -37,9 +37,13 @@ pub struct Ppu {
     /// PPU State.
     state: State,
     /// Current scanline.
-    ly: i8,
+    ly: i16,
+    /// Current pixel.
+    lx: u8,
     /// Currently loaded sprites.
     sprite_buffer: Vec<Sprite>,
+
+    t_cycle: u16,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -88,8 +92,10 @@ impl Ppu {
     pub fn new() -> Self {
         Self {
             vram: [0; VRAM_SIZE],
-            state: State::OAMSearch,
             ly: 0,
+            lx: 0,
+            t_cycle: 0,
+            state: State::OAMSearch,
             sprite_buffer: Vec::with_capacity(10),
         }
     }
@@ -141,20 +147,31 @@ impl Ppu {
             sprite_flags: self.vram[sprite_address + 3].into(),
         };
 
-        // TODO: Check how to determine sprite height
-        let sprite_height = 8;
+        let sprite_height = if self.lcdc_sprite_height() { 16 } else { 8 };
 
         // Check if the sprite is on screen.
-        if sprite.x < 0
-            || sprite.y > (self.ly + 16)
-            || sprite.y < (self.ly + sprite_height)
-            || self.sprite_buffer.len() >= 10
+        if sprite.x > 0
+            && (self.ly + 16) >= (sprite.y as i16)
+            && (self.ly + 16) < (sprite.y as i16) + sprite_height
+            && self.sprite_buffer.len() <= 10
         {
-            return None;
+            return Some(sprite);
         }
 
-        Some(sprite)
+        None
     }
+
+    /// Perform the OAM scan, loading [`Sprite`] information into the `sprite_buffer`.
+    fn oam_scan(&mut self) {
+        for i in 0..19 {
+            if let Some(sprite) = self.oam_load_sprite(i) {
+                self.sprite_buffer.push(sprite);
+                tracing::warn!("{}", self.sprite_buffer.len());
+            }
+        }
+    }
+
+    fn pixel_transfer(&mut self) {}
 
     /// Reads from vram at address.
     pub fn read(&self, address: u16) -> u8 {
@@ -175,13 +192,41 @@ impl Ppu {
         }
     }
 
-    #[tracing::instrument()]
-    pub fn cycle(&self) {
+    #[tracing::instrument(skip(self) fields(self.ly=%self.ly, sprites_loaded=%self.sprite_buffer.len()))]
+    pub fn cycle(&mut self) {
         match self.state {
-            State::OAMSearch => {}
-            State::HBlank => {}
-            State::PixelTransfer => {}
-            State::VBlank => {}
+            State::OAMSearch => {
+                tracing::trace!("performing orm search");
+                if self.t_cycle % 80 == 0 {
+                    self.oam_scan();
+                    self.state = State::PixelTransfer;
+                }
+            }
+            State::PixelTransfer => {
+                tracing::trace!("performing pixel transfer");
+                self.pixel_transfer();
+                self.state = State::HBlank;
+            }
+            State::HBlank => {
+                tracing::trace!("performing horizontal blanks");
+                if self.t_cycle % 456 == 0 {
+                    self.ly += 1;
+                    self.sprite_buffer.resize(0, Sprite::default());
+                    if self.ly == 144 {
+                        self.state = State::VBlank;
+                    } else {
+                        self.state = State::OAMSearch;
+                    }
+                }
+            }
+            State::VBlank => {
+                tracing::trace!("horizontal vertical blanks");
+                if self.t_cycle % 4560 == 0 {
+                    self.ly = 0;
+                    self.state = State::OAMSearch;
+                }
+            }
         };
+        self.t_cycle = self.t_cycle.wrapping_add(1);
     }
 }
