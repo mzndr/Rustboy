@@ -15,8 +15,6 @@
 //! FF80    FFFE    High RAM (HRAM)
 //! FFFF    FFFF    Interrupt Enable register (IE)
 
-use std::usize;
-
 use crate::{apu::Apu, cpu::utils, ppu::Ppu};
 
 /// Gameboy wram size.
