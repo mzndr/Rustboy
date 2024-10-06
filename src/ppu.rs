@@ -4,12 +4,12 @@
 //! Start   End     Description                        Notes
 //! 8000    9FFF    8 KiB Video RAM (VRAM)             In CGB mode, switchable bank 0/1
 
-use std::array;
-
 /// VRAM size.
 pub const VRAM_SIZE: usize = 0x2000;
 /// OAM Memory location in VRAM.
 pub const VRAM_OAM_OFFSET: usize = 0x0E00;
+/// LCD Control register
+pub const VRAM_LCDC_OFFSET: usize = 0x0F40;
 /// WY Register Memory location in VRAM.
 pub const VRAM_WY_OFFSET: usize = 0x0F4A;
 /// WX Register Memory location in VRAM.
@@ -94,6 +94,43 @@ impl Ppu {
         }
     }
 
+    fn lcdc(&self) -> u8 {
+        self.vram[VRAM_LCDC_OFFSET]
+    }
+
+    fn lcdc_display_enable(&self) -> bool {
+        (self.lcdc() >> 7 & 1) == 1
+    }
+
+    fn lcdc_window_tile_map_select(&self) -> bool {
+        (self.lcdc() >> 6 & 1) == 1
+    }
+
+    fn lcdc_window_display_enable(&self) -> bool {
+        (self.lcdc() >> 5 & 1) == 1
+    }
+
+    fn lcdc_tile_data_select_mode(&self) -> bool {
+        (self.lcdc() >> 4 & 1) == 1
+    }
+
+    fn lcdc_bg_tile_map_select_mode(&self) -> bool {
+        (self.lcdc() >> 3 & 1) == 1
+    }
+
+    fn lcdc_sprite_height(&self) -> bool {
+        (self.lcdc() >> 2 & 1) == 1
+    }
+
+    fn lcdc_sprite_enable(&self) -> bool {
+        (self.lcdc() >> 1 & 1) == 1
+    }
+
+    fn lcdc_bg_enable(&self) -> bool {
+        (self.lcdc() >> 0 & 1) == 1
+    }
+
+    /// Load a sprites information (not pixel data) from OAM Memory.
     #[allow(clippy::cast_possible_wrap)]
     fn oam_load_sprite(&self, sprite_position: u8) -> Option<Sprite> {
         let sprite_address = VRAM_OAM_OFFSET + (sprite_position * 4) as usize;
