@@ -10,7 +10,7 @@ impl Cpu {
             "c",
             format!("(PC):{pc_mem:0>4x} 0x{opcode:0>2x} 0x{opcode:0>2x}: {mnemonic}"),
         );
-        tracing::debug!("executing extended instruction");
+        tracing::trace!("executing extended instruction");
 
         let dst_idx = opcode >> 4;
         match opcode {

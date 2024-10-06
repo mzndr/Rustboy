@@ -17,7 +17,7 @@ impl Cpu {
             format!("(PC):{pc_mem:0>4x} {opcode:0>2x} {opcode:0>2x}: {mnemonic}"),
         );
 
-        tracing::debug!("executing instruction");
+        tracing::trace!("executing instruction");
         match opcode {
             0x00 => Self::nop(),
             0x01 => self.ld_bc_d16(),
