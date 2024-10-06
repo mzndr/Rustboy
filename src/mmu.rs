@@ -41,7 +41,7 @@ impl Mmu {
         }
     }
 
-    pub fn cycle(&self) {
+    pub fn cycle(&mut self) {
         self.ppu.cycle();
     }
 
