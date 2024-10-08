@@ -164,8 +164,8 @@ impl Cpu {
             0xb0..=0xb7 => self.or(self.registers[src_idx]),
             0xb8..=0xbf => self.cp(self.registers[src_idx]),
 
-            0xd3 | 0xdb | 0xdd | 0xe3 | 0xe4 | 0xeb | 0xec | 0xed | 0xf4 | 0xfc | 0xfd => {
-                let msg = "unused opcode called";
+            0xd3 | 0xdb | 0xdd | 0xe3 | 0xe4 | 0xeb | 0xec | 0xed | 0xf4 | 0xfd | 0xfc => {
+                let msg = format!("unused opcode called: 0x{opcode:x}");
                 tracing::error!(msg);
                 panic!("{msg}")
             }
