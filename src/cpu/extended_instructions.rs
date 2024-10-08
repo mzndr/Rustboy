@@ -5,12 +5,13 @@ impl Cpu {
     pub fn exec_cb_instruction(&mut self) -> u8 {
         let opcode = self.read_u8_at_pc_and_increase();
         let mnemonic = decode_instruction(opcode);
+        let pc = self.registers.pc;
         let pc_mem = self.read_u16_at_pc();
         tracing::Span::current().record(
             "c",
-            format!("(PC):{pc_mem:0>4x} 0x{opcode:0>2x} 0x{opcode:0>2x}: {mnemonic}"),
+            format!("PC: {pc:0>4x} (PC):{pc_mem:0>4x} {opcode:0>2x}: {mnemonic}"),
         );
-        tracing::trace!("executing extended instruction");
+        tracing::debug!("executing extended instruction");
 
         let dst_idx = opcode >> 4;
         match opcode {
