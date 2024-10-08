@@ -7,6 +7,8 @@
 /// VRAM size.
 pub const VRAM_SIZE: usize = 0x2000;
 /// OAM Memory location in VRAM.
+pub const VRAM_LY_OFFSET: usize = 0x0F44;
+/// OAM Memory location in VRAM.
 pub const VRAM_OAM_OFFSET: usize = 0x0E00;
 /// LCD Control register
 pub const VRAM_LCDC_OFFSET: usize = 0x0F40;
@@ -36,8 +38,6 @@ pub struct Ppu {
     vram: [u8; VRAM_SIZE],
     /// PPU State.
     state: State,
-    /// Current scanline.
-    ly: i16,
     /// Current pixel.
     lx: u8,
     /// Currently loaded sprites.
@@ -92,12 +92,27 @@ impl Ppu {
     pub fn new() -> Self {
         Self {
             vram: [0; VRAM_SIZE],
-            ly: 0,
             lx: 0,
             t_cycle: 0,
             state: State::OAMSearch,
             sprite_buffer: Vec::with_capacity(10),
         }
+    }
+
+    /// Get the ly register value from vram;
+    fn ly(&self) -> u8 {
+        self.vram[VRAM_LY_OFFSET]
+    }
+
+    /// Set ly to a value
+    fn set_ly(&mut self, val: u8) {
+        self.vram[VRAM_LY_OFFSET] = val;
+    }
+
+    /// Increase ly by one and return it.
+    fn inc_ly(&mut self) -> u8 {
+        self.vram[VRAM_LY_OFFSET] = self.vram[VRAM_LY_OFFSET].wrapping_add(1);
+        self.vram[VRAM_LY_OFFSET]
     }
 
     fn lcdc(&self) -> u8 {
@@ -151,8 +166,8 @@ impl Ppu {
 
         // Check if the sprite is on screen.
         if sprite.x > 0
-            && (self.ly + 16) >= (sprite.y as i16)
-            && (self.ly + 16) < (sprite.y as i16) + sprite_height
+            && ((self.ly() + 16) as i8) >= sprite.y
+            && ((self.ly() + 16) as i8) < sprite.y + sprite_height
             && self.sprite_buffer.len() <= 10
         {
             return Some(sprite);
@@ -192,7 +207,7 @@ impl Ppu {
         }
     }
 
-    #[tracing::instrument(skip(self) fields(self.ly=%self.ly, sprites_loaded=%self.sprite_buffer.len()))]
+    #[tracing::instrument(skip(self) fields(sprites_loaded=%self.sprite_buffer.len()))]
     pub fn cycle(&mut self) {
         match self.state {
             State::OAMSearch => {
@@ -210,9 +225,9 @@ impl Ppu {
             State::HBlank => {
                 tracing::trace!("performing horizontal blanks");
                 if self.t_cycle % 456 == 0 {
-                    self.ly += 1;
+                    self.inc_ly();
                     self.sprite_buffer.resize(0, Sprite::default());
-                    if self.ly == 144 {
+                    if self.ly() == 144 {
                         self.state = State::VBlank;
                     } else {
                         self.state = State::OAMSearch;
@@ -222,7 +237,7 @@ impl Ppu {
             State::VBlank => {
                 tracing::trace!("horizontal vertical blanks");
                 if self.t_cycle % 4560 == 0 {
-                    self.ly = 0;
+                    self.set_ly(0);
                     self.state = State::OAMSearch;
                 }
             }
