@@ -87,8 +87,8 @@ impl Cpu {
 
     /// Reads two bytes from memory at pc.
     pub fn read_u16_at_pc(&self) -> u16 {
-        let a = self.read_u8_at_pc();
-        let b = self.read_u8_at_pc();
+        let a = self.mmu.read(self.registers.pc);
+        let b = self.mmu.read(self.registers.pc + 1);
         // Little endian in memory
         utils::merge_u8s(b, a)
     }
