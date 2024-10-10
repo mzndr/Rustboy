@@ -7,6 +7,10 @@ impl Cpu {
     #[allow(clippy::too_many_lines)]
     #[tracing::instrument(name = "exec", target = "", skip(self), fields(c))]
     pub fn exec_instruction(&mut self) -> u8 {
+        if self.halted {
+            return 0;
+        }
+
         if self.gb_doctor_enable {
             self.gb_doctor_log();
         }
@@ -98,11 +102,7 @@ impl Cpu {
             0x5e => self.ld_e_hl_ptr(),
             0x66 => self.ld_h_hl_ptr(),
             0x6e => self.ld_l_hl_ptr(),
-            //0x76 => todo!("HLT"),
-            0x76 => {
-                tracing::warn!("HLT not implemented yet");
-                1
-            }
+            0x76 => self.hlt(),
             0x7e => self.ld_a_hl_ptr(),
             0x86 => self.add_hl_ptr(),
             0x8e => self.adc_hl_ptr(),
@@ -216,6 +216,12 @@ impl Cpu {
         }
 
         1
+    }
+
+    pub fn hlt(&mut self) -> u8 {
+        tracing::debug!("halting");
+        self.halted = true;
+        4
     }
 
     pub fn daa(&mut self) -> u8 {
