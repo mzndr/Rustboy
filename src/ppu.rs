@@ -193,6 +193,7 @@ impl Ppu {
         let u_addr = (address as usize) - VRAM_OFFSET;
 
         match u_addr {
+            VRAM_LY_OFFSET => 0x90,
             0x0000..=0x1FFF => self.vram[u_addr],
             _ => panic!("unsupported vram read access at 0x{u_addr:x}, was 0x{address:x}"),
         }

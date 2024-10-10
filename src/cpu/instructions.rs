@@ -7,6 +7,7 @@ impl Cpu {
     #[allow(clippy::too_many_lines)]
     #[tracing::instrument(name = "exec", target = "", skip(self), fields(c))]
     pub fn exec_instruction(&mut self) -> u8 {
+        self.gb_doctor_log();
         let opcode = self.read_u8_at_pc_and_increase();
         let dst_idx = opcode >> 4;
         let src_idx = opcode & 0b1111;
@@ -19,7 +20,7 @@ impl Cpu {
         );
 
         tracing::debug!("executing instruction");
-        match opcode {
+        let cycles_needed = match opcode {
             0x00 => Self::nop(),
             0x01 => self.ld_bc_d16(),
             0x02 => self.ld_bc(),
@@ -90,7 +91,11 @@ impl Cpu {
             0x5e => self.ld_e_hl_ptr(),
             0x66 => self.ld_h_hl_ptr(),
             0x6e => self.ld_l_hl_ptr(),
-            0x76 => todo!("HLT"),
+            //0x76 => todo!("HLT"),
+            0x76 => {
+                tracing::warn!("HLT not implemented yet");
+                1
+            }
             0x7e => self.ld_a_hl_ptr(),
             0x86 => self.add_hl_ptr(),
             0x8e => self.adc_hl_ptr(),
@@ -170,7 +175,28 @@ impl Cpu {
                 tracing::error!(msg);
                 panic!("{msg}")
             }
-        }
+        };
+
+        cycles_needed
+    }
+
+    pub fn gb_doctor_log(&self) {
+        println!("A:{:0>2X} F:{:0>2X} B:{:0>2X} C:{:0>2X} D:{:0>2X} E:{:0>2X} H:{:0>2X} L:{:0>2X} SP:{:0>2X} PC:{:0>4X} PCMEM:{:0>2X},{:0>2X},{:0>2X},{:0>2X}",
+            self.registers.a,
+            self.registers.f,
+            self.registers.b,
+            self.registers.c,
+            self.registers.d,
+            self.registers.e,
+            self.registers.h,
+            self.registers.l,
+            self.registers.sp,
+            self.registers.pc,
+            self.mmu.read(self.registers.pc),
+            self.mmu.read(self.registers.pc + 1),
+            self.mmu.read(self.registers.pc + 2),
+            self.mmu.read(self.registers.pc + 3),
+        );
     }
 
     pub fn nop() -> u8 {
@@ -324,7 +350,6 @@ impl Cpu {
 
     pub fn sub8c(&mut self, val: u8) -> u8 {
         self.sub8(val.wrapping_sub(self.registers.get_flag_c().into()));
-
         1
     }
 
@@ -1125,4 +1150,9 @@ impl Cpu {
         self.push_stack_u16(self.registers.get_af());
         4
     }
+}
+
+#[cfg(test)]
+mod test {
+    use crate::cpu::Cpu;
 }
