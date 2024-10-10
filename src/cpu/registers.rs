@@ -86,8 +86,8 @@ impl IndexMut<u8> for Registers {
 /// Initial `PC` value
 pub const PC_INIT_VAL: u16 = 0x0100;
 
-impl Registers {
-    pub fn new() -> Registers {
+impl Default for Registers {
+    fn default() -> Self {
         Registers {
             a: 0x01,
             f: 0xb0,
@@ -102,6 +102,12 @@ impl Registers {
 
             ime: false,
         }
+    }
+}
+
+impl Registers {
+    pub fn new() -> Registers {
+        Registers::default()
     }
 
     pub fn set_flag_at_index(&mut self, index: u8, val: bool) {
