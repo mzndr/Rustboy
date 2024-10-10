@@ -48,41 +48,6 @@ pub struct Registers {
     pub ime: bool,
 }
 
-/// Impl index for registers to easilly decode
-/// register access by opcode.
-impl Index<u8> for Registers {
-    type Output = u8;
-    fn index(&self, index: u8) -> &Self::Output {
-        match index % 8 {
-            REGISTER_B_INDEX => &self.b,
-            REGISTER_C_INDEX => &self.c,
-            REGISTER_D_INDEX => &self.d,
-            REGISTER_E_INDEX => &self.e,
-            REGISTER_H_INDEX => &self.h,
-            REGISTER_L_INDEX => &self.l,
-            REGISTER_F_INDEX => &self.f,
-            REGISTER_A_INDEX => &self.a,
-            _ => panic!("invalid register at 0x{:x}", &index),
-        }
-    }
-}
-
-impl IndexMut<u8> for Registers {
-    fn index_mut(&mut self, index: u8) -> &mut Self::Output {
-        match index % 8 {
-            REGISTER_B_INDEX => &mut self.b,
-            REGISTER_C_INDEX => &mut self.c,
-            REGISTER_D_INDEX => &mut self.d,
-            REGISTER_E_INDEX => &mut self.e,
-            REGISTER_H_INDEX => &mut self.h,
-            REGISTER_L_INDEX => &mut self.l,
-            REGISTER_F_INDEX => &mut self.f,
-            REGISTER_A_INDEX => &mut self.a,
-            _ => panic!("invalid register at 0x{:x}", &index),
-        }
-    }
-}
-
 /// Initial `PC` value
 pub const PC_INIT_VAL: u16 = 0x0100;
 
@@ -106,6 +71,45 @@ impl Default for Registers {
 }
 
 impl Registers {
+
+    pub fn h_index(&self, index: u8) -> &u8 {
+        match index % 8 {
+            REGISTER_B_INDEX => &self.b,
+            REGISTER_C_INDEX => &self.c,
+            REGISTER_D_INDEX => &self.d,
+            REGISTER_E_INDEX => &self.e,
+            REGISTER_H_INDEX => &self.h,
+            REGISTER_L_INDEX => &self.l,
+            REGISTER_F_INDEX => &self.f,
+            REGISTER_A_INDEX => &self.a,
+            _ => panic!("invalid register at 0x{:x}", &index),
+        }
+    }
+
+    pub fn h_index_mut(&mut self, index: u8) -> &mut u8 {
+        match index % 8 {
+            REGISTER_B_INDEX => &mut self.b,
+            REGISTER_C_INDEX => &mut self.c,
+            REGISTER_D_INDEX => &mut self.d,
+            REGISTER_E_INDEX => &mut self.e,
+            REGISTER_H_INDEX => &mut self.h,
+            REGISTER_L_INDEX => &mut self.l,
+            REGISTER_F_INDEX => &mut self.f,
+            REGISTER_A_INDEX => &mut self.a,
+            _ => panic!("invalid register at 0x{:x}", &index),
+        }
+    }
+
+    pub fn v_index_mut(&mut self, index: u8) -> &mut u8 {
+        match (index - 4) % 4 {
+            0 => &mut self.b,
+            1 => &mut self.d,
+            2 => &mut self.h,
+            3 => &mut self.a,
+            _ => panic!("invalid register at 0x{:x}", &index),
+        }
+    }
+
     pub fn new() -> Registers {
         Registers::default()
     }
