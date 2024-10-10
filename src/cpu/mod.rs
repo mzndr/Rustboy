@@ -20,6 +20,7 @@ pub const WRAM_IE_OFFSET: u16 = 0xFFFF;
 /// Offset to interrupt flag register in WRAM.
 pub const WRAM_IF_OFFSET: u16 = 0xFF0F;
 
+/// Struct representing the CPU, holding its state and implementation.
 #[derive(Debug, Clone)]
 pub struct Cpu {
     pub registers: Registers,
@@ -32,6 +33,8 @@ pub struct Cpu {
     schedule_ei: bool,
 }
 
+/// Different kinds of interrupt(-sources).
+#[derive(Debug, Clone, Copy)]
 enum Interrupt {
     VBlank,
     LCD,
@@ -114,6 +117,9 @@ impl Cpu {
             if source.is_set(self.mmu.read(WRAM_IE_OFFSET))
                 && source.is_set(self.mmu.read(WRAM_IF_OFFSET))
             {
+                self.halted = false;
+
+                tracing::debug!("handling interrupt: {source:?}");
                 self.call(source.handler_address());
                 self.mmu.write_u8(
                     WRAM_IF_OFFSET,
