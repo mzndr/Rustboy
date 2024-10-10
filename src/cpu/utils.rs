@@ -6,6 +6,16 @@ pub fn split_u16(to_split: u16) -> (u8, u8) {
     (left, right)
 }
 
+/// Set the bit on `source` at `index` to `val`. 
+pub fn set_bit(source: u8, index: u8, val: bool) -> u8 {
+    let mask: u8 = 1 << index;
+    let mut ret = source;
+    ret &= !mask;
+    ret |= (u8::from(val)) << index;
+
+    ret
+}
+
 /// Merges two 8 bit unsigned integers into
 /// one 16 bit integer.
 pub fn merge_u8s(left: u8, right: u8) -> u16 {
