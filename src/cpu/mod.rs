@@ -21,17 +21,19 @@ pub struct Cpu {
     pub busy_for: u8,
     pub mmu: Mmu,
     pub halted: bool,
+    pub gb_doctor_enable: bool,
 }
 
 impl Cpu {
     /// Initialize cpu memory
-    pub fn new() -> Cpu {
+    pub fn new(gb_doctor_enable: bool) -> Cpu {
         tracing::info!("initializing cpu");
         Cpu {
             registers: registers::Registers::new(),
             mmu: Mmu::new(),
             busy_for: 0x00,
             halted: false,
+            gb_doctor_enable,
         }
     }
 
