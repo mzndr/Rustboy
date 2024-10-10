@@ -19,9 +19,11 @@ pub const VRAM_WX_OFFSET: usize = 0x0F4B;
 /// VRAM offset in WRAM.
 pub const VRAM_OFFSET: usize = 0x8000;
 
+pub const LY_VBLANK_START: u8 = 144;
+
 /// PPU State. State cycles throughout operation and determines what the PPU does.
-#[derive(Debug, Clone)]
-enum State {
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum State {
     /// Load sprite pixels for current scanline.
     OAMSearch,
     /// Draw pixels to LCD (pass them to the renderer).
@@ -99,8 +101,12 @@ impl Ppu {
         }
     }
 
+    pub fn state(&self) -> State {
+        self.state
+    }
+
     /// Get the ly register value from vram;
-    fn ly(&self) -> u8 {
+    pub fn ly(&self) -> u8 {
         self.vram[VRAM_LY_OFFSET]
     }
 
@@ -208,8 +214,9 @@ impl Ppu {
         }
     }
 
+    /// Cycle the mmu, returning the resulting state.
     #[tracing::instrument(skip(self) fields(sprites_loaded=%self.sprite_buffer.len()))]
-    pub fn cycle(&mut self) {
+    pub fn cycle(&mut self) -> State {
         match self.state {
             State::OAMSearch => {
                 tracing::trace!("performing orm search");
@@ -228,7 +235,7 @@ impl Ppu {
                 if self.t_cycle % 456 == 0 {
                     self.inc_ly();
                     self.sprite_buffer.resize(0, Sprite::default());
-                    if self.ly() == 144 {
+                    if self.ly() >= LY_VBLANK_START {
                         self.state = State::VBlank;
                     } else {
                         self.state = State::OAMSearch;
@@ -244,5 +251,7 @@ impl Ppu {
             }
         };
         self.t_cycle = self.t_cycle.wrapping_add(1);
+
+        self.state
     }
 }

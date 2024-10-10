@@ -15,7 +15,11 @@
 //! FF80    FFFE    High RAM (HRAM)
 //! FFFF    FFFF    Interrupt Enable register (IE)
 
-use crate::{apu::Apu, cpu::utils, ppu::Ppu};
+use crate::{
+    apu::Apu,
+    cpu::{self, utils, Cpu},
+    ppu::Ppu,
+};
 
 /// Gameboy wram size.
 const WRAM_SIZE: usize = 0x10000;
@@ -43,6 +47,10 @@ impl Mmu {
 
     pub fn cycle(&mut self) {
         self.ppu.cycle();
+    }
+
+    pub fn ppu_ref<'a>(&'a self) -> &'a Ppu {
+        &self.ppu
     }
 
     /// Needs to be changed for bigger games, since they

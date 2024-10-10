@@ -21,6 +21,11 @@ impl Cpu {
             format!("PC: {pc:0>4x} (PC):{pc_mem:0>4x} {opcode:0>2x}: {mnemonic}"),
         );
 
+        if self.schedule_ei {
+            self.schedule_ei = false;
+            self.registers.ime = true;
+        }
+
         tracing::debug!("executing instruction");
         match opcode {
             0x00 => Self::nop(),
@@ -255,10 +260,15 @@ impl Cpu {
         val.wrapping_sub(1)
     }
 
-    pub fn call_a16(&mut self) -> u8 {
-        let addr = self.read_u16_at_pc_and_increase();
+    pub fn call(&mut self, addr: u16) -> u8 {
         self.push_stack_u16(self.registers.pc);
         self.registers.pc = addr;
+        4
+    }
+
+    pub fn call_a16(&mut self) -> u8 {
+        let addr = self.read_u16_at_pc_and_increase();
+        self.call(addr);
         6
     }
 
@@ -1103,7 +1113,7 @@ impl Cpu {
     }
 
     pub fn ei(&mut self) -> u8 {
-        self.registers.ime = true;
+        self.schedule_ei = true;
         1
     }
 

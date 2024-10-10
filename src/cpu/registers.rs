@@ -20,20 +20,31 @@ pub const REGISTER_A_INDEX: u8 = 7;
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Registers {
-    /// Maybe swap these out for an actual array to do better
-    /// combined register access.
+    // Maybe swap these out for an actual array to do better
+    // combined register access.
+    /// Accumulator.
     pub a: u8,
+    /// Flags.
     pub f: u8,
+    /// General purpose register.
     pub b: u8,
+    /// General purpose register.
     pub c: u8,
+    /// General purpose register.
     pub d: u8,
+    /// General purpose register.
     pub e: u8,
+    /// General purpose register.
     pub h: u8,
+    /// General purpose register.
     pub l: u8,
 
+    /// Stack pointer.
     pub sp: u16,
+    /// Program counter.
     pub pc: u16,
 
+    /// Interrupt master enable.
     pub ime: bool,
 }
 
