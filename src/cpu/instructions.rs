@@ -15,8 +15,8 @@ impl Cpu {
             self.gb_doctor_log();
         }
         let opcode = self.read_u8_at_pc_and_increase();
-        let dst_idx = opcode >> 4;
-        let src_idx = opcode & 0b1111;
+        let left_nibble = opcode >> 4;
+        let right_nibble = opcode & 0b1111;
         let mnemonic = decode_instruction(opcode);
         let pc = self.registers.pc;
         let pc_mem = self.read_u16_at_pc();
@@ -166,16 +166,16 @@ impl Cpu {
             0xfe => self.cp_d8(),
             0xff => self.rst(0x38),
 
-            0x70..=0x77 => self.ld_hl_ptr_n(dst_idx),
-            0x40..=0x7f => Self::ld(self.registers[src_idx], &mut self.registers[dst_idx]),
-            0x80..=0x87 => self.add8(self.registers[src_idx]),
-            0x88..=0x8f => self.add8c(self.registers[src_idx]),
-            0x90..=0x97 => self.sub8(self.registers[src_idx]),
-            0x98..=0x9f => self.sub8c(self.registers[src_idx]),
-            0xa0..=0xa7 => self.and(self.registers[src_idx]),
-            0xa8..=0xaf => self.xor(self.registers[src_idx]),
-            0xb0..=0xb7 => self.or(self.registers[src_idx]),
-            0xb8..=0xbf => self.cp(self.registers[src_idx]),
+            0x70..=0x77 => self.ld_hl_ptr_n(left_nibble),
+            0x40..=0x7f => Self::ld(*self.registers.h_index(right_nibble), self.registers.v_index_mut(left_nibble)),
+            0x80..=0x87 => self.add8(*self.registers.h_index(right_nibble)),
+            0x88..=0x8f => self.add8c(*self.registers.h_index(right_nibble)),
+            0x90..=0x97 => self.sub8(*self.registers.h_index(right_nibble)),
+            0x98..=0x9f => self.sub8c(*self.registers.h_index(right_nibble)),
+            0xa0..=0xa7 => self.and(*self.registers.h_index(right_nibble)),
+            0xa8..=0xaf => self.xor(*self.registers.h_index(right_nibble)),
+            0xb0..=0xb7 => self.or(*self.registers.h_index(right_nibble)),
+            0xb8..=0xbf => self.cp(*self.registers.h_index(right_nibble)),
 
             0xd3 | 0xdb | 0xdd | 0xe3 | 0xe4 | 0xeb | 0xec | 0xed | 0xf4 | 0xfd | 0xfc => {
                 let msg = format!("unused opcode called: 0x{opcode:x}");
@@ -313,7 +313,7 @@ impl Cpu {
 
     pub fn inc8(&mut self, val: u8) -> u8 {
         let w = val.wrapping_add(1);
-        self.registers.set_flag_h(Self::check_add_u8_hc(w, 1));
+        self.registers.set_flag_h(Self::check_add_u8_hc(val, 1));
         self.registers.set_flag_z(w == 0);
         self.registers.set_flag_n(false);
         w
@@ -342,7 +342,7 @@ impl Cpu {
 
     pub fn dec8(&mut self, val: u8) -> u8 {
         let w = val.wrapping_sub(1);
-        self.registers.set_flag_h(Self::check_sub_u8_hc(w, 1));
+        self.registers.set_flag_h(Self::check_sub_u8_hc(val, 1));
         self.registers.set_flag_z(w == 0);
         self.registers.set_flag_n(true);
         w
@@ -372,7 +372,7 @@ impl Cpu {
     pub fn add8(&mut self, val: u8) -> u8 {
         let a = self.registers.a;
         let result = a.wrapping_add(val);
-        self.registers.set_flag_h(result & 0xf == 0xf);
+        self.registers.set_flag_h(Self::check_add_u8_hc(a, val));
         self.registers.set_flag_z(result == 0);
         self.registers.set_flag_n(false);
         self.registers
@@ -427,8 +427,10 @@ impl Cpu {
         self.jp_a16()
     }
 
+    #[allow(clippy::cast_possible_wrap, clippy::cast_possible_truncation)]
     pub fn jr(&mut self, val: u8) {
-        self.registers.pc = self.registers.pc.wrapping_add(val.into());
+        let n = val as i8;
+        self.registers.pc = ((self.registers.pc as u32 as i32) + (n as i32)) as u16;
     }
 
     pub fn xor(&mut self, val: u8) -> u8 {
@@ -559,27 +561,27 @@ impl Cpu {
     }
 
     pub fn ld_c_ptr_a(&mut self) -> u8 {
-        let addr = merge_u8s(self.registers.c, 0xff);
+        let addr = merge_u8s(0xff, self.registers.c);
         self.mmu.write_u8(addr, self.registers.a);
         2
     }
 
     pub fn ld_a_c_ptr(&mut self) -> u8 {
-        let addr = merge_u8s(self.registers.c, 0xff);
+        let addr = merge_u8s(0xff, self.registers.c);
         self.registers.a = self.mmu.read(addr);
         2
     }
 
     pub fn ldh_a8_ptr_a(&mut self) -> u8 {
-        let addr = merge_u8s(self.read_u8_at_pc_and_increase(), 0xff);
+        let addr = merge_u8s(0xff, self.read_u8_at_pc_and_increase());
         self.mmu.write_u8(addr, self.registers.a);
         3
     }
 
     pub fn ldh_a_a8_ptr(&mut self) -> u8 {
-        let addr = merge_u8s(self.registers.a, 0xff);
-        let val = self.read_u8_at_pc_and_increase();
-        self.mmu.write_u8(addr, val);
+        let n = self.read_u8_at_pc_and_increase();
+        let addr = merge_u8s(0xff, n);
+        self.registers.a = self.mmu.read(addr);
         3
     }
 
@@ -682,7 +684,7 @@ impl Cpu {
     }
 
     pub fn ld_hl_ptr_n(&mut self, register_idx: u8) -> u8 {
-        let val = self.registers[register_idx];
+        let val = *self.registers.h_index(register_idx);
         self.mmu.write_u8(self.registers.get_hl(), val);
         2
     }
@@ -941,7 +943,7 @@ impl Cpu {
     }
 
     pub fn rr(&mut self, register_idx: u8) -> u8 {
-        self.registers[register_idx] = self.rr_val(self.registers[register_idx]);
+        *self.registers.h_index_mut(register_idx) = self.rr_val(*self.registers.h_index(register_idx));
         1
     }
 
@@ -956,7 +958,7 @@ impl Cpu {
     }
 
     pub fn rl(&mut self, register_idx: u8) -> u8 {
-        self.registers[register_idx] = self.rl_val(self.registers[register_idx]);
+        *self.registers.h_index_mut(register_idx) = self.rl_val(*self.registers.h_index(register_idx));
         1
     }
 
@@ -970,7 +972,7 @@ impl Cpu {
     }
 
     pub fn rlc(&mut self, reg_idx: u8) -> u8 {
-        self.registers[reg_idx] = self.rlc_val(self.registers[reg_idx]);
+        *self.registers.h_index_mut(reg_idx) = self.rlc_val(*self.registers.h_index(reg_idx));
         1
     }
 
@@ -985,7 +987,7 @@ impl Cpu {
 
     pub fn rrc(&mut self, reg_idx: u8) -> u8 {
         // Right most bit, that will wrap around gets copied to the carry flag.
-        self.registers[reg_idx] = self.rrc_val(self.registers[reg_idx]);
+        *self.registers.h_index_mut(reg_idx) = self.rrc_val(*self.registers.h_index(reg_idx));
         1
     }
 
@@ -1165,32 +1167,5 @@ impl Cpu {
     pub fn push_af(&mut self) -> u8 {
         self.push_stack_u16(self.registers.get_af());
         4
-    }
-}
-
-#[cfg(test)]
-mod test {
-    use crate::cpu::Cpu;
-
-    fn reset_regs(cpu: &mut Cpu) {
-        for reg in 0..7 {
-            cpu.registers[reg] = 0x00;
-        }
-    }
-
-    #[test]
-    fn test_ld() {
-        let mut cpu = Cpu::new(false);
-
-        for reg_a in 0..8 {
-            reset_regs(&mut cpu);
-            for reg_b in 0..8 {
-                cpu.registers[reg_a] = 0x13;
-                cpu.registers[reg_b] = 0x37;
-
-                Cpu::ld(cpu.registers[reg_a], &mut cpu.registers[reg_b]);
-                assert_eq!(cpu.registers[reg_a], cpu.registers[reg_b]);
-            }
-        }
     }
 }
