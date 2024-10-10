@@ -1,6 +1,6 @@
-use crate::mmu::Mmu;
+use crate::{mmu::Mmu, ppu};
 
-use self::registers::Registers;
+use self::{registers::Registers, utils::set_bit};
 pub mod disassembler;
 mod extended_instructions;
 mod instructions;
@@ -14,6 +14,12 @@ pub mod utils;
 * For Opcodes see: <https://www.pastraiser.com/cpu/gameboy/gameboy_opcodes.html>
 */
 
+/// Offset to interrupt enable register in WRAM.
+pub const WRAM_IE_OFFSET: u16 = 0xFFFF;
+
+/// Offset to interrupt flag register in WRAM.
+pub const WRAM_IF_OFFSET: u16 = 0xFF0F;
+
 #[derive(Debug, Clone)]
 pub struct Cpu {
     pub registers: Registers,
@@ -22,6 +28,55 @@ pub struct Cpu {
     pub mmu: Mmu,
     pub halted: bool,
     pub gb_doctor_enable: bool,
+
+    schedule_ei: bool,
+}
+
+enum Interrupt {
+    VBlank,
+    LCD,
+    Timer,
+    Serial,
+    Joypad,
+}
+
+impl Interrupt {
+    /// Checks if the interrupt bit is set in the given `u8`.
+    fn is_set(&self, reg_val: u8) -> bool {
+        (reg_val >> self.bit_index() & 1) == 1
+    }
+
+    /// Gets this interrupts bit index.
+    fn bit_index(&self) -> u8 {
+        match self {
+            Self::VBlank => 0,
+            Self::LCD => 1,
+            Self::Timer => 2,
+            Self::Serial => 3,
+            Self::Joypad => 4,
+        }
+    }
+
+    /// Gets this interrupts handler address.
+    fn handler_address(&self) -> u16 {
+        match self {
+            Self::VBlank => 0x40,
+            Self::LCD => 0x48,
+            Self::Timer => 0x50,
+            Self::Serial => 0x58,
+            Self::Joypad => 0x60,
+        }
+    }
+
+    fn enumerate() -> [Self; 5] {
+        [
+            Self::VBlank,
+            Self::LCD,
+            Self::Timer,
+            Self::Serial,
+            Self::Joypad,
+        ]
+    }
 }
 
 impl Cpu {
@@ -34,7 +89,39 @@ impl Cpu {
             busy_for: 0x00,
             halted: false,
             gb_doctor_enable,
+            schedule_ei: false,
         }
+    }
+
+    /// Request interrupt for an interrupt source.
+    fn request_interrupt(&mut self, source: Interrupt, val: bool) {
+        let old_if = self.mmu.read(WRAM_IF_OFFSET);
+        let new_if = utils::set_bit(old_if, source.bit_index(), val);
+        self.mmu.write_u8(WRAM_IF_OFFSET, new_if);
+    }
+
+    /// Enable interrupt for an interrupt source.
+    fn enable_interrupt(&mut self, source: &Interrupt, val: bool) {
+        let old_if = self.mmu.read(WRAM_IE_OFFSET);
+        let new_if = utils::set_bit(old_if, source.bit_index(), val);
+        self.mmu.write_u8(WRAM_IE_OFFSET, new_if);
+    }
+
+    /// Handle interrupts.
+    fn handle_interrupts(&mut self) {
+        self.registers.ime = false;
+        for source in Interrupt::enumerate() {
+            if source.is_set(self.mmu.read(WRAM_IE_OFFSET))
+                && source.is_set(self.mmu.read(WRAM_IF_OFFSET))
+            {
+                self.call(source.handler_address());
+                self.mmu.write_u8(
+                    WRAM_IF_OFFSET,
+                    utils::set_bit(self.mmu.read(WRAM_IF_OFFSET), source.bit_index(), false),
+                );
+            }
+        }
+        self.busy_for += 5;
     }
 
     // Execute a machine cycle.
@@ -46,6 +133,14 @@ impl Cpu {
             self.busy_for -= 1;
         }
         self.mmu.cycle(); // Not sure if this is the right place
+        if self.mmu.ppu_ref().ly() == ppu::LY_VBLANK_START {
+            self.request_interrupt(Interrupt::VBlank, true);
+        }
+
+        if self.registers.ime {
+            self.handle_interrupts();
+            self.busy_for += 5;
+        }
     }
 
     /// Push a u8 value onto the stack.
