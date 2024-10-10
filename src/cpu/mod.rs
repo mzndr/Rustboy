@@ -82,11 +82,6 @@ impl Cpu {
         val
     }
 
-    /// Reads a byte from memory at pc.
-    pub fn read_u8_at_pc(&self) -> u8 {
-        self.mmu.read(self.registers.pc)
-    }
-
     /// Reads two bytes from memory at pc.
     pub fn read_u16_at_pc(&self) -> u16 {
         let a = self.mmu.read(self.registers.pc);
