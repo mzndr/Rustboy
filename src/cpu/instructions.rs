@@ -7,7 +7,9 @@ impl Cpu {
     #[allow(clippy::too_many_lines)]
     #[tracing::instrument(name = "exec", target = "", skip(self), fields(c))]
     pub fn exec_instruction(&mut self) -> u8 {
-        self.gb_doctor_log();
+        if self.gb_doctor_enable {
+            self.gb_doctor_log();
+        }
         let opcode = self.read_u8_at_pc_and_increase();
         let dst_idx = opcode >> 4;
         let src_idx = opcode & 0b1111;
@@ -20,7 +22,7 @@ impl Cpu {
         );
 
         tracing::debug!("executing instruction");
-        let cycles_needed = match opcode {
+        match opcode {
             0x00 => Self::nop(),
             0x01 => self.ld_bc_d16(),
             0x02 => self.ld_bc(),
@@ -175,9 +177,7 @@ impl Cpu {
                 tracing::error!(msg);
                 panic!("{msg}")
             }
-        };
-
-        cycles_needed
+        }
     }
 
     pub fn gb_doctor_log(&self) {

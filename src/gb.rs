@@ -13,8 +13,8 @@ pub struct Gameboy {
 }
 
 impl Gameboy {
-    pub fn new() -> Self {
-        Self { cpu: Cpu::new() }
+    pub fn new(gb_doctor_enable: bool) -> Self {
+        Self { cpu: Cpu::new(gb_doctor_enable) }
     }
 
     pub fn run(&mut self) {

@@ -22,15 +22,20 @@ struct Args {
     rom_path: String,
     #[arg(short, long, action)]
     disassemble: bool,
+    #[arg(long, action)]
+    enable_gbd: bool,
+    #[arg(long, action)]
+    enable_trace: bool,
 }
 
 fn main() {
-    tracing_subscriber::fmt::fmt()
-        .with_env_filter(EnvFilter::from_default_env())
-        .without_time()
-        .init();
-
     let args = Args::parse();
+    if args.enable_trace {
+        tracing_subscriber::fmt::fmt()
+            .with_env_filter(EnvFilter::from_default_env())
+            .without_time()
+            .init();
+    }
     tracing::info!(?args, "starting emulator");
 
     let rom = fs::read(path::Path::new(&args.rom_path)).expect("cannot read ROM");
@@ -41,7 +46,7 @@ fn main() {
         return;
     }
 
-    let mut gb = Gameboy::new();
+    let mut gb = Gameboy::new(args.enable_gbd);
     gb.load_rom(&rom);
     gb.run();
 }
