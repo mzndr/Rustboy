@@ -1171,4 +1171,26 @@ impl Cpu {
 #[cfg(test)]
 mod test {
     use crate::cpu::Cpu;
+
+    fn reset_regs(cpu: &mut Cpu) {
+        for reg in 0..7 {
+            cpu.registers[reg] = 0x00;
+        }
+    }
+
+    #[test]
+    fn test_ld() {
+        let mut cpu = Cpu::new(false);
+
+        for reg_a in 0..8 {
+            reset_regs(&mut cpu);
+            for reg_b in 0..8 {
+                cpu.registers[reg_a] = 0x13;
+                cpu.registers[reg_b] = 0x37;
+
+                Cpu::ld(cpu.registers[reg_a], &mut cpu.registers[reg_b]);
+                assert_eq!(cpu.registers[reg_a], cpu.registers[reg_b]);
+            }
+        }
+    }
 }
