@@ -1,5 +1,4 @@
 use super::disassembler::decode_instruction;
-use super::utils;
 use super::{registers::REGISTER_A_INDEX, utils::merge_u8s, Cpu};
 
 impl Cpu {
@@ -16,8 +15,8 @@ impl Cpu {
             self.gb_doctor_log();
         }
         let opcode = self.read_u8_at_pc_and_increase();
-        let left_nibble = opcode >> 4;
-        let right_nibble = opcode & 0b1111;
+        let dst_idx = opcode >> 4;
+        let src_idx = opcode & 0xf;
         let mnemonic = decode_instruction(opcode);
         let pc = self.registers.pc;
         let pc_mem = self.read_u16_at_pc();
@@ -167,16 +166,19 @@ impl Cpu {
             0xfe => self.cp_d8(),
             0xff => self.rst(0x38),
 
-            0x70..=0x77 => self.ld_hl_ptr_n(left_nibble),
-            0x40..=0x7f => Self::ld(*self.registers.h_index(right_nibble), self.registers.v_index_mut(left_nibble)),
-            0x80..=0x87 => self.add8(*self.registers.h_index(right_nibble)),
-            0x88..=0x8f => self.add8c(*self.registers.h_index(right_nibble)),
-            0x90..=0x97 => self.sub8(*self.registers.h_index(right_nibble)),
-            0x98..=0x9f => self.sub8c(*self.registers.h_index(right_nibble)),
-            0xa0..=0xa7 => self.and(*self.registers.h_index(right_nibble)),
-            0xa8..=0xaf => self.xor(*self.registers.h_index(right_nibble)),
-            0xb0..=0xb7 => self.or(*self.registers.h_index(right_nibble)),
-            0xb8..=0xbf => self.cp(*self.registers.h_index(right_nibble)),
+            0x70..=0x77 => self.ld_hl_ptr_n(dst_idx),
+            0x40..=0x7f => Self::ld(
+                *self.registers.h_index(src_idx),
+                self.registers.v_index_mut(dst_idx, src_idx),
+            ),
+            0x80..=0x87 => self.add8(*self.registers.h_index(src_idx)),
+            0x88..=0x8f => self.add8c(*self.registers.h_index(src_idx)),
+            0x90..=0x97 => self.sub8(*self.registers.h_index(src_idx)),
+            0x98..=0x9f => self.sub8c(*self.registers.h_index(src_idx)),
+            0xa0..=0xa7 => self.and(*self.registers.h_index(src_idx)),
+            0xa8..=0xaf => self.xor(*self.registers.h_index(src_idx)),
+            0xb0..=0xb7 => self.or(*self.registers.h_index(src_idx)),
+            0xb8..=0xbf => self.cp(*self.registers.h_index(src_idx)),
 
             0xd3 | 0xdb | 0xdd | 0xe3 | 0xe4 | 0xeb | 0xec | 0xed | 0xf4 | 0xfd | 0xfc => {
                 let msg = format!("unused opcode called: 0x{opcode:x}");
@@ -310,6 +312,7 @@ impl Cpu {
         self.call(addr)
     }
 
+    /// `LD dst src`
     pub fn ld(src: u8, dst: &mut u8) -> u8 {
         *dst = src;
         1
@@ -584,7 +587,7 @@ impl Cpu {
 
     pub fn ldh_a_a8_ptr(&mut self) -> u8 {
         let n = self.read_u8_at_pc_and_increase();
-        let addr = 0xFF00 | (n as u16); 
+        let addr = 0xFF00 | (n as u16);
         self.registers.a = self.mmu.read(addr);
         3
     }
@@ -937,32 +940,32 @@ impl Cpu {
     }
 
     pub fn rr_val(&mut self, val: u8) -> u8 {
-        let prev_carry = u8::from(self.registers.get_flag_c());
-        self.registers.set_flag_c((val & 0b0000_0001) == 1);
-        let mut result = val.rotate_right(1);
-        result |= prev_carry << 7;
+        let result = (val >> 1) | (if self.registers.get_flag_c() { 0x80 } else { 0 });
+        self.registers.set_flag_c((val & 0x1) == 1);
         self.registers.set_flag_n(false);
         self.registers.set_flag_h(false);
+
         result
     }
 
     pub fn rr(&mut self, register_idx: u8) -> u8 {
-        *self.registers.h_index_mut(register_idx) = self.rr_val(*self.registers.h_index(register_idx));
+        *self.registers.h_index_mut(register_idx) =
+            self.rr_val(*self.registers.h_index(register_idx));
         1
     }
 
     pub fn rl_val(&mut self, val: u8) -> u8 {
-        let prev_carry = u8::from(self.registers.get_flag_c());
-        self.registers.set_flag_c((val >> 7) == 1);
-        let mut result = val.rotate_left(1);
-        result |= prev_carry;
+        let result = (val << 1) | self.registers.get_flag_c() as u8;
+        self.registers.set_flag_c((val & 0x80) == 0x80);
         self.registers.set_flag_n(false);
         self.registers.set_flag_h(false);
+
         result
     }
 
     pub fn rl(&mut self, register_idx: u8) -> u8 {
-        *self.registers.h_index_mut(register_idx) = self.rl_val(*self.registers.h_index(register_idx));
+        *self.registers.h_index_mut(register_idx) =
+            self.rl_val(*self.registers.h_index(register_idx));
         1
     }
 

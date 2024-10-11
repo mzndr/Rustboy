@@ -19,9 +19,7 @@ pub fn set_bit(source: u8, index: u8, val: bool) -> u8 {
 /// Merges two 8 bit unsigned integers into
 /// one 16 bit integer.
 pub fn merge_u8s(left: u8, right: u8) -> u16 {
-    let ret: u16 = 0;
-    let b: u16 = 8;
-    (ret | u16::from(right)) | (u16::from(left) << b)
+    (left as u16) << 8 | (right as u16)
 }
 
 #[cfg(test)]

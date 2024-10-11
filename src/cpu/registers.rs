@@ -71,7 +71,7 @@ impl Default for Registers {
 }
 
 impl Registers {
-
+    /// Match horizontal opcode numbers to registers
     pub fn h_index(&self, index: u8) -> &u8 {
         match index % 8 {
             REGISTER_B_INDEX => &self.b,
@@ -86,6 +86,7 @@ impl Registers {
         }
     }
 
+    /// Match horizontal opcode numbers to registers
     pub fn h_index_mut(&mut self, index: u8) -> &mut u8 {
         match index % 8 {
             REGISTER_B_INDEX => &mut self.b,
@@ -100,12 +101,23 @@ impl Registers {
         }
     }
 
-    pub fn v_index_mut(&mut self, index: u8) -> &mut u8 {
-        match (index - 4) % 4 {
-            0 => &mut self.b,
-            1 => &mut self.d,
-            2 => &mut self.h,
-            3 => &mut self.a,
+    /// Match vertical opcode numbers to registers
+    pub fn v_index_mut(&mut self, index: u8, h_index: u8) -> &mut u8 {
+        match h_index {
+            0x6 | 0xE => panic!("invalid register at 0x{:x}", &index),
+            0x0..=0x7 => match (index - 4) % 3 {
+                0 => &mut self.b,
+                1 => &mut self.d,
+                2 => &mut self.h,
+                _ => panic!("invalid register at h: 0x{:x} v: 0x{:x}", &h_index, &index),
+            },
+            0x8..=0xF => match (index - 4) % 4 {
+                0 => &mut self.c,
+                1 => &mut self.e,
+                2 => &mut self.l,
+                3 => &mut self.a,
+                _ => panic!("invalid register at h: 0x{:x} v: 0x{:x}", &h_index, &index),
+            },
             _ => panic!("invalid register at 0x{:x}", &index),
         }
     }
