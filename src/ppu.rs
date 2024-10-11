@@ -40,8 +40,8 @@ pub struct Ppu {
     vram: [u8; VRAM_SIZE],
     /// PPU State.
     state: State,
-    /// Current pixel.
-    lx: u8,
+    /// PPU LY
+    pub ly: u8,
     /// Currently loaded sprites.
     sprite_buffer: Vec<Sprite>,
 
@@ -94,7 +94,7 @@ impl Ppu {
     pub fn new() -> Self {
         Self {
             vram: [0; VRAM_SIZE],
-            lx: 0,
+            ly: 0,
             t_cycle: 0,
             state: State::OAMSearch,
             sprite_buffer: Vec::with_capacity(10),
@@ -103,22 +103,6 @@ impl Ppu {
 
     pub fn state(&self) -> State {
         self.state
-    }
-
-    /// Get the ly register value from vram;
-    pub fn ly(&self) -> u8 {
-        self.vram[VRAM_LY_OFFSET]
-    }
-
-    /// Set ly to a value
-    fn set_ly(&mut self, val: u8) {
-        self.vram[VRAM_LY_OFFSET] = val;
-    }
-
-    /// Increase ly by one and return it.
-    fn inc_ly(&mut self) -> u8 {
-        self.vram[VRAM_LY_OFFSET] = self.vram[VRAM_LY_OFFSET].wrapping_add(1);
-        self.vram[VRAM_LY_OFFSET]
     }
 
     fn lcdc(&self) -> u8 {
@@ -172,8 +156,8 @@ impl Ppu {
 
         // Check if the sprite is on screen.
         if sprite.x > 0
-            && ((self.ly() + 16) as i8) >= sprite.y
-            && ((self.ly() + 16) as i8) < sprite.y + sprite_height
+            && ((self.ly + 16) as i8) >= sprite.y
+            && ((self.ly + 16) as i8) < sprite.y + sprite_height
             && self.sprite_buffer.len() <= 10
         {
             return Some(sprite);
@@ -233,9 +217,9 @@ impl Ppu {
             State::HBlank => {
                 tracing::trace!("performing horizontal blanks");
                 if self.t_cycle % 456 == 0 {
-                    self.inc_ly();
+                    self.ly += 1;
                     self.sprite_buffer.resize(0, Sprite::default());
-                    if self.ly() >= LY_VBLANK_START {
+                    if self.ly >= LY_VBLANK_START {
                         self.state = State::VBlank;
                     } else {
                         self.state = State::OAMSearch;
@@ -245,7 +229,7 @@ impl Ppu {
             State::VBlank => {
                 tracing::trace!("horizontal vertical blanks");
                 if self.t_cycle % 4560 == 0 {
-                    self.set_ly(0);
+                    self.ly = 0;
                     self.state = State::OAMSearch;
                 }
             }

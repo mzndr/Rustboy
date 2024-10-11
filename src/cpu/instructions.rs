@@ -1,4 +1,5 @@
 use super::disassembler::decode_instruction;
+use super::utils;
 use super::{registers::REGISTER_A_INDEX, utils::merge_u8s, Cpu};
 
 impl Cpu {
@@ -161,8 +162,8 @@ impl Cpu {
             0xf7 => self.rst(0x30),
             0xf8 => self.ld_hl_sp_r8(),
             0xf9 => self.ld_sp_hl(),
-            0xfa => self.ei(),
-            0xfb => self.ld_a_a16_ptr(),
+            0xfa => self.ld_a_a16_ptr(),
+            0xfb => self.ei(),
             0xfe => self.cp_d8(),
             0xff => self.rst(0x38),
 
@@ -274,36 +275,39 @@ impl Cpu {
 
     pub fn call_a16(&mut self) -> u8 {
         let addr = self.read_u16_at_pc_and_increase();
-        self.call(addr);
-        6
+        self.call(addr)
     }
 
     pub fn call_nz_a16(&mut self) -> u8 {
+        let addr = self.read_u16_at_pc_and_increase();
         if self.registers.get_flag_z() {
             return 4;
         }
-        self.call_a16()
+        self.call(addr)
     }
 
     pub fn call_z_a16(&mut self) -> u8 {
+        let addr = self.read_u16_at_pc_and_increase();
         if !self.registers.get_flag_z() {
             return 4;
         }
-        self.call_a16()
+        self.call(addr)
     }
 
     pub fn call_nc_a16(&mut self) -> u8 {
+        let addr = self.read_u16_at_pc_and_increase();
         if self.registers.get_flag_c() {
             return 4;
         }
-        self.call_a16()
+        self.call(addr)
     }
 
     pub fn call_c_a16(&mut self) -> u8 {
+        let addr = self.read_u16_at_pc_and_increase();
         if !self.registers.get_flag_c() {
             return 4;
         }
-        self.call_a16()
+        self.call(addr)
     }
 
     pub fn ld(src: u8, dst: &mut u8) -> u8 {
@@ -388,7 +392,7 @@ impl Cpu {
         self.registers.set_flag_h(Self::check_sub_u8_hc(a, val));
         self.registers.set_flag_z(result == 0);
         self.registers.set_flag_n(true);
-        self.registers.set_flag_c(u16::from(val) < u16::from(a));
+        self.registers.set_flag_c(u16::from(val) > u16::from(a));
         self.registers.a = result;
 
         1
@@ -469,7 +473,7 @@ impl Cpu {
         self.registers.set_flag_h(Self::check_sub_u8_hc(a, val));
         self.registers.set_flag_z(result == 0);
         self.registers.set_flag_n(true);
-        self.registers.set_flag_c(u16::from(val) < u16::from(a));
+        self.registers.set_flag_c(u16::from(val) > u16::from(a));
 
         1
     }
@@ -580,7 +584,7 @@ impl Cpu {
 
     pub fn ldh_a_a8_ptr(&mut self) -> u8 {
         let n = self.read_u8_at_pc_and_increase();
-        let addr = merge_u8s(0xff, n);
+        let addr = 0xFF00 | (n as u16); 
         self.registers.a = self.mmu.read(addr);
         3
     }
@@ -762,7 +766,7 @@ impl Cpu {
 
     pub fn sub_d8(&mut self) -> u8 {
         let d8 = self.read_u8_at_pc_and_increase();
-        self.sub8c(d8);
+        self.sub8(d8);
         2
     }
 
@@ -1002,7 +1006,7 @@ impl Cpu {
     }
 
     pub fn dec_l(&mut self) -> u8 {
-        self.registers.h = self.dec8(self.registers.l);
+        self.registers.l = self.dec8(self.registers.l);
         1
     }
 

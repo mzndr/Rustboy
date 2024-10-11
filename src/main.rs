@@ -1,7 +1,7 @@
 #![forbid(unsafe_code)]
 #![deny(nonstandard_style)]
 #![warn(clippy::pedantic, clippy::unwrap_used)]
-#![allow(clippy::upper_case_acronyms)]
+#![allow(clippy::upper_case_acronyms, clippy::cast_lossless)]
 
 use std::{fs, path};
 
