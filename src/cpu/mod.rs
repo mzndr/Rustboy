@@ -139,7 +139,7 @@ impl Cpu {
             self.busy_for -= 1;
         }
         self.mmu.cycle(); // Not sure if this is the right place
-        if self.mmu.ppu_ref().ly() == ppu::LY_VBLANK_START {
+        if self.mmu.ppu_ref().ly == ppu::LY_VBLANK_START {
             self.request_interrupt(Interrupt::VBlank, true);
         }
 
@@ -165,14 +165,14 @@ impl Cpu {
     /// Push a u16 value onto the stack.
     pub fn push_stack_u16(&mut self, val: u16) {
         let (l, h) = utils::split_u16(val);
-        self.push_stack_u8(h);
         self.push_stack_u8(l);
+        self.push_stack_u8(h);
     }
 
     /// Pop a u16 value from the stack.
     pub fn pop_stack_u16(&mut self) -> u16 {
-        let l = self.pop_stack_u8();
         let h = self.pop_stack_u8();
+        let l = self.pop_stack_u8();
         utils::merge_u8s(l, h)
     }
 

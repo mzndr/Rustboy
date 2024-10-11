@@ -70,6 +70,7 @@ impl Mmu {
             0x0000..=0x7FFF => self.wram[u_addr],
             0x8000..=0x9FFF => self.ppu.read(address),
             0xE000..=0xFDFF => self.read(address - WRAM_ECHO_OFFSET),
+            0xFF44 => 0x90,//self.ppu.ly,
             _ => self.wram[u_addr],
             //_ => panic!("unsupported wram read access at {u_addr:x}"),
         }
@@ -82,6 +83,7 @@ impl Mmu {
             0x0000..=0x7FFF => self.wram[u_addr] = val,
             0x8000..=0x9FFF => self.ppu.write_u8(address, val),
             0xE000..=0xFDFF => self.write_u8(address - WRAM_ECHO_OFFSET, val),
+            0xFF44 => self.ppu.ly = val,
             _ => self.wram[address as usize] = val,
             //_ => panic!("unsupported wram write access at {u_addr:x}"),
         }
