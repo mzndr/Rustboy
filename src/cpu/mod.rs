@@ -1,6 +1,6 @@
 use crate::{mmu::Mmu, ppu};
 
-use self::{registers::Registers, utils::set_bit};
+use self::registers::Registers;
 pub mod disassembler;
 mod extended_instructions;
 mod instructions;
@@ -45,12 +45,12 @@ enum Interrupt {
 
 impl Interrupt {
     /// Checks if the interrupt bit is set in the given `u8`.
-    fn is_set(&self, reg_val: u8) -> bool {
+    fn is_set(self, reg_val: u8) -> bool {
         (reg_val >> self.bit_index() & 1) == 1
     }
 
     /// Gets this interrupts bit index.
-    fn bit_index(&self) -> u8 {
+    fn bit_index(self) -> u8 {
         match self {
             Self::VBlank => 0,
             Self::LCD => 1,
@@ -61,7 +61,7 @@ impl Interrupt {
     }
 
     /// Gets this interrupts handler address.
-    fn handler_address(&self) -> u16 {
+    fn handler_address(self) -> u16 {
         match self {
             Self::VBlank => 0x40,
             Self::LCD => 0x48,
@@ -104,7 +104,7 @@ impl Cpu {
     }
 
     /// Enable interrupt for an interrupt source.
-    fn enable_interrupt(&mut self, source: &Interrupt, val: bool) {
+    fn enable_interrupt(&mut self, source: Interrupt, val: bool) {
         let old_if = self.mmu.read(WRAM_IE_OFFSET);
         let new_if = utils::set_bit(old_if, source.bit_index(), val);
         self.mmu.write_u8(WRAM_IE_OFFSET, new_if);
@@ -135,6 +135,10 @@ impl Cpu {
     pub fn cycle(&mut self) {
         if self.busy_for == 0 {
             self.busy_for = self.exec_instruction();
+            if self.registers.ime {
+                self.handle_interrupts();
+                self.busy_for += 5;
+            }
         } else {
             self.busy_for -= 1;
         }
@@ -143,10 +147,6 @@ impl Cpu {
             self.request_interrupt(Interrupt::VBlank, true);
         }
 
-        if self.registers.ime {
-            self.handle_interrupts();
-            self.busy_for += 5;
-        }
     }
 
     /// Push a u8 value onto the stack.
