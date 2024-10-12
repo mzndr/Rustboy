@@ -483,6 +483,7 @@ impl Cpu {
 
     pub fn ld_b_hl_ptr(&mut self) -> u8 {
         self.registers.b = self.mmu.read(self.registers.get_hl());
+        //self.registers.b = self.mmu.read(0x0B);
         2
     }
 

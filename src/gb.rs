@@ -21,7 +21,7 @@ impl Gameboy {
         loop {
             let start = time::Instant::now();
             self.cpu.cycle();
-            self.sleep_till_next_cycle(start);
+            Self::sleep_till_next_cycle(start);
         }
     }
 
@@ -35,7 +35,7 @@ impl Gameboy {
         clippy::cast_sign_loss,
         clippy::cast_possible_truncation
     )]
-    fn sleep_till_next_cycle(&self, start: time::Instant) {
+    fn sleep_till_next_cycle(start: time::Instant) {
         let cycles_per_ms: f32 = DEFAULT_CLOCK_SPEED / 1000.0; // 1mhz
         let after = Instant::now();
         let passed = after - start;

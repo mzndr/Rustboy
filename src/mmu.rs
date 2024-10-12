@@ -17,7 +17,7 @@
 
 use crate::{
     apu::Apu,
-    cpu::{self, utils, Cpu},
+    cpu::utils,
     ppu::Ppu,
 };
 
@@ -27,10 +27,13 @@ const WRAM_SIZE: usize = 0x10000;
 /// Offset to handle echo ram redirection.
 const WRAM_ECHO_OFFSET: u16 = 0x2000;
 
+const HRAM_SIZE: usize = 0x7F;
+
 /// Memory management unit. Handle and map memory access.
 #[derive(Debug, Clone)]
 pub struct Mmu {
     wram: [u8; WRAM_SIZE],
+    hram: [u8; HRAM_SIZE],
     ppu: Ppu,
     apu: Apu,
 }
@@ -38,18 +41,56 @@ pub struct Mmu {
 impl Mmu {
     /// Create new wram.
     pub fn new() -> Self {
-        Self {
+        let mut s = Self {
             wram: [0x00; WRAM_SIZE],
+            hram: [0x00; HRAM_SIZE],
             ppu: Ppu::new(),
             apu: Apu::new(),
-        }
+        };
+        s.initial_write();
+
+        s
+    }
+
+    fn initial_write(&mut self) {
+        self.write_u8(0xFF05, 0x00);
+        self.write_u8(0xFF06, 0x00);
+        self.write_u8(0xFF07, 0x00);
+        self.write_u8(0xFF10, 0x80);
+        self.write_u8(0xFF11, 0xBF);
+        self.write_u8(0xFF12, 0xF3);
+        self.write_u8(0xFF14, 0xBF);
+        self.write_u8(0xFF16, 0x3F);
+        self.write_u8(0xFF16, 0x3F);
+        self.write_u8(0xFF17, 0x00);
+        self.write_u8(0xFF19, 0xBF);
+        self.write_u8(0xFF1A, 0x7F);
+        self.write_u8(0xFF1B, 0xFF);
+        self.write_u8(0xFF1C, 0x9F);
+        self.write_u8(0xFF1E, 0xFF);
+        self.write_u8(0xFF20, 0xFF);
+        self.write_u8(0xFF21, 0x00);
+        self.write_u8(0xFF22, 0x00);
+        self.write_u8(0xFF23, 0xBF);
+        self.write_u8(0xFF24, 0x77);
+        self.write_u8(0xFF25, 0xF3);
+        self.write_u8(0xFF26, 0xF1);
+        self.write_u8(0xFF40, 0x91);
+        self.write_u8(0xFF42, 0x00);
+        self.write_u8(0xFF43, 0x00);
+        self.write_u8(0xFF45, 0x00);
+        self.write_u8(0xFF47, 0xFC);
+        self.write_u8(0xFF48, 0xFF);
+        self.write_u8(0xFF49, 0xFF);
+        self.write_u8(0xFF4A, 0x00);
+        self.write_u8(0xFF4B, 0x00);
     }
 
     pub fn cycle(&mut self) {
         self.ppu.cycle();
     }
 
-    pub fn ppu_ref<'a>(&'a self) -> &'a Ppu {
+    pub fn ppu_ref(&self) -> &Ppu {
         &self.ppu
     }
 
@@ -71,6 +112,7 @@ impl Mmu {
             0x8000..=0x9FFF => self.ppu.read(address),
             0xE000..=0xFDFF => self.read(address - WRAM_ECHO_OFFSET),
             0xFF44 => 0x90,//self.ppu.ly,
+            0xFF80 ..= 0xFFFE => self.hram[address as usize & 0x7F],
             _ => self.wram[u_addr],
             //_ => panic!("unsupported wram read access at {u_addr:x}"),
         }
@@ -84,6 +126,7 @@ impl Mmu {
             0x8000..=0x9FFF => self.ppu.write_u8(address, val),
             0xE000..=0xFDFF => self.write_u8(address - WRAM_ECHO_OFFSET, val),
             0xFF44 => self.ppu.ly = val,
+            0xFF80 ..= 0xFFFE => self.hram[address as usize & 0x7F] = val,
             _ => self.wram[address as usize] = val,
             //_ => panic!("unsupported wram write access at {u_addr:x}"),
         }
