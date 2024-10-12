@@ -15,11 +15,7 @@
 //! FF80    FFFE    High RAM (HRAM)
 //! FFFF    FFFF    Interrupt Enable register (IE)
 
-use crate::{
-    apu::Apu,
-    cpu::utils,
-    ppu::Ppu,
-};
+use crate::{apu::Apu, cpu::utils, ppu::Ppu};
 
 /// Gameboy wram size.
 const WRAM_SIZE: usize = 0x10000;
@@ -111,9 +107,12 @@ impl Mmu {
             0x0000..=0x7FFF => self.wram[u_addr],
             0x8000..=0x9FFF => self.ppu.read(address),
             0xE000..=0xFDFF => self.read(address - WRAM_ECHO_OFFSET),
-            0xFF44 => 0x90,//self.ppu.ly,
-            0xFF80 ..= 0xFFFE => self.hram[address as usize & 0x7F],
+            0xFF44 => 0x90, //self.ppu.ly,
+            0xFF80..=0xFFFE => self.hram[address as usize & 0x7F],// 0x7F -> divide number
+            // by two if msb is 1
+
             _ => self.wram[u_addr],
+            //_ => self.wram[u_addr],
             //_ => panic!("unsupported wram read access at {u_addr:x}"),
         }
     }
@@ -121,12 +120,14 @@ impl Mmu {
     /// Writes u8 to wram at address.
     pub fn write_u8(&mut self, address: u16, val: u8) {
         let u_addr = address as usize;
+
         match u_addr {
             0x0000..=0x7FFF => self.wram[u_addr] = val,
             0x8000..=0x9FFF => self.ppu.write_u8(address, val),
             0xE000..=0xFDFF => self.write_u8(address - WRAM_ECHO_OFFSET, val),
             0xFF44 => self.ppu.ly = val,
-            0xFF80 ..= 0xFFFE => self.hram[address as usize & 0x7F] = val,
+            0xFF80..=0xFFFE => self.hram[address as usize & 0x7F] = val, // 0x7F -> divide number
+            // by two if msb is 1
             _ => self.wram[address as usize] = val,
             //_ => panic!("unsupported wram write access at {u_addr:x}"),
         }
@@ -134,8 +135,9 @@ impl Mmu {
 
     /// Writes u16 to wram at address.
     pub fn write_u16(&mut self, address: u16, val: u16) {
-        let split = utils::split_u16(val);
-        self.write_u8(address, split.1);
-        self.write_u8(address + 1, split.0);
+        let lo = (val & 0xFF) as u8;
+        let hi = (val >> 8) as u8;
+        self.write_u8(address, lo);
+        self.write_u8(address + 1, hi);
     }
 }
