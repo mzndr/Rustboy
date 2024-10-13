@@ -13,8 +13,8 @@ pub struct Gameboy {
 }
 
 impl Gameboy {
-    pub fn new(gb_doctor_enable: bool) -> Self {
-        Self { cpu: Cpu::new(gb_doctor_enable) }
+    pub fn new(rom: &[u8], gb_doctor_enable: bool) -> Self {
+        Self { cpu: Cpu::new(rom, gb_doctor_enable) }
     }
 
     pub fn run(&mut self) {
@@ -23,10 +23,6 @@ impl Gameboy {
             self.cpu.cycle();
             Self::sleep_till_next_cycle(start);
         }
-    }
-
-    pub fn load_rom(&mut self, rom: &[u8]) {
-        self.cpu.mmu.load_rom(rom);
     }
 
     //TODO: Actually properly convert values

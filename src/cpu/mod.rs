@@ -21,7 +21,6 @@ pub const WRAM_IE_OFFSET: u16 = 0xFFFF;
 pub const WRAM_IF_OFFSET: u16 = 0xFF0F;
 
 /// Struct representing the CPU, holding its state and implementation.
-#[derive(Debug, Clone)]
 pub struct Cpu {
     pub registers: Registers,
 
@@ -84,11 +83,11 @@ impl Interrupt {
 
 impl Cpu {
     /// Initialize cpu memory
-    pub fn new(gb_doctor_enable: bool) -> Cpu {
+    pub fn new(rom: &[u8], gb_doctor_enable: bool) -> Cpu {
         tracing::info!("initializing cpu");
         Cpu {
             registers: registers::Registers::new(),
-            mmu: Mmu::new(),
+            mmu: Mmu::new(rom),
             busy_for: 0x00,
             halted: false,
             gb_doctor_enable,

@@ -15,7 +15,7 @@
 //! FF80    FFFE    High RAM (HRAM)
 //! FFFF    FFFF    Interrupt Enable register (IE)
 
-use crate::{apu::Apu, ppu::Ppu};
+use crate::{apu::Apu, mbc::{self, MBC}, ppu::Ppu};
 
 /// Gameboy wram size.
 const WRAM_SIZE: usize = 0x10000;
@@ -26,22 +26,23 @@ const WRAM_ECHO_OFFSET: u16 = 0x2000;
 const HRAM_SIZE: usize = 0x7F;
 
 /// Memory management unit. Handle and map memory access.
-#[derive(Debug, Clone)]
 pub struct Mmu {
     wram: [u8; WRAM_SIZE],
     hram: [u8; HRAM_SIZE],
     ppu: Ppu,
     apu: Apu,
+    mbc: Box<dyn MBC>,
 }
 
 impl Mmu {
     /// Create new wram.
-    pub fn new() -> Self {
+    pub fn new(rom: &[u8]) -> Self {
         let mut s = Self {
             wram: [0x00; WRAM_SIZE],
             hram: [0x00; HRAM_SIZE],
             ppu: Ppu::new(),
             apu: Apu::new(),
+            mbc: mbc::load_cartridge(rom),
         };
         s.initial_write();
 
@@ -90,20 +91,12 @@ impl Mmu {
         &self.ppu
     }
 
-    /// Needs to be changed for bigger games, since they
-    /// are too big to fit into ram, so banking has to be
-    /// implemented.
-    pub fn load_rom(&mut self, rom: &[u8]) {
-        for (address, byte) in rom.iter().enumerate() {
-            self.write_u8(address as u16, *byte);
-        }
-    }
-
     /// Reads from wram at address.
     pub fn read(&self, address: u16) -> u8 {
         let u_addr = address as usize;
 
         match u_addr {
+            0x4000..=0x7FFF => 0xFF, //mbc
             0x0000..=0x7FFF => self.wram[u_addr],
             0x8000..=0x9FFF => self.ppu.read(address),
             0xE000..=0xFDFF => self.read(address - WRAM_ECHO_OFFSET),
@@ -122,6 +115,7 @@ impl Mmu {
         let u_addr = address as usize;
 
         match u_addr {
+            0x4000..=0x7FFF => {}, //mbc
             0x0000..=0x7FFF => self.wram[u_addr] = val,
             0x8000..=0x9FFF => self.ppu.write_u8(address, val),
             0xE000..=0xFDFF => self.write_u8(address - WRAM_ECHO_OFFSET, val),
