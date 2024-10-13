@@ -96,9 +96,10 @@ impl Mmu {
         let u_addr = address as usize;
 
         match u_addr {
-            0x4000..=0x7FFF => 0xFF, //mbc
-            0x0000..=0x7FFF => self.wram[u_addr],
+            0x0000..=0x7FFF => self.mbc.read_rom(address),
             0x8000..=0x9FFF => self.ppu.read(address),
+            0xA000..=0xBFFF => self.mbc.read_ram(address),
+
             0xE000..=0xFDFF => self.read(address - WRAM_ECHO_OFFSET),
             0xFF44 => 0x90, //self.ppu.ly,
             0xFF80..=0xFFFE => self.hram[address as usize & 0x7F],// 0x7F -> divide number
@@ -115,9 +116,10 @@ impl Mmu {
         let u_addr = address as usize;
 
         match u_addr {
-            0x4000..=0x7FFF => {}, //mbc
-            0x0000..=0x7FFF => self.wram[u_addr] = val,
+            0x0000..=0x7FFF => self.mbc.write_rom(address, val),
             0x8000..=0x9FFF => self.ppu.write_u8(address, val),
+            0xA000..=0xBFFF => self.mbc.write_ram(address, val),
+
             0xE000..=0xFDFF => self.write_u8(address - WRAM_ECHO_OFFSET, val),
             0xFF44 => self.ppu.ly = val,
             0xFF80..=0xFFFE => self.hram[address as usize & 0x7F] = val, // 0x7F -> divide number

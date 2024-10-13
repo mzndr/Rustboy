@@ -42,6 +42,7 @@ pub struct Registers {
     pub pc: u16,
 
     /// Interrupt master enable.
+    /// TODO: Move to mmu
     pub ime: bool,
 }
 
