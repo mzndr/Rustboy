@@ -16,6 +16,7 @@ mod cpu;
 mod gb;
 mod mmu;
 mod ppu;
+mod mbc;
 
 /// Command line arguments, parsed by [`clap`].
 #[derive(Parser, Debug)]
@@ -47,7 +48,6 @@ fn main() {
         return;
     }
 
-    let mut gb = Gameboy::new(args.enable_gbd);
-    gb.load_rom(&rom);
+    let mut gb = Gameboy::new(&rom, args.enable_gbd);
     gb.run();
 }
