@@ -1,4 +1,5 @@
-//! Default MBC when no Banking is required and no MBC Chip is present on the ROM.
+//! Default MBC when no banking is required and no MBC Chip is present on the ROM. ROM and RAM
+//! access get directly mapped to memory.
 
 use super::MBC;
 
