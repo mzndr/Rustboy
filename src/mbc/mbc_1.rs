@@ -106,11 +106,11 @@ impl MBC for MBC1 {
     }
 
     fn read_ram(&self, address: u16) -> u8 {
-        self.ram_banks[self.get_ram_bank_idx()][address as usize - 0xA000]
+        self.ram_banks[self.get_ram_bank_idx()][address as usize - RAM_OFFSET]
     }
 
     fn write_ram(&mut self, address: u16, val: u8) {
         let idx = self.get_ram_bank_idx();
-        self.ram_banks[idx][address as usize - 0xA000] = val;
+        self.ram_banks[idx][address as usize - RAM_OFFSET] = val;
     }
 }
