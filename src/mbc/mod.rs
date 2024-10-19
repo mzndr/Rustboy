@@ -1,6 +1,8 @@
 //! Memory Bank Controller implementation.
 
 pub const MBC_TYPE_OFFSET: usize = 0x0147;
+pub const MBC_ROM_SIZE_OFFSET: usize = 0x0148;
+pub const MBC_RAM_SIZE_OFFSET: usize = 0x0149;
 
 pub mod mbc_0;
 pub mod mbc_1;
@@ -14,7 +16,11 @@ pub trait MBC {
 
 pub fn load_cartridge(rom: &[u8]) -> Box<dyn MBC> {
     assert!(rom.len() > MBC_TYPE_OFFSET);
+
     let mbc_type = rom[MBC_TYPE_OFFSET];
+    let rom_size = rom[MBC_ROM_SIZE_OFFSET];
+    let ram_size = rom[MBC_RAM_SIZE_OFFSET];
+
     match mbc_type {
         mbc_0::ID => Box::new(mbc_0::MBC0::new(rom)),
         mbc_1::ID => Box::new(mbc_1::MBC1::new(rom)),

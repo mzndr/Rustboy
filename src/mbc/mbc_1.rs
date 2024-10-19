@@ -9,9 +9,7 @@ pub(super) const ID: u8 = 0x01;
 
 const ROM_BANK_SIZE: usize = 0x4000;
 const RAM_BANK_SIZE: usize = 0x4000;
-const ROM_BANK_NUM: usize = 0x7F;
 
-const RAM_BANK_NUM: usize = 0x7F;
 const RAM_OFFSET: usize = 0xA000;
 const RAM_SIZE: usize = 0x2000;
 
@@ -28,11 +26,12 @@ pub(super) struct MBC1 {
     ram_banks: Vec<RamBank>,
     ram_bank_idx: usize,
 
+    alternative_wiring: bool,
     banking_mode: bool,
 }
 
 impl MBC1 {
-    pub fn new(rom: &[u8]) -> Self {
+    pub fn new(rom: &[u8], rom_size: u8, ram_size: u8) -> Self {
         let mut rom_bank_00 = [0x00; ROM_BANK_SIZE];
         let mut rom_banks = vec![[0x00; ROM_BANK_SIZE]; ROM_BANK_NUM];
 

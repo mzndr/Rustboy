@@ -1,4 +1,6 @@
-//! Memory management unit. Handle and map memory access.
+//! Memory management unit. Handle and map memory access, delegates reads and writes
+//! to the corresponding chip (ppu, apu, gamepad input)
+//!
 //!
 //! Memory map (see <https://gbdev.io/pandocs/Memory_Map.html>):
 //! Start   End     Description                        Notes
