@@ -92,6 +92,7 @@ impl Default for Sprite {
 
 impl Ppu {
     pub fn new() -> Self {
+        tracing::info!("initializing ppu");
         Self {
             vram: [0; VRAM_SIZE],
             ly: 0,
@@ -171,7 +172,7 @@ impl Ppu {
         for i in 0..19 {
             if let Some(sprite) = self.oam_load_sprite(i) {
                 self.sprite_buffer.push(sprite);
-                tracing::warn!("{}", self.sprite_buffer.len());
+                //tracing::warn!("{}", self.sprite_buffer.len());
             }
         }
     }

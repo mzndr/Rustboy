@@ -39,6 +39,7 @@ pub struct Mmu {
 impl Mmu {
     /// Create new wram.
     pub fn new(rom: &[u8]) -> Self {
+        tracing::info!("initializing mmu");
         let mut s = Self {
             wram: [0x00; WRAM_SIZE],
             hram: [0x00; HRAM_SIZE],

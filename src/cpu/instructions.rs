@@ -30,7 +30,7 @@ impl Cpu {
             self.registers.ime = true;
         }
 
-        tracing::debug!("executing instruction");
+        tracing::trace!("executing instruction");
         match opcode {
             0x00 => Self::nop(),
             0x01 => self.ld_bc_d16(),

@@ -3,6 +3,7 @@
 pub const MBC_TYPE_OFFSET: usize = 0x0147;
 pub const MBC_ROM_SIZE_OFFSET: usize = 0x0148;
 pub const MBC_RAM_SIZE_OFFSET: usize = 0x0149;
+pub const ROM_TITLE_OFFSET: usize = 0x0134;
 
 pub mod mbc_0;
 pub mod mbc_1;
@@ -12,6 +13,11 @@ pub trait MBC {
     fn read_ram(&self, address: u16) -> u8;
     fn write_rom(&mut self, address: u16, val: u8);
     fn write_ram(&mut self, address: u16, val: u8);
+}
+
+pub struct ROM {
+
+    pub data: Vec<u8>,
 }
 
 pub fn load_cartridge(rom: &[u8]) -> Box<dyn MBC> {
