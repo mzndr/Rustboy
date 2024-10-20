@@ -23,7 +23,7 @@ pub fn load_cartridge(rom: &[u8]) -> Box<dyn MBC> {
 
     match mbc_type {
         mbc_0::ID => Box::new(mbc_0::MBC0::new(rom)),
-        mbc_1::ID => Box::new(mbc_1::MBC1::new(rom)),
+        mbc_1::ID => Box::new(mbc_1::MBC1::new(rom, rom_size, ram_size)),
         _ => panic!("Unsupported MBC '0x{mbc_type:x}'"),
     }
 }
