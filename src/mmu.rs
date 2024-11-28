@@ -17,7 +17,13 @@
 //! FF80    FFFE    High RAM (HRAM)
 //! FFFF    FFFF    Interrupt Enable register (IE)
 
-use crate::{apu::Apu, mbc::{self, MBC}, ppu::Ppu};
+use std::array;
+
+use crate::{
+    apu::Apu,
+    mbc::{self, MBC},
+    ppu::Ppu,
+};
 
 /// Gameboy wram size.
 const WRAM_SIZE: usize = 0x10000;
@@ -40,16 +46,15 @@ impl Mmu {
     /// Create new wram.
     pub fn new(rom: &[u8]) -> Self {
         tracing::info!("initializing mmu");
-        let mut s = Self {
-            wram: [0x00; WRAM_SIZE],
-            hram: [0x00; HRAM_SIZE],
+        let mut mmu = Self {
+            wram: array::from_fn(|_| rand::random()),
+            hram: array::from_fn(|_| rand::random()),
             ppu: Ppu::new(),
             apu: Apu::new(),
             mbc: mbc::load_cartridge(rom),
         };
-        s.initial_write();
-
-        s
+        mmu.initial_write();
+        mmu
     }
 
     fn initial_write(&mut self) {
