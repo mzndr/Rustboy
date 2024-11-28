@@ -27,7 +27,7 @@ impl Cpu {
 
         if self.schedule_ei {
             self.schedule_ei = false;
-            self.registers.ime = true;
+            self.mmu.ime = true;
         }
 
         tracing::trace!("executing instruction");
@@ -594,7 +594,7 @@ impl Cpu {
 
     pub fn reti(&mut self) -> u8 {
         self.ret();
-        self.registers.ime = true;
+        self.mmu.ime = true;
         4
     }
 
@@ -1123,7 +1123,7 @@ impl Cpu {
     }
 
     pub fn di(&mut self) -> u8 {
-        self.registers.ime = false;
+        self.mmu.ime = false;
         1
     }
 

@@ -40,6 +40,9 @@ pub struct Mmu {
     ppu: Ppu,
     apu: Apu,
     mbc: Box<dyn MBC>,
+
+    /// Interrupt master enable.
+    pub ime: bool,
 }
 
 impl Mmu {
@@ -52,6 +55,7 @@ impl Mmu {
             ppu: Ppu::new(),
             apu: Apu::new(),
             mbc: mbc::load_cartridge(rom),
+            ime: false,
         };
         mmu.initial_write();
         mmu

@@ -111,7 +111,7 @@ impl Cpu {
 
     /// Handle interrupts.
     fn handle_interrupts(&mut self) {
-        self.registers.ime = false;
+        self.mmu.ime = false;
         for source in Interrupt::enumerate() {
             if source.is_set(self.mmu.read(WRAM_IE_OFFSET))
                 && source.is_set(self.mmu.read(WRAM_IF_OFFSET))
@@ -134,7 +134,7 @@ impl Cpu {
     pub fn cycle(&mut self) {
         if self.busy_for == 0 {
             self.busy_for = self.exec_instruction();
-            if self.registers.ime {
+            if self.mmu.ime {
                 self.handle_interrupts();
                 self.busy_for += 5;
             }

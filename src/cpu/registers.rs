@@ -40,10 +40,6 @@ pub struct Registers {
     pub sp: u16,
     /// Program counter.
     pub pc: u16,
-
-    /// Interrupt master enable.
-    /// TODO: Move to mmu
-    pub ime: bool,
 }
 
 /// Initial `PC` value
@@ -62,8 +58,6 @@ impl Default for Registers {
             l: 0x4d,
             sp: 0xfffe,
             pc: PC_INIT_VAL,
-
-            ime: false,
         }
     }
 }
