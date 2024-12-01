@@ -16,7 +16,6 @@ pub trait MBC {
 }
 
 pub struct ROM {
-
     pub data: Vec<u8>,
 }
 

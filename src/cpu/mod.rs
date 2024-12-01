@@ -145,7 +145,6 @@ impl Cpu {
         if self.mmu.ppu_ref().ly == ppu::LY_VBLANK_START {
             self.request_interrupt(Interrupt::VBlank, true);
         }
-
     }
 
     /// Push a u8 value onto the stack.

@@ -66,7 +66,6 @@ impl MBC1 {
         if self.banking_mode {
             return 0;
         }
-
         self.rom_bank_idx
     }
 
@@ -74,7 +73,6 @@ impl MBC1 {
         if self.banking_mode || self.alternative_wiring {
             return 0;
         }
-
         self.ram_bank_idx
     }
 }

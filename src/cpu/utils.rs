@@ -6,7 +6,7 @@ pub fn split_u16(to_split: u16) -> (u8, u8) {
     (left, right)
 }
 
-/// Set the bit on `source` at `index` to `val`. 
+/// Set the bit on `source` at `index` to `val`.
 pub fn set_bit(source: u8, index: u8, val: bool) -> u8 {
     let mask: u8 = 1 << index;
     let mut ret = source;

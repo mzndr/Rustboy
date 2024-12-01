@@ -5,7 +5,7 @@ use super::MBC;
 
 pub(super) const ID: u8 = 0x00;
 
-/// ROM Memory Size 
+/// ROM Memory Size
 const ROM_MEMORY_SIZE: usize = 0x8000;
 
 /// External RAM offset in WRAM.
@@ -13,7 +13,7 @@ const RAM_OFFSET: usize = 0xA000;
 /// External RAM size.
 const RAM_SIZE: usize = 0x2000;
 
-/// MBC0 doesn't exist and mimics the behaviour when no MBC 
+/// MBC0 doesn't exist and mimics the behaviour when no MBC
 /// is present on the rom.
 pub(super) struct MBC0 {
     rom: [u8; ROM_MEMORY_SIZE],
@@ -39,7 +39,7 @@ impl MBC for MBC0 {
         self.rom[address as usize]
     }
 
-    fn write_rom(&mut self, _: u16, _: u8) { }
+    fn write_rom(&mut self, _: u16, _: u8) {}
 
     fn read_ram(&self, address: u16) -> u8 {
         self.ram[(address as usize) - RAM_OFFSET]

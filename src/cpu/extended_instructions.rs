@@ -13,7 +13,7 @@ impl Cpu {
         );
 
         tracing::trace!("executing extended instruction");
-        
+
         let dst_idx = opcode & 0xf;
         match opcode {
             0x06 => self.rlc_hl(),
@@ -91,7 +91,8 @@ impl Cpu {
     }
 
     fn set(&mut self, bit_idx: u8, register_idx: u8) -> u8 {
-        *self.registers.h_index_mut(register_idx) = Self::set_bit(*self.registers.h_index(register_idx), bit_idx);
+        *self.registers.h_index_mut(register_idx) =
+            Self::set_bit(*self.registers.h_index(register_idx), bit_idx);
         1
     }
 
@@ -110,7 +111,8 @@ impl Cpu {
     }
 
     fn res(&mut self, bit_idx: u8, register_idx: u8) -> u8 {
-        *self.registers.h_index_mut(register_idx) = Self::reset_bit(*self.registers.h_index(register_idx), bit_idx);
+        *self.registers.h_index_mut(register_idx) =
+            Self::reset_bit(*self.registers.h_index(register_idx), bit_idx);
         1
     }
 
@@ -132,7 +134,8 @@ impl Cpu {
     }
 
     fn sll(&mut self, register_idx: u8) -> u8 {
-        *self.registers.h_index_mut(register_idx) = self.sll_val(*self.registers.h_index(register_idx));
+        *self.registers.h_index_mut(register_idx) =
+            self.sll_val(*self.registers.h_index(register_idx));
         1
     }
 
@@ -153,7 +156,8 @@ impl Cpu {
     }
 
     fn srl(&mut self, register_idx: u8) -> u8 {
-        *self.registers.h_index_mut(register_idx) = self.srl_val(*self.registers.h_index(register_idx));
+        *self.registers.h_index_mut(register_idx) =
+            self.srl_val(*self.registers.h_index(register_idx));
         1
     }
 
@@ -174,7 +178,8 @@ impl Cpu {
     }
 
     fn sla(&mut self, register_idx: u8) -> u8 {
-        *self.registers.h_index_mut(register_idx) = self.sla_val(*self.registers.h_index(register_idx));
+        *self.registers.h_index_mut(register_idx) =
+            self.sla_val(*self.registers.h_index(register_idx));
         1
     }
 
@@ -195,7 +200,8 @@ impl Cpu {
     }
 
     fn sra(&mut self, register_idx: u8) -> u8 {
-        *self.registers.h_index_mut(register_idx) = self.sra_val(*self.registers.h_index(register_idx));
+        *self.registers.h_index_mut(register_idx) =
+            self.sra_val(*self.registers.h_index(register_idx));
         1
     }
 
