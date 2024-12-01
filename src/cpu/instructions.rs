@@ -30,7 +30,6 @@ impl Cpu {
             self.mmu.ime = true;
         }
 
-
         tracing::trace!("executing instruction");
 
         match opcode {

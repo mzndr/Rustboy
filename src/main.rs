@@ -13,11 +13,11 @@ use crate::gb::Gameboy;
 
 mod apu;
 mod cpu;
+mod debug;
 mod gb;
 mod mbc;
 mod mmu;
 mod ppu;
-mod debug;
 
 /// Command line arguments, parsed by [`clap`].
 #[allow(clippy::struct_excessive_bools)]
