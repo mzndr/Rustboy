@@ -19,6 +19,7 @@ mod mmu;
 mod ppu;
 
 /// Command line arguments, parsed by [`clap`].
+#[allow(clippy::struct_excessive_bools)]
 #[derive(Parser, Debug)]
 struct Args {
     rom_path: String,
