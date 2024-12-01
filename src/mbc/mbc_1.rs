@@ -89,7 +89,7 @@ impl MBC for MBC1 {
     fn write_rom(&mut self, address: u16, val: u8) {
         match address {
             // RAM enable
-            0x0000..=0x1FFF => self.ram_enable = 0x0F == 0x0A,
+            0x0000..=0x1FFF => self.ram_enable = val & 0x0F == 0x0A,
             // ROM bank Select
             0x2000..=0x3FFF => {
                 let mask = if self.alternative_wiring { 0x3F } else { 0x1F };
