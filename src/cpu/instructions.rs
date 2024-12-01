@@ -33,19 +33,6 @@ impl Cpu {
 
         tracing::trace!("executing instruction");
 
-        println!("     {} {opcode:0>2X}: {mnemonic}", self.gb_doctor_format());
-        println!("     {:0>2X} {:0>2X} {:0>2X} {:0>2X} ", 
-            self.mmu.read(self.registers.get_hl()),
-            self.mmu.read(self.registers.get_hl() + 1),
-            self.mmu.read(self.registers.get_hl() + 2),
-            self.mmu.read(self.registers.get_hl() + 3),
-
-        );
-
-        if self.cycle == 2334 {
-            std::process::exit(0)
-        }
-
         match opcode {
             0x00 => Self::nop(),
             0x01 => self.ld_bc_d16(),

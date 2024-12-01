@@ -36,7 +36,6 @@ struct Args {
 
 fn main() {
     let args = Args::parse();
-    println!("xxxx");
     if args.enable_trace {
         tracing_subscriber::fmt::fmt()
             .with_env_filter(EnvFilter::from_default_env())

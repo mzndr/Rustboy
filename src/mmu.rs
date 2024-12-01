@@ -127,12 +127,6 @@ impl Mmu {
 
     /// Writes u8 to wram at address.
     pub fn write_u8(&mut self, address: u16, val: u8) {
-        if val == 0xb1 && !self.debug.gb_doc_enable {
-            let backtrace = std::backtrace::Backtrace::capture();
-            println!("@@@@ 0x{address:x} {backtrace}\n\n\n\n");
-            //panic!();
-        }
-
         let u_addr = address as usize;
 
         match u_addr {
