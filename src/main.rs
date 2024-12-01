@@ -28,6 +28,8 @@ struct Args {
     enable_gbd: bool,
     #[arg(long, action)]
     enable_trace: bool,
+    #[arg(long, action)]
+    serial_to_stdout: bool,
 }
 
 fn main() {
