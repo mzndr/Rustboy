@@ -17,6 +17,7 @@ mod gb;
 mod mbc;
 mod mmu;
 mod ppu;
+mod debug;
 
 /// Command line arguments, parsed by [`clap`].
 #[allow(clippy::struct_excessive_bools)]
@@ -35,6 +36,7 @@ struct Args {
 
 fn main() {
     let args = Args::parse();
+    println!("xxxx");
     if args.enable_trace {
         tracing_subscriber::fmt::fmt()
             .with_env_filter(EnvFilter::from_default_env())
@@ -47,7 +49,7 @@ fn main() {
 
     if args.disassemble {
         let asm = disassemble_rom(&rom);
-        print!("{asm}");
+        print!("{asm:#?}");
         return;
     }
 

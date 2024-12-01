@@ -7,11 +7,12 @@ impl Cpu {
     #[allow(clippy::too_many_lines)]
     #[tracing::instrument(name = "exec", target = "", skip(self), fields(c))]
     pub fn exec_instruction(&mut self) -> u8 {
+        self.cycle += 1;
         if self.halted {
             return 0;
         }
 
-        if self.gb_doctor_enable {
+        if self.debug.gb_doc_enable {
             self.gb_doctor_log();
         }
         let opcode = self.read_u8_at_pc_and_increase();
@@ -24,13 +25,27 @@ impl Cpu {
             "c",
             format!("PC: {pc:0>4x} (PC):{pc_mem:0>4x} {opcode:0>2x}: {mnemonic}"),
         );
-
         if self.schedule_ei {
             self.schedule_ei = false;
             self.mmu.ime = true;
         }
 
+
         tracing::trace!("executing instruction");
+
+        println!("     {} {opcode:0>2X}: {mnemonic}", self.gb_doctor_format());
+        println!("     {:0>2X} {:0>2X} {:0>2X} {:0>2X} ", 
+            self.mmu.read(self.registers.get_hl()),
+            self.mmu.read(self.registers.get_hl() + 1),
+            self.mmu.read(self.registers.get_hl() + 2),
+            self.mmu.read(self.registers.get_hl() + 3),
+
+        );
+
+        if self.cycle == 2334 {
+            std::process::exit(0)
+        }
+
         match opcode {
             0x00 => Self::nop(),
             0x01 => self.ld_bc_d16(),
@@ -188,8 +203,8 @@ impl Cpu {
         }
     }
 
-    pub fn gb_doctor_log(&self) {
-        println!("A:{:0>2X} F:{:0>2X} B:{:0>2X} C:{:0>2X} D:{:0>2X} E:{:0>2X} H:{:0>2X} L:{:0>2X} SP:{:0>2X} PC:{:0>4X} PCMEM:{:0>2X},{:0>2X},{:0>2X},{:0>2X}",
+    pub fn gb_doctor_format(&self) -> String {
+        format!("A:{:0>2X} F:{:0>2X} B:{:0>2X} C:{:0>2X} D:{:0>2X} E:{:0>2X} H:{:0>2X} L:{:0>2X} SP:{:0>2X} PC:{:0>4X} PCMEM:{:0>2X},{:0>2X},{:0>2X},{:0>2X}",
             self.registers.a,
             self.registers.f,
             self.registers.b,
@@ -203,8 +218,11 @@ impl Cpu {
             self.mmu.read(self.registers.pc),
             self.mmu.read(self.registers.pc + 1),
             self.mmu.read(self.registers.pc + 2),
-            self.mmu.read(self.registers.pc + 3),
-        );
+            self.mmu.read(self.registers.pc + 3),)
+    }
+
+    pub fn gb_doctor_log(&self) {
+        println!("{}", self.gb_doctor_format());
     }
 
     pub fn nop() -> u8 {

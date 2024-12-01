@@ -27,9 +27,11 @@ pub struct Cpu {
     pub busy_for: u8,
     pub mmu: Mmu,
     pub halted: bool,
-    pub gb_doctor_enable: bool,
+    debug: crate::debug::Debug,
 
     schedule_ei: bool,
+
+    pub cycle: u128,
 }
 
 /// Different kinds of interrupt(-sources).
@@ -83,15 +85,18 @@ impl Interrupt {
 
 impl Cpu {
     /// Initialize cpu memory
-    pub fn new(rom: &[u8], gb_doctor_enable: bool) -> Cpu {
+    pub fn new(rom: &[u8], debug: crate::debug::Debug) -> Cpu {
         tracing::info!("initializing cpu");
         Cpu {
             registers: registers::Registers::new(),
-            mmu: Mmu::new(rom),
+            mmu: Mmu::new(rom, debug.clone()),
             busy_for: 0x00,
             halted: false,
-            gb_doctor_enable,
             schedule_ei: false,
+
+            cycle: 0,
+
+            debug,
         }
     }
 
@@ -149,8 +154,8 @@ impl Cpu {
 
     /// Push a u8 value onto the stack.
     pub fn push_stack_u8(&mut self, val: u8) {
-        self.registers.sp = self.registers.sp.wrapping_sub(1);
         self.mmu.write_u8(self.registers.sp, val);
+        self.registers.sp = self.registers.sp.wrapping_sub(1);
     }
 
     /// Pop a u8 value from the stack.

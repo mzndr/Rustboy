@@ -14,9 +14,10 @@ pub struct Gameboy {
 
 impl Gameboy {
     pub fn new(rom: &[u8], gb_doctor_enable: bool) -> Self {
-        Self {
-            cpu: Cpu::new(rom, gb_doctor_enable),
-        }
+        Self { cpu: Cpu::new(
+            rom, 
+            crate::debug::Debug::new(rom, gb_doctor_enable)
+        ) }
     }
 
     pub fn run(&mut self) {

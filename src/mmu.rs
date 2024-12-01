@@ -41,13 +41,15 @@ pub struct Mmu {
     apu: Apu,
     mbc: Box<dyn MBC>,
 
+    debug: crate::debug::Debug,
+
     /// Interrupt master enable.
     pub ime: bool,
 }
 
 impl Mmu {
     /// Create new wram.
-    pub fn new(rom: &[u8]) -> Self {
+    pub fn new(rom: &[u8], debug: crate::debug::Debug) -> Self {
         tracing::info!("initializing mmu");
         let mut mmu = Self {
             wram: array::from_fn(|_| rand::random()),
@@ -56,6 +58,7 @@ impl Mmu {
             apu: Apu::new(),
             mbc: mbc::load_cartridge(rom),
             ime: false,
+            debug,
         };
         mmu.initial_write();
         mmu
@@ -113,10 +116,9 @@ impl Mmu {
             0xA000..=0xBFFF => self.mbc.read_ram(address),
 
             0xE000..=0xFDFF => self.read(address - WRAM_ECHO_OFFSET),
-            0xFF44 => 0x90, //self.ppu.ly,
-            0xFF80..=0xFFFE => self.hram[address as usize & 0x7F],// 0x7F -> divide number
+            0xFF44 => 0x90,                                        //self.ppu.ly,
+            0xFF80..=0xFFFE => self.hram[address as usize & 0x7F], // 0x7F -> divide number
             // by two if msb is 1
-
             _ => self.wram[u_addr],
             //_ => self.wram[u_addr],
             //_ => panic!("unsupported wram read access at {u_addr:x}"),
@@ -125,6 +127,12 @@ impl Mmu {
 
     /// Writes u8 to wram at address.
     pub fn write_u8(&mut self, address: u16, val: u8) {
+        if val == 0xb1 && !self.debug.gb_doc_enable {
+            let backtrace = std::backtrace::Backtrace::capture();
+            println!("@@@@ 0x{address:x} {backtrace}\n\n\n\n");
+            //panic!();
+        }
+
         let u_addr = address as usize;
 
         match u_addr {

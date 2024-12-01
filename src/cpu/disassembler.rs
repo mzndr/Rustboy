@@ -1,3 +1,5 @@
+use std::u16;
+
 use super::registers::PC_INIT_VAL;
 
 pub type Instruction = (
@@ -541,9 +543,9 @@ pub fn decode_instruction(opcode: u8) -> &'static str {
     INSTRUCTIONS[opcode as usize].mnemonic()
 }
 
-pub fn disassemble_rom(rom: &[u8]) -> String {
+pub fn disassemble_rom(rom: &[u8]) -> Vec<String> {
     let mut addr = PC_INIT_VAL;
-    let mut ret = String::new();
+    let mut ret = Vec::with_capacity(rom.len());
     while addr < u16::MAX - 1 {
         let Some(opcode) = rom.get(addr as usize) else {
             return ret;
@@ -561,7 +563,7 @@ pub fn disassemble_rom(rom: &[u8]) -> String {
         };
 
         let line = addr - PC_INIT_VAL;
-        ret.push_str(&format!("0x{line:0>4x}: {mnemonic}\n"));
+        ret.push(format!("0x{line:0>4x}: {mnemonic}"));
         addr += u16::from(*length);
     }
     ret

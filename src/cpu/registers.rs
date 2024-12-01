@@ -72,7 +72,7 @@ impl Registers {
             REGISTER_E_INDEX => &self.e,
             REGISTER_H_INDEX => &self.h,
             REGISTER_L_INDEX => &self.l,
-            REGISTER_F_INDEX => &self.f,
+            //REGISTER_F_INDEX => &self.f,
             REGISTER_A_INDEX => &self.a,
             _ => panic!("invalid register at 0x{:x}", &index),
         }
@@ -87,7 +87,7 @@ impl Registers {
             REGISTER_E_INDEX => &mut self.e,
             REGISTER_H_INDEX => &mut self.h,
             REGISTER_L_INDEX => &mut self.l,
-            REGISTER_F_INDEX => &mut self.f,
+            //REGISTER_F_INDEX => &mut self.f,
             REGISTER_A_INDEX => &mut self.a,
             _ => panic!("invalid register at 0x{:x}", &index),
         }
