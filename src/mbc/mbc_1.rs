@@ -89,7 +89,10 @@ impl MBC for MBC1 {
     fn write_rom(&mut self, address: u16, val: u8) {
         match address {
             // RAM enable
-            0x0000..=0x1FFF => self.ram_enable = val & 0x0F == 0x0A,
+            0x0000..=0x1FFF => {
+                self.ram_enable = val & 0x0F == 0x0A;
+                tracing::debug!("ram enable: {}", self.ram_enable);
+            }
             // ROM bank Select
             0x2000..=0x3FFF => {
                 let mask = if self.alternative_wiring { 0x3F } else { 0x1F };
@@ -104,7 +107,10 @@ impl MBC for MBC1 {
                 tracing::debug!("ram bank {idx} selected");
             }
             // Banking mode select
-            0x6000..=0x7FFF => self.banking_mode = (val & 0x01) == 0x01,
+            0x6000..=0x7FFF => {
+                self.banking_mode = (val & 0x01) == 0x01;
+                tracing::debug!("banking mode: {}", self.banking_mode);
+            }
             // Shouldn't happen.
             _ => panic!("invalid mbc1 rom write at 0x{address:x}"),
         }
