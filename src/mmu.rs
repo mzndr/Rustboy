@@ -21,6 +21,7 @@ use std::array;
 
 use crate::{
     apu::Apu,
+    cpu::utils::{self, split_u16},
     mbc::{self, MBC},
     ppu::Ppu,
 };
@@ -107,15 +108,15 @@ impl Mmu {
     }
 
     /// Reads from wram at address.
-    pub fn read(&self, address: u16) -> u8 {
+    pub fn read_u8(&self, address: u16) -> u8 {
         let u_addr = address as usize;
 
         match u_addr {
             0x0000..=0x7FFF => self.mbc.read_rom(address),
-            0x8000..=0x9FFF => self.ppu.read(address),
+            0x8000..=0x9FFF => self.ppu.read_u8(address),
             0xA000..=0xBFFF => self.mbc.read_ram(address),
 
-            0xE000..=0xFDFF => self.read(address - WRAM_ECHO_OFFSET),
+            0xE000..=0xFDFF => self.read_u8(address - WRAM_ECHO_OFFSET),
             0xFF44 => 0x90,                                        //self.ppu.ly,
             0xFF80..=0xFFFE => self.hram[address as usize & 0x7F], // 0x7F -> divide number
             // by two if msb is 1
@@ -123,6 +124,12 @@ impl Mmu {
             //_ => self.wram[u_addr],
             //_ => panic!("unsupported wram read access at {u_addr:x}"),
         }
+    }
+
+    pub fn read_u16(&self, address: u16) -> u16 {
+        let l = self.read_u8(address);
+        let h = self.read_u8(address + 1);
+        utils::merge_u8s(h, l)
     }
 
     /// Writes u8 to wram at address.
@@ -155,9 +162,8 @@ impl Mmu {
 
     /// Writes u16 to wram at address.
     pub fn write_u16(&mut self, address: u16, val: u16) {
-        let lo = (val & 0xFF) as u8;
-        let hi = (val >> 8) as u8;
-        self.write_u8(address, lo);
-        self.write_u8(address + 1, hi);
+        let (h, l) = split_u16(val);
+        self.write_u8(address, l);
+        self.write_u8(address + 1, h);
     }
 }

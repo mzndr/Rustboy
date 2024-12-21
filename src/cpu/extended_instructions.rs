@@ -98,7 +98,7 @@ impl Cpu {
 
     fn set_hl(&mut self, bit_idx: u8) -> u8 {
         let address = self.registers.get_hl();
-        let val = self.mmu.read(address);
+        let val = self.mmu.read_u8(address);
         let result = Self::set_bit(val, bit_idx);
         self.mmu.write_u8(address, result);
         1
@@ -118,7 +118,7 @@ impl Cpu {
 
     fn res_hl(&mut self, bit_idx: u8) -> u8 {
         let address = self.registers.get_hl();
-        let val = self.mmu.read(address);
+        let val = self.mmu.read_u8(address);
         let result = Self::reset_bit(val, bit_idx);
         self.mmu.write_u8(address, result);
         1
@@ -141,7 +141,7 @@ impl Cpu {
 
     fn sll_hl(&mut self) -> u8 {
         let address = self.registers.get_hl();
-        let result = self.sll_val(self.mmu.read(address));
+        let result = self.sll_val(self.mmu.read_u8(address));
         self.mmu.write_u8(address, result);
         2
     }
@@ -163,7 +163,7 @@ impl Cpu {
 
     fn srl_hl(&mut self) -> u8 {
         let address = self.registers.get_hl();
-        let result = self.srl_val(self.mmu.read(address));
+        let result = self.srl_val(self.mmu.read_u8(address));
         self.mmu.write_u8(address, result);
         2
     }
@@ -185,7 +185,7 @@ impl Cpu {
 
     fn sla_hl(&mut self) -> u8 {
         let address = self.registers.get_hl();
-        let result = self.sla_val(self.mmu.read(address));
+        let result = self.sla_val(self.mmu.read_u8(address));
         self.mmu.write_u8(address, result);
         2
     }
@@ -207,35 +207,35 @@ impl Cpu {
 
     fn sra_hl(&mut self) -> u8 {
         let address = self.registers.get_hl();
-        let result = self.sra_val(self.mmu.read(address));
+        let result = self.sra_val(self.mmu.read_u8(address));
         self.mmu.write_u8(address, result);
         2
     }
 
     fn rr_hl(&mut self) -> u8 {
         let address = self.registers.get_hl();
-        let result = self.rr_val(self.mmu.read(address));
+        let result = self.rr_val(self.mmu.read_u8(address));
         self.mmu.write_u8(address, result);
         2
     }
 
     fn rl_hl(&mut self) -> u8 {
         let address = self.registers.get_hl();
-        let result = self.rl_val(self.mmu.read(address));
+        let result = self.rl_val(self.mmu.read_u8(address));
         self.mmu.write_u8(address, result);
         2
     }
 
     fn rrc_hl(&mut self) -> u8 {
         let address = self.registers.get_hl();
-        let result = self.rrc_val(self.mmu.read(address));
+        let result = self.rrc_val(self.mmu.read_u8(address));
         self.mmu.write_u8(address, result);
         2
     }
 
     fn rlc_hl(&mut self) -> u8 {
         let address = self.registers.get_hl();
-        let result = self.rlc_val(self.mmu.read(address));
+        let result = self.rlc_val(self.mmu.read_u8(address));
         self.mmu.write_u8(address, result);
         2
     }
@@ -248,7 +248,7 @@ impl Cpu {
     }
 
     fn bit_hl(&mut self, bit_idx: u8) -> u8 {
-        let val = self.mmu.read(self.registers.get_hl());
+        let val = self.mmu.read_u8(self.registers.get_hl());
         self.test_bit(bit_idx, val);
         1
     }

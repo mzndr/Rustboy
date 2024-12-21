@@ -102,14 +102,14 @@ impl Cpu {
 
     /// Request interrupt for an interrupt source.
     fn request_interrupt(&mut self, source: Interrupt, val: bool) {
-        let old_if = self.mmu.read(WRAM_IF_OFFSET);
+        let old_if = self.mmu.read_u8(WRAM_IF_OFFSET);
         let new_if = utils::set_bit(old_if, source.bit_index(), val);
         self.mmu.write_u8(WRAM_IF_OFFSET, new_if);
     }
 
     /// Enable interrupt for an interrupt source.
     fn enable_interrupt(&mut self, source: Interrupt, val: bool) {
-        let old_if = self.mmu.read(WRAM_IE_OFFSET);
+        let old_if = self.mmu.read_u8(WRAM_IE_OFFSET);
         let new_if = utils::set_bit(old_if, source.bit_index(), val);
         self.mmu.write_u8(WRAM_IE_OFFSET, new_if);
     }
@@ -118,8 +118,8 @@ impl Cpu {
     fn handle_interrupts(&mut self) {
         self.mmu.ime = false;
         for source in Interrupt::enumerate() {
-            if source.is_set(self.mmu.read(WRAM_IE_OFFSET))
-                && source.is_set(self.mmu.read(WRAM_IF_OFFSET))
+            if source.is_set(self.mmu.read_u8(WRAM_IE_OFFSET))
+                && source.is_set(self.mmu.read_u8(WRAM_IF_OFFSET))
             {
                 self.halted = false;
 
@@ -127,7 +127,7 @@ impl Cpu {
                 self.call(source.handler_address());
                 self.mmu.write_u8(
                     WRAM_IF_OFFSET,
-                    utils::set_bit(self.mmu.read(WRAM_IF_OFFSET), source.bit_index(), false),
+                    utils::set_bit(self.mmu.read_u8(WRAM_IF_OFFSET), source.bit_index(), false),
                 );
             }
         }
@@ -160,47 +160,42 @@ impl Cpu {
 
     /// Pop a u8 value from the stack.
     pub fn pop_stack_u8(&mut self) -> u8 {
-        let val = self.mmu.read(self.registers.sp);
         self.registers.sp = self.registers.sp.wrapping_add(1);
-        val
+        self.mmu.read_u8(self.registers.sp)
     }
 
     /// Push a u16 value onto the stack.
     pub fn push_stack_u16(&mut self, val: u16) {
-        let (l, h) = utils::split_u16(val);
-        self.push_stack_u8(l);
-        self.push_stack_u8(h);
+        self.mmu.write_u16(self.registers.sp, val);
+        self.registers.sp = self.registers.sp.wrapping_sub(2);
     }
 
     /// Pop a u16 value from the stack.
     pub fn pop_stack_u16(&mut self) -> u16 {
-        let h = self.pop_stack_u8();
-        let l = self.pop_stack_u8();
-        utils::merge_u8s(l, h)
+        self.registers.sp = self.registers.sp.wrapping_add(2);
+        self.mmu.read_u16(self.registers.sp)
     }
 
     /// Reads a byte from memory at pc and increases pc by one.
     pub fn read_u8_at_pc_and_increase(&mut self) -> u8 {
-        let val = self.mmu.read(self.registers.pc);
+        let val = self.mmu.read_u8(self.registers.pc);
         self.registers.pc = self.registers.pc.wrapping_add(1);
         val
     }
 
     /// Reads two bytes from memory at pc.
     pub fn read_u16_at_pc(&self) -> u16 {
-        let a = self.mmu.read(self.registers.pc);
-        let b = self.mmu.read(self.registers.pc + 1);
+        let l = self.mmu.read_u8(self.registers.pc);
+        let h = self.mmu.read_u8(self.registers.pc + 1);
         // Little endian in memory
-        utils::merge_u8s(b, a)
+        utils::merge_u8s(h, l)
     }
 
     /// Reads two bytes from memory at pc and increases pc by two.
     pub fn read_u16_at_pc_and_increase(&mut self) -> u16 {
-        let a = self.read_u8_at_pc_and_increase();
-        let b = self.read_u8_at_pc_and_increase();
-
-        // Little endian in memory
-        utils::merge_u8s(b, a)
+        let val = self.mmu.read_u16(self.registers.pc);
+        self.registers.pc = self.registers.pc.wrapping_add(2);
+        val
     }
 
     /// Check for u8 half carries on additions. (carry from 3rd to 4th bit).

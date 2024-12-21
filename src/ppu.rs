@@ -139,7 +139,7 @@ impl Ppu {
     }
 
     fn lcdc_bg_enable(&self) -> bool {
-        (self.lcdc() >> 0 & 1) == 1
+        (self.lcdc() & 1) == 1
     }
 
     /// Load a sprites information (not pixel data) from OAM Memory.
@@ -180,7 +180,7 @@ impl Ppu {
     fn pixel_transfer(&mut self) {}
 
     /// Reads from vram at address.
-    pub fn read(&self, address: u16) -> u8 {
+    pub fn read_u8(&self, address: u16) -> u8 {
         let u_addr = (address as usize) - VRAM_OFFSET;
 
         match u_addr {
