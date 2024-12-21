@@ -1,4 +1,5 @@
 use super::disassembler::decode_instruction;
+use super::utils;
 use super::{registers::REGISTER_A_INDEX, utils::merge_u8s, Cpu};
 
 impl Cpu {
@@ -201,10 +202,10 @@ impl Cpu {
             self.registers.l,
             self.registers.sp,
             self.registers.pc,
-            self.mmu.read(self.registers.pc),
-            self.mmu.read(self.registers.pc + 1),
-            self.mmu.read(self.registers.pc + 2),
-            self.mmu.read(self.registers.pc + 3),)
+            self.mmu.read_u8(self.registers.pc),
+            self.mmu.read_u8(self.registers.pc + 1),
+            self.mmu.read_u8(self.registers.pc + 2),
+            self.mmu.read_u8(self.registers.pc + 3),)
     }
 
     pub fn gb_doctor_log(&self) {
@@ -255,7 +256,10 @@ impl Cpu {
     }
 
     pub fn ret(&mut self) -> u8 {
-        self.registers.pc = self.pop_stack_u16();
+        //self.registers.pc = self.pop_stack_u16();
+        let h = self.pop_stack_u8();
+        let l = self.pop_stack_u8();
+        self.registers.pc = utils::merge_u8s(h, l);
         4
     }
 
@@ -486,37 +490,37 @@ impl Cpu {
     }
 
     pub fn ld_b_hl_ptr(&mut self) -> u8 {
-        self.registers.b = self.mmu.read(self.registers.get_hl());
+        self.registers.b = self.mmu.read_u8(self.registers.get_hl());
         2
     }
 
     pub fn ld_d_hl_ptr(&mut self) -> u8 {
-        self.registers.d = self.mmu.read(self.registers.get_hl());
+        self.registers.d = self.mmu.read_u8(self.registers.get_hl());
         2
     }
 
     pub fn ld_h_hl_ptr(&mut self) -> u8 {
-        self.registers.h = self.mmu.read(self.registers.get_hl());
+        self.registers.h = self.mmu.read_u8(self.registers.get_hl());
         2
     }
 
     pub fn ld_c_hl_ptr(&mut self) -> u8 {
-        self.registers.c = self.mmu.read(self.registers.get_hl());
+        self.registers.c = self.mmu.read_u8(self.registers.get_hl());
         2
     }
 
     pub fn ld_e_hl_ptr(&mut self) -> u8 {
-        self.registers.e = self.mmu.read(self.registers.get_hl());
+        self.registers.e = self.mmu.read_u8(self.registers.get_hl());
         2
     }
 
     pub fn ld_l_hl_ptr(&mut self) -> u8 {
-        self.registers.l = self.mmu.read(self.registers.get_hl());
+        self.registers.l = self.mmu.read_u8(self.registers.get_hl());
         2
     }
 
     pub fn ld_a_hl_ptr(&mut self) -> u8 {
-        self.registers.a = self.mmu.read(self.registers.get_hl());
+        self.registers.a = self.mmu.read_u8(self.registers.get_hl());
         2
     }
 
@@ -549,7 +553,7 @@ impl Cpu {
 
     pub fn ld_a_a16_ptr(&mut self) -> u8 {
         let addr = self.read_u16_at_pc_and_increase();
-        let val = self.mmu.read(addr);
+        let val = self.mmu.read_u8(addr);
         self.registers.a = val;
         4
     }
@@ -579,7 +583,7 @@ impl Cpu {
 
     pub fn ld_a_c_ptr(&mut self) -> u8 {
         let addr = merge_u8s(0xff, self.registers.c);
-        self.registers.a = self.mmu.read(addr);
+        self.registers.a = self.mmu.read_u8(addr);
         2
     }
 
@@ -592,7 +596,7 @@ impl Cpu {
     pub fn ldh_a_a8_ptr(&mut self) -> u8 {
         let n = self.read_u8_at_pc_and_increase();
         let addr = 0xFF00 | (n as u16);
-        self.registers.a = self.mmu.read(addr);
+        self.registers.a = self.mmu.read_u8(addr);
         3
     }
 
@@ -611,7 +615,7 @@ impl Cpu {
 
     pub fn ld_a_bc_ptr(&mut self) -> u8 {
         Self::ld(
-            self.mmu.read(self.registers.get_bc()),
+            self.mmu.read_u8(self.registers.get_bc()),
             &mut self.registers.a,
         );
         2
@@ -619,7 +623,7 @@ impl Cpu {
 
     pub fn ld_a_de_ptr(&mut self) -> u8 {
         Self::ld(
-            self.mmu.read(self.registers.get_de()),
+            self.mmu.read_u8(self.registers.get_de()),
             &mut self.registers.a,
         );
         2
@@ -656,14 +660,14 @@ impl Cpu {
 
     pub fn ld_a_hl_inc_ptr(&mut self) -> u8 {
         let hl = self.registers.get_hl();
-        Self::ld(self.mmu.read(hl), &mut self.registers.a);
+        Self::ld(self.mmu.read_u8(hl), &mut self.registers.a);
         self.registers.set_hl(hl.wrapping_add(1));
         2
     }
 
     pub fn ld_a_hl_dec_ptr(&mut self) -> u8 {
         let hl = self.registers.get_hl();
-        Self::ld(self.mmu.read(hl), &mut self.registers.a);
+        Self::ld(self.mmu.read_u8(hl), &mut self.registers.a);
         self.registers.set_hl(hl.wrapping_sub(1));
         2
     }
@@ -701,12 +705,12 @@ impl Cpu {
     }
 
     pub fn add_hl_ptr(&mut self) -> u8 {
-        self.add8(self.mmu.read(self.registers.get_hl()));
+        self.add8(self.mmu.read_u8(self.registers.get_hl()));
         2
     }
 
     pub fn adc_hl_ptr(&mut self) -> u8 {
-        self.sub8c(self.mmu.read(self.registers.get_hl()));
+        self.sub8c(self.mmu.read_u8(self.registers.get_hl()));
         2
     }
 
@@ -717,12 +721,12 @@ impl Cpu {
     }
 
     pub fn sub_hl_ptr(&mut self) -> u8 {
-        self.sub8(self.mmu.read(self.registers.get_hl()));
+        self.sub8(self.mmu.read_u8(self.registers.get_hl()));
         2
     }
 
     pub fn sbc_hl_ptr(&mut self) -> u8 {
-        self.sub8c(self.mmu.read(self.registers.get_hl()));
+        self.sub8c(self.mmu.read_u8(self.registers.get_hl()));
         2
     }
 
@@ -745,17 +749,17 @@ impl Cpu {
     }
 
     pub fn or_hl_ptr(&mut self) -> u8 {
-        self.or(self.mmu.read(self.registers.get_hl()));
+        self.or(self.mmu.read_u8(self.registers.get_hl()));
         2
     }
 
     pub fn xor_hl_ptr(&mut self) -> u8 {
-        self.xor(self.mmu.read(self.registers.get_hl()));
+        self.xor(self.mmu.read_u8(self.registers.get_hl()));
         2
     }
 
     pub fn and_hl_ptr(&mut self) -> u8 {
-        self.and(self.mmu.read(self.registers.get_hl()));
+        self.and(self.mmu.read_u8(self.registers.get_hl()));
         2
     }
 
@@ -778,7 +782,7 @@ impl Cpu {
     }
 
     pub fn cp_hl(&mut self) -> u8 {
-        self.cp(self.mmu.read(self.registers.get_hl()));
+        self.cp(self.mmu.read_u8(self.registers.get_hl()));
         2
     }
 
@@ -1024,7 +1028,7 @@ impl Cpu {
 
     pub fn inc_hlp(&mut self) -> u8 {
         let address = self.registers.get_hl();
-        let val = self.mmu.read(address);
+        let val = self.mmu.read_u8(address);
         let res = self.inc8(val);
         self.mmu.write_u8(address, res);
         3
@@ -1032,7 +1036,7 @@ impl Cpu {
 
     pub fn dec_hlp(&mut self) -> u8 {
         let address = self.registers.get_hl();
-        let val = self.mmu.read(address);
+        let val = self.mmu.read_u8(address);
         let res = self.dec8(val);
         self.mmu.write_u8(address, res);
         3
