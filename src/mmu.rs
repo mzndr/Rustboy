@@ -27,7 +27,7 @@ use crate::{
 };
 
 /// Gameboy wram size.
-const WRAM_SIZE: usize = 0x10000;
+const WRAM_SIZE: usize = 0x2000;
 
 /// Offset to handle echo ram redirection.
 const WRAM_ECHO_OFFSET: u16 = 0x2000;
@@ -44,6 +44,8 @@ pub struct Mmu {
 
     debug: crate::debug::Debug,
 
+    ie: u8,
+
     /// Interrupt master enable.
     pub ime: bool,
 }
@@ -58,6 +60,7 @@ impl Mmu {
             ppu: Ppu::new(),
             apu: Apu::new(),
             mbc: mbc::load_cartridge(rom),
+            ie: 0,
             ime: false,
             debug,
         };
@@ -109,20 +112,34 @@ impl Mmu {
 
     /// Reads from wram at address.
     pub fn read_u8(&self, address: u16) -> u8 {
-        let u_addr = address as usize;
-
-        match u_addr {
+        match address {
+            // ROM, BANKS
             0x0000..=0x7FFF => self.mbc.read_rom(address),
+            // VRAM
             0x8000..=0x9FFF => self.ppu.read_u8(address),
+            // External RAM
             0xA000..=0xBFFF => self.mbc.read_ram(address),
-
+            // WRAM
+            0xC000..=0xDFFF => self.wram[address as usize - 0xC000],
+            // Echo RAM
             0xE000..=0xFDFF => self.read_u8(address - WRAM_ECHO_OFFSET),
-            0xFF44 => 0x90,                                        //self.ppu.ly,
-            0xFF80..=0xFFFE => self.hram[address as usize & 0x7F], // 0x7F -> divide number
-            // by two if msb is 1
-            _ => self.wram[u_addr],
-            //_ => self.wram[u_addr],
-            //_ => panic!("unsupported wram read access at {u_addr:x}"),
+            // OAM
+            0xFE00..=0xFE9F => todo!("OAM read"),
+            // Not Usable
+            0xFEA0..=0xFEFF => 0xFF,
+
+            // IO
+            // Serial
+            0xFF01..=0xFF02 => todo!("serial read"),
+            // PPU LY REGISTER
+            0xFF44 => 0x90,
+            // IO
+            0xFF00..=0xFF7F => 0xFF,
+
+            // HRAM
+            0xFF80..=0xFFFE => self.hram[address as usize & 0x7F],
+            // Interrupt Enable
+            0xFFFF => self.ie,
         }
     }
 
@@ -134,20 +151,34 @@ impl Mmu {
 
     /// Writes u8 to wram at address.
     pub fn write_u8(&mut self, address: u16, val: u8) {
-        let u_addr = address as usize;
-
-        match u_addr {
+        match address {
+            // ROM, BANKS
             0x0000..=0x7FFF => self.mbc.write_rom(address, val),
+            // VRAM
             0x8000..=0x9FFF => self.ppu.write_u8(address, val),
+            // External RAM
             0xA000..=0xBFFF => self.mbc.write_ram(address, val),
-
+            // WRAM
+            0xC000..=0xDFFF => self.wram[address as usize - 0xC000] = val,
+            // Echo RAM
             0xE000..=0xFDFF => self.write_u8(address - WRAM_ECHO_OFFSET, val),
+            // OAM
+            0xFE00..=0xFE9F => todo!("OAM write"),
+            // Not Usable
+            0xFEA0..=0xFEFF => (),
+
+            // IO
+            // Serial
             0xFF01..=0xFF02 => Self::serial_write(val),
+            // PPU LY REGISTER
             0xFF44 => self.ppu.ly = val,
+            // IO
+            0xFF00..=0xFF7F => (),
+
+            // HRAM
             0xFF80..=0xFFFE => self.hram[address as usize & 0x7F] = val, // 0x7F -> divide number
-            // by two if msb is 1
-            _ => self.wram[address as usize] = val,
-            //_ => panic!("unsupported wram write access at {u_addr:x}"),
+            // Interrupt Enable
+            0xFFFF => self.ie = val,
         }
     }
 
