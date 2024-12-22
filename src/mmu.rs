@@ -22,6 +22,7 @@ use std::array;
 use crate::{
     apu::Apu,
     cpu::utils::{self, split_u16},
+    io::Io,
     mbc::{self, MBC},
     ppu::Ppu,
 };
@@ -40,6 +41,7 @@ pub struct Mmu {
     hram: [u8; HRAM_SIZE],
     ppu: Ppu,
     apu: Apu,
+    io: Io,
     mbc: Box<dyn MBC>,
 
     debug: crate::debug::Debug,
@@ -60,6 +62,7 @@ impl Mmu {
             ppu: Ppu::new(),
             apu: Apu::new(),
             mbc: mbc::load_cartridge(rom),
+            io: Io::new(),
             ie: 0,
             ime: false,
             debug,
@@ -127,15 +130,10 @@ impl Mmu {
             0xFE00..=0xFE9F => todo!("OAM read"),
             // Not Usable
             0xFEA0..=0xFEFF => 0xFF,
-
-            // IO
-            // Serial
-            0xFF01..=0xFF02 => todo!("serial read"),
             // PPU LY REGISTER
             0xFF44 => 0x90,
             // IO
-            0xFF00..=0xFF7F => 0xFF,
-
+            0xFF00..=0xFF7F => self.io.read_u8(address),
             // HRAM
             0xFF80..=0xFFFE => self.hram[address as usize & 0x7F],
             // Interrupt Enable
@@ -166,29 +164,15 @@ impl Mmu {
             0xFE00..=0xFE9F => todo!("OAM write"),
             // Not Usable
             0xFEA0..=0xFEFF => (),
-
-            // IO
-            // Serial
-            0xFF01..=0xFF02 => Self::serial_write(val),
             // PPU LY REGISTER
             0xFF44 => self.ppu.ly = val,
             // IO
-            0xFF00..=0xFF7F => (),
-
+            0xFF00..=0xFF7F => self.io.write_u8(address, val),
             // HRAM
             0xFF80..=0xFFFE => self.hram[address as usize & 0x7F] = val, // 0x7F -> divide number
             // Interrupt Enable
             0xFFFF => self.ie = val,
         }
-    }
-
-    /// TODO: Add proper serial handling
-    pub fn serial_write(val: u8) {
-        let c = val as char;
-        if !c.is_ascii() || !c.is_whitespace() || !c.is_control() {
-            return;
-        }
-        tracing::info!("[SERIAL]: {}", val as char);
     }
 
     /// Writes u16 to wram at address.
