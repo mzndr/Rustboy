@@ -46,7 +46,7 @@ pub struct Mmu {
 
     debug: crate::debug::Debug,
 
-    ie: u8,
+    pub ie: u8,
 
     /// Interrupt master enable.
     pub ime: bool,
@@ -63,9 +63,9 @@ impl Mmu {
             apu: Apu::new(),
             mbc: mbc::load_cartridge(rom),
             io: Io::new(),
-            ie: 0,
             ime: false,
             debug,
+            ie: 0,
         };
         mmu.initial_write();
         mmu

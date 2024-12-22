@@ -116,11 +116,13 @@ impl Cpu {
 
     /// Handle interrupts.
     fn handle_interrupts(&mut self) {
+        if !self.mmu.ime {
+            return;
+        }
+
         self.mmu.ime = false;
         for source in Interrupt::enumerate() {
-            if source.is_set(self.mmu.read_u8(WRAM_IE_OFFSET))
-                && source.is_set(self.mmu.read_u8(WRAM_IF_OFFSET))
-            {
+            if source.is_set(self.mmu.ie) && source.is_set(self.mmu.read_u8(WRAM_IF_OFFSET)) {
                 self.halted = false;
 
                 tracing::debug!("handling interrupt: {source:?}");
@@ -139,10 +141,7 @@ impl Cpu {
     pub fn cycle(&mut self) {
         if self.busy_for == 0 {
             self.busy_for = self.exec_instruction();
-            if self.mmu.ime {
-                self.handle_interrupts();
-                self.busy_for += 5;
-            }
+            self.handle_interrupts();
         } else {
             self.busy_for -= 1;
         }
