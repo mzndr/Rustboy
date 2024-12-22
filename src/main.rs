@@ -15,6 +15,7 @@ mod apu;
 mod cpu;
 mod debug;
 mod gb;
+mod io;
 mod mbc;
 mod mmu;
 mod ppu;
