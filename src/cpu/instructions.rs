@@ -1,5 +1,4 @@
 use super::disassembler::decode_instruction;
-use super::utils;
 use super::{registers::REGISTER_A_INDEX, utils::merge_u8s, Cpu};
 
 impl Cpu {
