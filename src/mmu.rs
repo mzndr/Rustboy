@@ -142,7 +142,7 @@ impl Mmu {
             0xA000..=0xBFFF => self.mbc.write_ram(address, val),
 
             0xE000..=0xFDFF => self.write_u8(address - WRAM_ECHO_OFFSET, val),
-            0xFF01..=0xFF02 => self.serial_write(val),
+            0xFF01..=0xFF02 => Self::serial_write(val),
             0xFF44 => self.ppu.ly = val,
             0xFF80..=0xFFFE => self.hram[address as usize & 0x7F] = val, // 0x7F -> divide number
             // by two if msb is 1
@@ -152,12 +152,12 @@ impl Mmu {
     }
 
     /// TODO: Add proper serial handling
-    pub fn serial_write(&self, val: u8) {
+    pub fn serial_write(val: u8) {
         let c = val as char;
-        if !c.is_ascii() {
+        if !c.is_ascii() || !c.is_whitespace() || !c.is_control() {
             return;
         }
-        tracing::info!("{}", val as char);
+        tracing::info!("[SERIAL]: {}", val as char);
     }
 
     /// Writes u16 to wram at address.
