@@ -255,10 +255,7 @@ impl Cpu {
     }
 
     pub fn ret(&mut self) -> u8 {
-        //self.registers.pc = self.pop_stack_u16();
-        let h = self.pop_stack_u8();
-        let l = self.pop_stack_u8();
-        self.registers.pc = utils::merge_u8s(h, l);
+        self.registers.pc = self.pop_stack_u16();
         4
     }
 
@@ -1131,11 +1128,13 @@ impl Cpu {
 
     pub fn di(&mut self) -> u8 {
         self.mmu.ime = false;
+        tracing::debug!("interupt master disabled");
         1
     }
 
     pub fn ei(&mut self) -> u8 {
         self.schedule_ei = true;
+        tracing::debug!("interupt master enabled");
         1
     }
 
