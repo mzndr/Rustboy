@@ -35,7 +35,7 @@ impl MBC1 {
         let mut rom_bank_00 = [0x00; ROM_BANK_SIZE];
         let mut rom_banks = vec![[0x00; ROM_BANK_SIZE]; 0x7F];
 
-        let one_megabyte = i32::pow(2,20);
+        let one_megabyte = i32::pow(2, 20);
         let alternative_wiring = rom_size as i32 > one_megabyte;
 
         for (address, byte) in rom.iter().enumerate() {
