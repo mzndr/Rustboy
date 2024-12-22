@@ -16,15 +16,15 @@ pub struct Inner {
 
 impl Debug {
     pub fn new(rom: &[u8], gbd_enable: bool) -> Self {
-        return Self {
+        Self {
             inner: Arc::new(Inner::new(rom, gbd_enable)),
-        };
+        }
     }
 
     pub fn disassembly_get_range(&self, start: u16, stop: u16) -> Vec<String> {
         let mut ret = Vec::new();
         for i in start..stop {
-            ret[i as usize] = self.disassembled_rom[i as usize].clone()
+            ret[i as usize] = self.disassembled_rom[i as usize].clone();
         }
         ret
     }
@@ -32,17 +32,17 @@ impl Debug {
 
 impl Inner {
     pub fn new(rom: &[u8], gbd_enable: bool) -> Self {
-        return Self {
+        Self {
             gb_doc_enable: gbd_enable,
             rom: Vec::from(rom),
             disassembled_rom: disassemble_rom(rom),
-        };
+        }
     }
 }
 
 impl Deref for Debug {
     type Target = Inner;
     fn deref(&self) -> &Self::Target {
-        return &self.inner;
+        &self.inner
     }
 }
