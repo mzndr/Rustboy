@@ -1,9 +1,8 @@
 //! MBC1 implementation.
 //! TODO: Support alternative wiring.
 
-use core::panic;
-
 use super::MBC;
+use core::panic;
 
 pub(super) const ID: u8 = 0x01;
 
@@ -11,10 +10,8 @@ const ROM_BANK_SIZE: usize = 0x4000;
 const RAM_BANK_SIZE: usize = 0x4000;
 
 const RAM_OFFSET: usize = 0xA000;
-const RAM_SIZE: usize = 0x2000;
 
 type RomBank = [u8; ROM_BANK_SIZE];
-
 type RamBank = [u8; RAM_BANK_SIZE];
 
 pub(super) struct MBC1 {
@@ -31,22 +28,27 @@ pub(super) struct MBC1 {
 }
 
 impl MBC1 {
-    pub fn new(rom: &[u8], rom_size: u8, ram_size: u8) -> Self {
+    pub fn new(rom: &[u8], num_rom_banks: u8, num_ram_banks: u8) -> Self {
         let mut rom_bank_00 = [0x00; ROM_BANK_SIZE];
         let mut rom_banks = vec![[0x00; ROM_BANK_SIZE]; 0x7F];
 
-        let one_megabyte = i32::pow(2, 20);
-        let alternative_wiring = rom_size as i32 > one_megabyte;
+        let one_megabyte = usize::pow(2, 20);
+        let alternative_wiring = rom.len() > one_megabyte;
 
         for (address, byte) in rom.iter().enumerate() {
             match address {
                 0x0000..=0x3FFF => rom_bank_00[address] = *byte,
-                0x4000..=0x7FFF => rom_banks[address / 0x4000][address - 0x4000] = *byte,
+                // 2MiB roms supported
+                0x4000..=0x200_000 => {
+                    let bank_idx = address / ROM_BANK_SIZE;
+                    let bank_addr = address - (ROM_BANK_SIZE * bank_idx);
+                    rom_banks[bank_idx][bank_addr] = *byte;
+                }
                 _ => panic!("cannot load rom to mbc1"),
             };
         }
 
-        tracing::info!("initializing mbc1: alt-wiring={alternative_wiring} rom-size={rom_size} ram-size={ram_size}");
+        tracing::info!("initializing mbc1: alt-wiring={alternative_wiring} rom-banks={num_rom_banks} ram-banks={num_ram_banks}");
 
         Self {
             rom_bank_00,
@@ -58,13 +60,16 @@ impl MBC1 {
 
             ram_enable: false,
             ram_bank_idx: 0,
-            rom_bank_idx: 1,
+            rom_bank_idx: 0,
         }
     }
 
     fn get_rom_bank_idx(&self) -> usize {
         if self.banking_mode {
             return 0;
+        }
+        if self.rom_bank_idx == 0 {
+            return 1;
         }
         self.rom_bank_idx
     }
@@ -97,8 +102,8 @@ impl MBC for MBC1 {
             0x2000..=0x3FFF => {
                 let mask = if self.alternative_wiring { 0x3F } else { 0x1F };
                 let masked = val & mask;
-                let idx = if masked == 0 { 1 } else { masked };
-                tracing::debug!("rom bank {idx} selected");
+                tracing::debug!("rom bank {masked} selected");
+                self.rom_bank_idx = masked as usize;
             }
             // RAM bank Select, might lend itself to ROM bank select in alternative wiring.
             0x4000..=0x5FFF => {
