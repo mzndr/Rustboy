@@ -169,7 +169,7 @@ impl Mmu {
             // IO
             0xFF00..=0xFF7F => self.io.write_u8(address, val),
             // HRAM
-            0xFF80..=0xFFFE => self.hram[address as usize - 0xFF80] = val, // 0x7F -> divide number
+            0xFF80..=0xFFFE => self.hram[address as usize - 0xFF80] = val,
             // Interrupt Enable
             0xFFFF => self.ie = val,
         }
