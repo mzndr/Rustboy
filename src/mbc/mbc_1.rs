@@ -11,16 +11,12 @@ const RAM_BANK_SIZE: usize = 0x4000;
 
 const RAM_OFFSET: usize = 0xA000;
 
-type RomBank = [u8; ROM_BANK_SIZE];
-type RamBank = [u8; RAM_BANK_SIZE];
-
 pub(super) struct MBC1 {
-    rom_bank_00: RomBank,
-    rom_banks: Vec<RomBank>,
+    rom: Vec<u8>,
     rom_bank_idx: usize,
 
     ram_enable: bool,
-    ram_banks: Vec<RamBank>,
+    ram: Vec<u8>,
     ram_bank_idx: usize,
 
     alternative_wiring: bool,
@@ -28,35 +24,13 @@ pub(super) struct MBC1 {
 }
 
 impl MBC1 {
-    pub fn new(rom: &[u8], num_rom_banks: u8, num_ram_banks: u8) -> Self {
-        let mut rom_bank_00 = [0x00; ROM_BANK_SIZE];
-        let mut rom_banks = vec![[0x00; ROM_BANK_SIZE]; 0x7F];
-
-        let one_megabyte = usize::pow(2, 20);
-        let alternative_wiring = rom.len() > one_megabyte;
-
-        for (address, byte) in rom.iter().enumerate() {
-            match address {
-                0x0000..=0x3FFF => rom_bank_00[address] = *byte,
-                // 2MiB roms supported
-                0x4000..=0x200_000 => {
-                    let bank_idx = address / ROM_BANK_SIZE;
-                    let bank_addr = address - (ROM_BANK_SIZE * bank_idx);
-                    rom_banks[bank_idx][bank_addr] = *byte;
-                }
-                _ => panic!("cannot load rom to mbc1"),
-            };
-        }
-
-        tracing::info!("initializing mbc1: alt-wiring={alternative_wiring} rom-banks={num_rom_banks} ram-banks={num_ram_banks}");
-
+    pub fn new(rom: &[u8]) -> Self {
         Self {
-            rom_bank_00,
-            rom_banks,
-            ram_banks: vec![[0x00; RAM_BANK_SIZE]; 3],
+            rom: Vec::from(rom),
+            ram: vec![0x00; RAM_BANK_SIZE * 3],
 
             banking_mode: false,
-            alternative_wiring,
+            alternative_wiring: rom.len() >= usize::pow(2, 20),
 
             ram_enable: false,
             ram_bank_idx: 0,
@@ -85,8 +59,13 @@ impl MBC1 {
 impl MBC for MBC1 {
     fn read_rom(&self, address: u16) -> u8 {
         match address {
-            0x0000..=0x3FFF => self.rom_bank_00[address as usize],
-            0x4000..=0x7FFF => self.rom_banks[self.get_rom_bank_idx()][address as usize - 0x4000],
+            0x0000..=0x3FFF => self.rom[address as usize],
+            0x4000..=0x7FFF => {
+                let rom_bank_offset = ROM_BANK_SIZE * self.get_rom_bank_idx();
+                let bank_address = address as usize - ROM_BANK_SIZE;
+                let mapped_address = rom_bank_offset + bank_address;
+                self.rom[mapped_address]
+            }
             _ => panic!("invalid mbc1 rom read at 0x{address:x}"),
         }
     }
@@ -100,14 +79,14 @@ impl MBC for MBC1 {
             }
             // ROM bank Select
             0x2000..=0x3FFF => {
-                let mask = if self.alternative_wiring { 0x3F } else { 0x1F };
+                let mask = 0b11;
                 let masked = val & mask;
                 tracing::debug!("rom bank {masked} selected");
                 self.rom_bank_idx = masked as usize;
             }
             // RAM bank Select, might lend itself to ROM bank select in alternative wiring.
             0x4000..=0x5FFF => {
-                let idx = val & 0x03;
+                let idx = val & 0b11;
                 self.ram_bank_idx = idx as usize;
                 tracing::debug!("ram bank {idx} selected");
             }
@@ -125,14 +104,19 @@ impl MBC for MBC1 {
         if !self.ram_enable {
             return 0xFF;
         }
-        self.ram_banks[self.get_ram_bank_idx()][address as usize - RAM_OFFSET]
+        let ram_bank_offset = self.get_rom_bank_idx() * RAM_BANK_SIZE;
+        let bank_address = address as usize - RAM_OFFSET;
+        let ram_address = ram_bank_offset + bank_address;
+        self.ram[ram_address]
     }
 
     fn write_ram(&mut self, address: u16, val: u8) {
         if !self.ram_enable {
             return;
         }
-        let idx = self.get_ram_bank_idx();
-        self.ram_banks[idx][address as usize - RAM_OFFSET] = val;
+        let ram_bank_offset = self.get_rom_bank_idx() * RAM_BANK_SIZE;
+        let bank_address = address as usize - RAM_OFFSET;
+        let ram_address = ram_bank_offset + bank_address;
+        self.ram[ram_address] = val;
     }
 }
