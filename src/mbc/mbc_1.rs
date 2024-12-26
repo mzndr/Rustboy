@@ -11,6 +11,7 @@ const RAM_BANK_SIZE: usize = 0x4000;
 
 const RAM_OFFSET: usize = 0xA000;
 
+#[derive(Debug, Clone)]
 pub(super) struct MBC1 {
     rom: Vec<u8>,
     rom_bank_idx: usize,
@@ -25,6 +26,7 @@ pub(super) struct MBC1 {
 
 impl MBC1 {
     pub fn new(rom: &[u8]) -> Self {
+        tracing::info!("initializing mbc_1");
         Self {
             rom: Vec::from(rom),
             ram: vec![0x00; RAM_BANK_SIZE * 3],
@@ -81,8 +83,8 @@ impl MBC for MBC1 {
             0x2000..=0x3FFF => {
                 let mask = 0b11;
                 let masked = val & mask;
-                tracing::debug!("rom bank {masked} selected");
                 self.rom_bank_idx = masked as usize;
+                tracing::debug!("rom bank {masked} selected");
             }
             // RAM bank Select, might lend itself to ROM bank select in alternative wiring.
             0x4000..=0x5FFF => {
