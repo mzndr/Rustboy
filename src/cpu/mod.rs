@@ -205,7 +205,7 @@ impl Cpu {
 
     /// Check for u8 half carries on additions. (carry from 7th to 8th bit).
     pub fn check_add_u16_hc(left: u16, right: u16) -> bool {
-        ((left & 0xff).wrapping_add(right & 0xff)) & 0x100 == 0x100
+        (left & 0x0FFF) + (right & 0x0FFF) > 0x0FFF
     }
 
     /// Check for u8 half carries on subtractions. (carry from 3rd to 4th bit).
