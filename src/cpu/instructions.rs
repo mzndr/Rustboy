@@ -411,31 +411,35 @@ impl Cpu {
     }
 
     pub fn jp_nz_a16(&mut self) -> u8 {
+        let address = self.read_u16_at_pc_and_increase();
         if self.registers.get_flag_z() {
             return 3;
         }
-        self.jp_a16()
+        self.jp(address)
     }
 
     pub fn jp_nc_a16(&mut self) -> u8 {
+        let address = self.read_u16_at_pc_and_increase();
         if self.registers.get_flag_c() {
             return 3;
         }
-        self.jp_a16()
+        self.jp(address)
     }
 
     pub fn jp_z_a16(&mut self) -> u8 {
+        let address = self.read_u16_at_pc_and_increase();
         if !self.registers.get_flag_z() {
             return 3;
         }
-        self.jp_a16()
+        self.jp(address)
     }
 
     pub fn jp_c_a16(&mut self) -> u8 {
+        let address = self.read_u16_at_pc_and_increase();
         if !self.registers.get_flag_c() {
             return 3;
         }
-        self.jp_a16()
+        self.jp(address)
     }
 
     #[allow(clippy::cast_possible_wrap, clippy::cast_possible_truncation)]
