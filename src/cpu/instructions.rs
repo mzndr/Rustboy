@@ -167,7 +167,7 @@ impl Cpu {
             0xfe => self.cp_d8(),
             0xff => self.rst(0x38),
 
-            0x70..=0x77 => self.ld_hl_ptr_n(dst_idx),
+            0x70..=0x77 => self.ld_hl_ptr_n(src_idx),
             0x40..=0x7f => Self::ld(
                 *self.registers.h_index(src_idx),
                 self.registers.v_index_mut(dst_idx, src_idx),
