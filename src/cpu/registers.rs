@@ -119,7 +119,7 @@ impl Registers {
     }
 
     pub fn set_flag_at_index(&mut self, index: u8, val: bool) {
-        self.f = utils::set_bit(self.f, index, val);
+        self.set_f(utils::set_bit(self.f, index, val));
     }
 
     pub fn get_flag_at_index(&self, index: u8) -> bool {
@@ -130,10 +130,14 @@ impl Registers {
         utils::merge_u8s(self.a, self.f)
     }
 
+    pub fn set_f(&mut self, val: u8) {
+        self.f = val & 0xF0;
+    }
+
     pub fn set_af(&mut self, val: u16) {
         let split = utils::split_u16(val);
         self.a = split.0;
-        self.f = split.1;
+        self.set_f(split.1);
     }
 
     pub fn get_bc(&self) -> u16 {
