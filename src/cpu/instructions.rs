@@ -642,8 +642,8 @@ impl Cpu {
 
     pub fn ld_hl_inc_ptr_a(&mut self) -> u8 {
         let hl = self.registers.get_hl();
-        self.mmu.write_u8(hl, self.registers.a);
         self.registers.set_hl(hl.wrapping_add(1));
+        self.mmu.write_u8(hl, self.registers.a);
         2
     }
 
@@ -945,6 +945,7 @@ impl Cpu {
 
     pub fn rr_val(&mut self, val: u8) -> u8 {
         let result = (val >> 1) | (if self.registers.get_flag_c() { 0x80 } else { 0 });
+        self.registers.set_flag_z(result == 0);
         self.registers.set_flag_c((val & 0x1) == 1);
         self.registers.set_flag_n(false);
         self.registers.set_flag_h(false);
@@ -960,6 +961,7 @@ impl Cpu {
 
     pub fn rl_val(&mut self, val: u8) -> u8 {
         let result = (val << 1) | self.registers.get_flag_c() as u8;
+        self.registers.set_flag_z(result == 0);
         self.registers.set_flag_c((val & 0x80) == 0x80);
         self.registers.set_flag_n(false);
         self.registers.set_flag_h(false);
