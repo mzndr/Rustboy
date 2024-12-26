@@ -124,13 +124,14 @@ impl Cpu {
         for source in Interrupt::enumerate() {
             if source.is_set(self.mmu.ie) && source.is_set(self.mmu.read_u8(WRAM_IF_OFFSET)) {
                 self.halted = false;
-
-                tracing::debug!("handling interrupt: {source:?}");
-                self.call(source.handler_address());
                 self.mmu.write_u8(
                     WRAM_IF_OFFSET,
                     utils::set_bit(self.mmu.read_u8(WRAM_IF_OFFSET), source.bit_index(), false),
                 );
+
+                tracing::debug!("handling interrupt: {source:?}");
+                self.call(source.handler_address());
+                break;
             }
         }
         self.busy_for += 5;
