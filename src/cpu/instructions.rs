@@ -771,7 +771,7 @@ impl Cpu {
 
     pub fn add_d8(&mut self) -> u8 {
         let d8 = self.read_u8_at_pc_and_increase();
-        self.add8c(d8);
+        self.add8(d8);
         2
     }
 
@@ -949,8 +949,8 @@ impl Cpu {
 
     pub fn rr_val(&mut self, val: u8) -> u8 {
         let result = (val >> 1) | (if self.registers.get_flag_c() { 0x80 } else { 0 });
-        self.registers.set_flag_z(result == 0);
         self.registers.set_flag_c((val & 0x1) == 1);
+        self.registers.set_flag_z(false);
         self.registers.set_flag_n(false);
         self.registers.set_flag_h(false);
 
@@ -965,8 +965,8 @@ impl Cpu {
 
     pub fn rl_val(&mut self, val: u8) -> u8 {
         let result = (val << 1) | self.registers.get_flag_c() as u8;
-        self.registers.set_flag_z(result == 0);
         self.registers.set_flag_c((val & 0x80) == 0x80);
+        self.registers.set_flag_z(false);
         self.registers.set_flag_n(false);
         self.registers.set_flag_h(false);
 
@@ -1005,6 +1005,9 @@ impl Cpu {
     pub fn rrc(&mut self, reg_idx: u8) -> u8 {
         // Right most bit, that will wrap around gets copied to the carry flag.
         *self.registers.h_index_mut(reg_idx) = self.rrc_val(*self.registers.h_index(reg_idx));
+        self.registers.set_flag_z(false);
+        self.registers.set_flag_h(false);
+        self.registers.set_flag_n(false);
         1
     }
 

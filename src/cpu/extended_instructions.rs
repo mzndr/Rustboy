@@ -51,8 +51,20 @@ impl Cpu {
 
             0x00..=0x07 => self.rlc(dst_idx),
             0x08..=0x0f => self.rrc(dst_idx),
-            0x10..=0x17 => self.rl(dst_idx),
-            0x18..=0x1f => self.rr(dst_idx),
+            0x10..=0x17 => {
+                self.rl(dst_idx);
+                if *self.registers.h_index(dst_idx) == 0 {
+                    self.registers.set_flag_z(true);
+                }
+                1
+            }
+            0x18..=0x1f => {
+                self.rr(dst_idx);
+                if *self.registers.h_index(dst_idx) == 0 {
+                    self.registers.set_flag_z(true);
+                }
+                1
+            }
             0x20..=0x27 => self.sla(dst_idx),
             0x28..=0x2f => self.sra(dst_idx),
             0x30..=0x37 => self.sll(dst_idx),
