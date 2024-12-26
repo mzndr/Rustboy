@@ -216,7 +216,7 @@ impl Ppu {
                 self.state = State::HBlank;
             }
             State::HBlank => {
-                tracing::trace!("performing horizontal blanks");
+                //tracing::trace!("performing horizontal blanks");
                 if self.t_cycle % 456 == 0 {
                     self.ly += 1;
                     self.sprite_buffer.resize(0, Sprite::default());

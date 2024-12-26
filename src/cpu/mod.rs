@@ -200,7 +200,7 @@ impl Cpu {
 
     /// Check for u8 half carries on additions. (carry from 3rd to 4th bit).
     pub fn check_add_u8_hc(left: u8, right: u8) -> bool {
-        (left & 0x0F) + right > 0x0F
+        (left & 0x0F) + (right & 0x0F) > 0x0F
     }
 
     /// Check for u8 half carries on additions. (carry from 7th to 8th bit).
