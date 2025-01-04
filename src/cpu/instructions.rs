@@ -27,7 +27,7 @@ impl Cpu {
         );
         if self.schedule_ei {
             self.schedule_ei = false;
-            self.mmu.ime = true;
+            self.mmu.interrupt_master_enable = true;
         }
 
         tracing::trace!("executing instruction");
@@ -602,7 +602,7 @@ impl Cpu {
 
     pub fn reti(&mut self) -> u8 {
         self.ret();
-        self.mmu.ime = true;
+        self.mmu.interrupt_master_enable = true;
         4
     }
 
@@ -1136,7 +1136,7 @@ impl Cpu {
     }
 
     pub fn di(&mut self) -> u8 {
-        self.mmu.ime = false;
+        self.mmu.interrupt_master_enable = false;
         tracing::debug!("interupt master disabled");
         1
     }
