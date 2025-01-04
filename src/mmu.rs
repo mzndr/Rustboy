@@ -44,12 +44,11 @@ pub struct Mmu {
     io: Io,
     mbc: Box<dyn MBC>,
 
+    pub interrupt_enable: u8,
+    pub interrupt_flag: u8,
+    pub interrupt_master_enable: bool,
+
     debug: crate::debug::Debug,
-
-    pub ie: u8,
-
-    /// Interrupt master enable.
-    pub ime: bool,
 }
 
 impl Mmu {
@@ -63,9 +62,10 @@ impl Mmu {
             apu: Apu::new(),
             mbc: mbc::load_cartridge(rom),
             io: Io::new(),
-            ime: false,
+            interrupt_master_enable: false,
+            interrupt_enable: 0,
+            interrupt_flag: 0,
             debug,
-            ie: 0,
         };
         mmu.initial_write();
         mmu
@@ -137,7 +137,7 @@ impl Mmu {
             // HRAM
             0xFF80..=0xFFFE => self.hram[address as usize - 0xFF80],
             // Interrupt Enable
-            0xFFFF => self.ie,
+            0xFFFF => self.interrupt_enable,
         }
     }
 
@@ -171,7 +171,7 @@ impl Mmu {
             // HRAM
             0xFF80..=0xFFFE => self.hram[address as usize - 0xFF80] = val,
             // Interrupt Enable
-            0xFFFF => self.ie = val,
+            0xFFFF => self.interrupt_enable = val,
         }
     }
 
