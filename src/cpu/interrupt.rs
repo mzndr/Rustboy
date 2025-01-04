@@ -50,23 +50,21 @@ impl Interrupt {
 }
 
 impl Cpu {
-    /// Request interrupt for an interrupt source.
-    pub fn request_interrupt(&mut self, source: Interrupt, val: bool) {
-        self.mmu.interrupt_enable =
-            utils::set_bit(self.mmu.interrupt_flag, source.bit_index(), val);
+    /// Request an interrupt  by setting its bit in IF.
+    pub fn request_interrupt(&mut self, source: Interrupt) {
+        self.interrupt_flag = utils::set_bit(self.interrupt_flag, source.bit_index(), true);
     }
 
-    /// Enable interrupt for an interrupt source.
-    pub fn enable_interrupt(&mut self, source: Interrupt, val: bool) {
-        self.mmu.interrupt_enable =
-            utils::set_bit(self.mmu.interrupt_enable, source.bit_index(), val);
+    /// Acknowledge an interrupt by unsetting its bit in IF.
+    fn acknowledge_interrupt(&mut self, source: Interrupt) {
+        self.interrupt_flag = utils::set_bit(self.interrupt_flag, source.bit_index(), false);
     }
 
     /// Handle interrupts.
     pub fn handle_interrupts(&mut self) {
-        if !self.mmu.interrupt_master_enable
+        if !self.interrupt_master_enable
             || self.mmu.interrupt_enable == 0
-            || self.mmu.interrupt_flag == 0
+            || self.interrupt_flag == 0
         {
             // Interrupts master disabled,
             // no interrupt enabled or no
@@ -74,12 +72,11 @@ impl Cpu {
             return;
         }
 
-        self.mmu.interrupt_master_enable = false;
+        self.interrupt_master_enable = false;
         for source in Interrupt::enumerate() {
             if source.is_set(self.mmu.interrupt_enable) {
                 self.halted = false;
-                self.mmu.interrupt_flag =
-                    utils::set_bit(self.mmu.interrupt_flag, source.bit_index(), false);
+                self.acknowledge_interrupt(source);
                 tracing::debug!("handling interrupt: {source:?}");
                 self.call(source.address());
                 break;

@@ -45,9 +45,6 @@ pub struct Mmu {
     mbc: Box<dyn MBC>,
 
     pub interrupt_enable: u8,
-    pub interrupt_flag: u8,
-    pub interrupt_master_enable: bool,
-
     debug: crate::debug::Debug,
 }
 
@@ -62,9 +59,7 @@ impl Mmu {
             apu: Apu::new(),
             mbc: mbc::load_cartridge(rom),
             io: Io::new(),
-            interrupt_master_enable: false,
             interrupt_enable: 0,
-            interrupt_flag: 0,
             debug,
         };
         mmu.initial_write();
