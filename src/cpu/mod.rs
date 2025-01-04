@@ -1,10 +1,13 @@
+use interrupt::Interrupt;
+
 use crate::{mmu::Mmu, ppu};
 
 use self::registers::Registers;
-pub mod disassembler;
 mod extended_instructions;
 mod instructions;
+mod interrupt;
 
+pub mod disassembler;
 pub mod registers;
 pub mod utils;
 
@@ -34,55 +37,6 @@ pub struct Cpu {
     pub cycle: u128,
 }
 
-/// Different kinds of interrupt(-sources).
-#[derive(Debug, Clone, Copy)]
-enum Interrupt {
-    VBlank,
-    LCD,
-    Timer,
-    Serial,
-    Joypad,
-}
-
-impl Interrupt {
-    /// Checks if the interrupt bit is set in the given `u8`.
-    fn is_set(self, reg_val: u8) -> bool {
-        (reg_val >> self.bit_index() & 1) == 1
-    }
-
-    /// Gets this interrupts bit index.
-    fn bit_index(self) -> u8 {
-        match self {
-            Self::VBlank => 0,
-            Self::LCD => 1,
-            Self::Timer => 2,
-            Self::Serial => 3,
-            Self::Joypad => 4,
-        }
-    }
-
-    /// Gets this interrupts handler address.
-    fn handler_address(self) -> u16 {
-        match self {
-            Self::VBlank => 0x40,
-            Self::LCD => 0x48,
-            Self::Timer => 0x50,
-            Self::Serial => 0x58,
-            Self::Joypad => 0x60,
-        }
-    }
-
-    fn enumerate() -> [Self; 5] {
-        [
-            Self::VBlank,
-            Self::LCD,
-            Self::Timer,
-            Self::Serial,
-            Self::Joypad,
-        ]
-    }
-}
-
 impl Cpu {
     /// Initialize cpu memory
     pub fn new(rom: &[u8], debug: crate::debug::Debug) -> Cpu {
@@ -98,43 +52,6 @@ impl Cpu {
 
             debug,
         }
-    }
-
-    /// Request interrupt for an interrupt source.
-    fn request_interrupt(&mut self, source: Interrupt, val: bool) {
-        let old_if = self.mmu.read_u8(WRAM_IF_OFFSET);
-        let new_if = utils::set_bit(old_if, source.bit_index(), val);
-        self.mmu.write_u8(WRAM_IF_OFFSET, new_if);
-    }
-
-    /// Enable interrupt for an interrupt source.
-    fn enable_interrupt(&mut self, source: Interrupt, val: bool) {
-        let old_if = self.mmu.read_u8(WRAM_IE_OFFSET);
-        let new_if = utils::set_bit(old_if, source.bit_index(), val);
-        self.mmu.write_u8(WRAM_IE_OFFSET, new_if);
-    }
-
-    /// Handle interrupts.
-    fn handle_interrupts(&mut self) {
-        if !self.mmu.ime {
-            return;
-        }
-
-        self.mmu.ime = false;
-        for source in Interrupt::enumerate() {
-            if source.is_set(self.mmu.ie) && source.is_set(self.mmu.read_u8(WRAM_IF_OFFSET)) {
-                self.halted = false;
-                self.mmu.write_u8(
-                    WRAM_IF_OFFSET,
-                    utils::set_bit(self.mmu.read_u8(WRAM_IF_OFFSET), source.bit_index(), false),
-                );
-
-                tracing::debug!("handling interrupt: {source:?}");
-                self.call(source.handler_address());
-                break;
-            }
-        }
-        self.busy_for += 5;
     }
 
     // Execute a machine cycle.
