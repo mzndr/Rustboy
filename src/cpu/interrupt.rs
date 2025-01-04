@@ -28,7 +28,7 @@ impl Interrupt {
     }
 
     /// Gets this interrupts handler address.
-    fn handler_address(self) -> u16 {
+    fn address(self) -> u16 {
         match self {
             Self::VBlank => 0x40,
             Self::LCD => 0x48,
@@ -81,7 +81,7 @@ impl Cpu {
                 self.mmu.interrupt_flag =
                     utils::set_bit(self.mmu.interrupt_flag, source.bit_index(), false);
                 tracing::debug!("handling interrupt: {source:?}");
-                self.call(source.handler_address());
+                self.call(source.address());
                 break;
             }
         }
