@@ -33,6 +33,8 @@ pub struct Cpu {
     debug: crate::debug::Debug,
 
     schedule_ei: bool,
+    interrupt_flag: u8,
+    interrupt_master_enable: bool,
 
     pub cycle: u128,
 }
@@ -47,9 +49,9 @@ impl Cpu {
             busy_for: 0x00,
             halted: false,
             schedule_ei: false,
-
             cycle: 0,
-
+            interrupt_flag: 0,
+            interrupt_master_enable: false,
             debug,
         }
     }
@@ -65,7 +67,7 @@ impl Cpu {
         }
         self.mmu.cycle(); // Not sure if this is the right place
         if self.mmu.ppu_ref().ly == ppu::LY_VBLANK_START {
-            self.request_interrupt(Interrupt::VBlank, true);
+            self.request_interrupt(Interrupt::VBlank);
         }
     }
 
