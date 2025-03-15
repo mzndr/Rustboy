@@ -3,19 +3,35 @@ use std::{
     time::{self, Duration, Instant},
 };
 
-use crate::cpu::Cpu;
+use crate::{cpu::Cpu, Args};
 
 /// Default gameboy clock speed.
 const DEFAULT_CLOCK_SPEED: f32 = 4100f32 / 4f32;
 
+pub struct Config {
+    pub gb_doctor_enable: bool,
+    pub uncap_clock_speed: bool,
+}
+
+impl From<Args> for Config {
+    fn from(args: Args) -> Self {
+        Self {
+            gb_doctor_enable: args.enable_gbd,
+            uncap_clock_speed: args.uncap_clock_speed,
+        }
+    }
+}
+
 pub struct Gameboy {
     pub cpu: Cpu,
+    pub cfg: Config,
 }
 
 impl Gameboy {
-    pub fn new(rom: &[u8], gb_doctor_enable: bool) -> Self {
+    pub fn new(rom: &[u8], cfg: Config) -> Self {
         Self {
-            cpu: Cpu::new(rom, crate::debug::Debug::new(rom, gb_doctor_enable)),
+            cpu: Cpu::new(rom, crate::debug::Debug::new(rom, cfg.gb_doctor_enable)),
+            cfg,
         }
     }
 
@@ -23,7 +39,7 @@ impl Gameboy {
         loop {
             let start = time::Instant::now();
             self.cpu.cycle();
-            Self::sleep_till_next_cycle(start);
+            Self::sleep_till_next_cycle(start, self.cfg.uncap_clock_speed);
         }
     }
 
@@ -33,7 +49,11 @@ impl Gameboy {
         clippy::cast_sign_loss,
         clippy::cast_possible_truncation
     )]
-    fn sleep_till_next_cycle(start: time::Instant) {
+    fn sleep_till_next_cycle(start: time::Instant, uncap_clock_speed: bool) {
+        if uncap_clock_speed {
+            return;
+        }
+
         let cycles_per_ms: f32 = DEFAULT_CLOCK_SPEED / 1000.0; // 1mhz
         let after = Instant::now();
         let passed = after - start;

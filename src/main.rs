@@ -23,10 +23,12 @@ mod ppu;
 /// Command line arguments, parsed by [`clap`].
 #[allow(clippy::struct_excessive_bools)]
 #[derive(Parser, Debug)]
-struct Args {
+pub struct Args {
     rom_path: String,
     #[arg(short, long, action)]
     disassemble: bool,
+    #[arg(short, long, action)]
+    uncap_clock_speed: bool,
     #[arg(long, action)]
     enable_gbd: bool,
     #[arg(long, action)]
@@ -53,6 +55,6 @@ fn main() {
         return;
     }
 
-    let mut gb = Gameboy::new(&rom, args.enable_gbd);
+    let mut gb = Gameboy::new(&rom, args.into());
     gb.run();
 }
