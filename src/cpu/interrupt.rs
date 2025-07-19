@@ -61,7 +61,7 @@ impl Cpu {
     }
 
     /// Handle interrupts.
-    pub fn handle_interrupts(&mut self) {
+    pub fn handle_interrupts(&mut self) -> bool {
         if !self.interrupt_master_enable
             || self.mmu.interrupt_enable == 0
             || self.interrupt_flag == 0
@@ -69,7 +69,7 @@ impl Cpu {
             // Interrupts master disabled,
             // no interrupt enabled or no
             // interrupt requested.
-            return;
+            return false;
         }
 
         self.interrupt_master_enable = false;
@@ -83,5 +83,6 @@ impl Cpu {
             }
         }
         self.busy_for += 5;
+        true
     }
 }
