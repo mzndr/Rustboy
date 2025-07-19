@@ -12,7 +12,7 @@ use crate::cpu::disassembler::disassemble_rom;
 use crate::gb::Gameboy;
 
 mod apu;
-mod cpu;
+pub mod cpu;
 mod debug;
 mod gb;
 mod io;

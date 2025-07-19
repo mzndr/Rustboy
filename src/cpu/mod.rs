@@ -8,6 +8,7 @@ mod instructions;
 mod interrupt;
 
 pub mod disassembler;
+pub mod interrupt;
 pub mod registers;
 pub mod utils;
 
@@ -59,6 +60,11 @@ impl Cpu {
     // Execute a machine cycle.
     #[tracing::instrument(skip(self), fields(regs = %self.registers))]
     pub fn cycle(&mut self) {
+        let interrupt_requests = self.mmu.cycle();
+        for interrupt in interrupt_requests {
+            self.request_interrupt(interrupt);
+        }
+
         if self.busy_for == 0 {
             if !self.handle_interrupts() {
                 self.busy_for = self.exec_instruction();

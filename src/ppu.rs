@@ -4,6 +4,8 @@
 //! Start   End     Description                        Notes
 //! 8000    9FFF    8 KiB Video RAM (VRAM)             In CGB mode, switchable bank 0/1
 
+use crate::cpu::interrupt::Interrupt;
+
 /// VRAM size.
 pub const VRAM_SIZE: usize = 0x2000;
 /// OAM Memory location in VRAM.
@@ -201,7 +203,8 @@ impl Ppu {
 
     /// Cycle the mmu, returning the resulting state.
     #[tracing::instrument(skip(self) fields(sprites_loaded=%self.sprite_buffer.len()))]
-    pub fn cycle(&mut self) -> State {
+    pub fn cycle(&mut self) -> Vec<Interrupt> {
+        let mut interrupts = Vec::with_capacity(1);
         match self.state {
             State::OAMSearch => {
                 tracing::trace!("performing orm search");
@@ -237,6 +240,10 @@ impl Ppu {
         };
         self.t_cycle = self.t_cycle.wrapping_add(1);
 
-        self.state
+        if self.ly == LY_VBLANK_START && self.ly != self.previous_ly {
+            interrupts.push(Interrupt::VBlank);
+        }
+
+        interrupts
     }
 }

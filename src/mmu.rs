@@ -21,7 +21,10 @@ use std::array;
 
 use crate::{
     apu::Apu,
-    cpu::utils::{self, split_u16},
+    cpu::{
+        interrupt::Interrupt,
+        utils::{self, split_u16},
+    },
     io::Io,
     mbc::{self, MBC},
     ppu::Ppu,
@@ -100,12 +103,14 @@ impl Mmu {
         self.write_u8(0xFF4B, 0x00);
     }
 
-    pub fn cycle(&mut self) {
-        self.ppu.cycle();
-    }
-
-    pub fn ppu_ref(&self) -> &Ppu {
-        &self.ppu
+    // cycle does one execution cycle of the mmu and all associated
+    // parts, like the ppu. It returns all requested interrupts during
+    // the cycle.
+    pub fn cycle(&mut self) -> Vec<Interrupt> {
+        let mut interrupts = Vec::new();
+        interrupts.append(&mut self.ppu.cycle());
+        interrupts.append(&mut self.io.cycle());
+        interrupts
     }
 
     /// Reads from wram at address.
