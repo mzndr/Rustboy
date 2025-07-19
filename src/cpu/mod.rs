@@ -60,8 +60,9 @@ impl Cpu {
     #[tracing::instrument(skip(self), fields(regs = %self.registers))]
     pub fn cycle(&mut self) {
         if self.busy_for == 0 {
-            self.busy_for = self.exec_instruction();
-            self.handle_interrupts();
+            if !self.handle_interrupts() {
+                self.busy_for = self.exec_instruction();
+            }
         } else {
             self.busy_for -= 1;
         }
