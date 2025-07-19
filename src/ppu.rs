@@ -43,7 +43,10 @@ pub struct Ppu {
     /// PPU State.
     state: State,
     /// PPU LY
-    pub ly: u8,
+    ly: u8,
+
+    previous_ly: u8,
+
     /// Currently loaded sprites.
     sprite_buffer: Vec<Sprite>,
 
@@ -98,6 +101,7 @@ impl Ppu {
         Self {
             vram: [0; VRAM_SIZE],
             ly: 0x90,
+            previous_ly: 0x90,
             t_cycle: 0,
             state: State::OAMSearch,
             sprite_buffer: Vec::with_capacity(10),
@@ -142,6 +146,11 @@ impl Ppu {
 
     fn lcdc_bg_enable(&self) -> bool {
         (self.lcdc() & 1) == 1
+    }
+
+    pub fn set_ly(&mut self, val: u8) {
+        self.previous_ly = self.ly;
+        self.ly = val;
     }
 
     /// Load a sprites information (not pixel data) from OAM Memory.
