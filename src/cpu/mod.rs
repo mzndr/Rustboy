@@ -1,3 +1,8 @@
+/**
+* Emulating the LR35902 CPU
+*
+* For Opcodes see: <https://www.pastraiser.com/cpu/gameboy/gameboy_opcodes.html>
+*/
 use interrupt::Interrupt;
 
 use crate::{mmu::Mmu, ppu};
@@ -5,18 +10,11 @@ use crate::{mmu::Mmu, ppu};
 use self::registers::Registers;
 mod extended_instructions;
 mod instructions;
-mod interrupt;
 
 pub mod disassembler;
 pub mod interrupt;
 pub mod registers;
 pub mod utils;
-
-/**
-* Emulating the LR35902 CPU
-*
-* For Opcodes see: <https://www.pastraiser.com/cpu/gameboy/gameboy_opcodes.html>
-*/
 
 /// Offset to interrupt enable register in WRAM.
 pub const WRAM_IE_OFFSET: u16 = 0xFFFF;
@@ -71,10 +69,6 @@ impl Cpu {
             }
         } else {
             self.busy_for -= 1;
-        }
-        self.mmu.cycle(); // Not sure if this is the right place
-        if self.mmu.ppu_ref().ly == ppu::LY_VBLANK_START {
-            self.request_interrupt(Interrupt::VBlank);
         }
     }
 
