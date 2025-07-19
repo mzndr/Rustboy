@@ -1,5 +1,7 @@
 use core::panic;
 
+use crate::cpu::interrupt::Interrupt;
+
 // IO offset in memory
 const IO_OFFSET: usize = 0xFF00;
 // Size of IO range in memory
@@ -26,6 +28,11 @@ impl Io {
             0x00..=IO_SIZE => self.memory[address],
             _ => panic!("invalid IO read"),
         }
+    }
+
+    pub fn cycle(&mut self) -> Vec<Interrupt> {
+        let mut interrupts = Vec::new();
+        interrupts
     }
 
     pub fn write_u8(&mut self, address: u16, val: u8) {
