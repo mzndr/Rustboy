@@ -74,7 +74,7 @@ impl Cpu {
 
         self.interrupt_master_enable = false;
         for source in Interrupt::enumerate() {
-            if source.is_set(self.mmu.interrupt_enable) {
+            if source.is_set(self.mmu.interrupt_enable) && source.is_set(self.interrupt_flag) {
                 self.halted = false;
                 self.acknowledge_interrupt(source);
                 tracing::debug!("handling interrupt: {source:?}");
