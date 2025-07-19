@@ -126,7 +126,7 @@ impl Mmu {
             // Not Usable
             0xFEA0..=0xFEFF => 0xFF,
             // PPU LY REGISTER
-            0xFF44 => self.ppu.ly,
+            0xFF44 => 0x90,
             // IO
             0xFF00..=0xFF7F => self.io.read_u8(address),
             // HRAM
@@ -160,7 +160,7 @@ impl Mmu {
             // Not Usable
             0xFEA0..=0xFEFF => (),
             // PPU LY REGISTER
-            0xFF44 => self.ppu.ly = val,
+            0xFF44 => (),
             // IO
             0xFF00..=0xFF7F => self.io.write_u8(address, val),
             // HRAM

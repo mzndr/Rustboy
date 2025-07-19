@@ -95,7 +95,7 @@ impl Ppu {
         tracing::info!("initializing ppu");
         Self {
             vram: [0; VRAM_SIZE],
-            ly: 0,
+            ly: 0x90,
             t_cycle: 0,
             state: State::OAMSearch,
             sprite_buffer: Vec::with_capacity(10),
