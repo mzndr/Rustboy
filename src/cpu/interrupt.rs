@@ -13,7 +13,7 @@ pub enum Interrupt {
 impl Interrupt {
     /// Checks if the interrupt bit is set in the given `u8`.
     fn is_set(self, reg_val: u8) -> bool {
-        (reg_val >> self.bit_index() & 1) == 1
+        ((reg_val >> self.bit_index()) & 1) == 1
     }
 
     /// Gets this interrupts bit index.

@@ -63,10 +63,10 @@ struct SpriteFlags {
 impl From<u8> for SpriteFlags {
     fn from(value: u8) -> Self {
         Self {
-            obj_to_bg_priority: (value >> 7 & 1) == 1,
-            y_flip: (value >> 6 & 1) == 1,
-            x_flip: (value >> 5 & 1) == 1,
-            palette_number: (value >> 4 & 1) == 1,
+            obj_to_bg_priority: ((value >> 7) & 1) == 1,
+            y_flip: ((value >> 6) & 1) == 1,
+            x_flip: ((value >> 5) & 1) == 1,
+            palette_number: ((value >> 4) & 1) == 1,
         }
     }
 }
@@ -111,31 +111,31 @@ impl Ppu {
     }
 
     fn lcdc_display_enable(&self) -> bool {
-        (self.lcdc() >> 7 & 1) == 1
+        ((self.lcdc() >> 7) & 1) == 1
     }
 
     fn lcdc_window_tile_map_select(&self) -> bool {
-        (self.lcdc() >> 6 & 1) == 1
+        ((self.lcdc() >> 6) & 1) == 1
     }
 
     fn lcdc_window_display_enable(&self) -> bool {
-        (self.lcdc() >> 5 & 1) == 1
+        ((self.lcdc() >> 5) & 1) == 1
     }
 
     fn lcdc_tile_data_select_mode(&self) -> bool {
-        (self.lcdc() >> 4 & 1) == 1
+        ((self.lcdc() >> 4) & 1) == 1
     }
 
     fn lcdc_bg_tile_map_select_mode(&self) -> bool {
-        (self.lcdc() >> 3 & 1) == 1
+        ((self.lcdc() >> 3) & 1) == 1
     }
 
     fn lcdc_sprite_height(&self) -> bool {
-        (self.lcdc() >> 2 & 1) == 1
+        ((self.lcdc() >> 2) & 1) == 1
     }
 
     fn lcdc_sprite_enable(&self) -> bool {
-        (self.lcdc() >> 1 & 1) == 1
+        ((self.lcdc() >> 1) & 1) == 1
     }
 
     fn lcdc_bg_enable(&self) -> bool {
