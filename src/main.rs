@@ -19,6 +19,7 @@ mod io;
 mod mbc;
 mod mmu;
 mod ppu;
+mod sdl;
 
 /// Command line arguments, parsed by [`clap`].
 #[allow(clippy::struct_excessive_bools)]
@@ -54,6 +55,8 @@ fn main() {
         print!("{asm:#?}");
         return;
     }
+
+    let renderer = sdl::Renderer::new(sdl::Config::default());
 
     let mut gb = Gameboy::new(&rom, args.into());
     gb.run();
