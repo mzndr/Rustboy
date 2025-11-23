@@ -1,3 +1,7 @@
+use std::fmt::Debug;
+
+use sdl2::Sdl;
+
 #[derive(Clone, Debug)]
 pub struct Config {
     pub window_width: u32,
@@ -17,9 +21,13 @@ impl Default for Config {
 
 pub struct Renderer {
     cfg: Config,
-
-    sdl_ctx: sdl2::Sdl,
     canvas: sdl2::render::WindowCanvas,
+}
+
+impl Debug for Renderer {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "not implemented")
+    }
 }
 
 #[derive(Clone, Debug)]
@@ -50,8 +58,7 @@ impl From<String> for Error {
 }
 
 impl Renderer {
-    pub fn new(cfg: Config) -> Result<Self, Error> {
-        let sdl_ctx = sdl2::init()?;
+    pub fn new(cfg: Config, sdl_ctx: &Sdl) -> Result<Self, Error> {
         let video_subsystem = sdl_ctx.video()?;
         let window = video_subsystem
             .window(&cfg.window_title, cfg.window_width, cfg.window_height)
@@ -61,10 +68,6 @@ impl Renderer {
         canvas.clear();
         canvas.present();
 
-        Ok(Self {
-            cfg,
-            sdl_ctx,
-            canvas,
-        })
+        Ok(Self { cfg, canvas })
     }
 }

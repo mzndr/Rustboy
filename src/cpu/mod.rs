@@ -3,9 +3,7 @@
 *
 * For Opcodes see: <https://www.pastraiser.com/cpu/gameboy/gameboy_opcodes.html>
 */
-use interrupt::Interrupt;
-
-use crate::{mmu::Mmu, ppu};
+use crate::{mmu::Mmu, sdl::Renderer};
 
 use self::registers::Registers;
 mod extended_instructions;
@@ -40,11 +38,11 @@ pub struct Cpu {
 
 impl Cpu {
     /// Initialize cpu memory
-    pub fn new(rom: &[u8], debug: crate::debug::Debug) -> Cpu {
+    pub fn new(rom: &[u8], renderer: Renderer, debug: crate::debug::Debug) -> Cpu {
         tracing::info!("initializing cpu");
         Cpu {
             registers: registers::Registers::new(),
-            mmu: Mmu::new(rom, debug.clone()),
+            mmu: Mmu::new(rom, debug.clone(), renderer),
             busy_for: 0x00,
             halted: false,
             schedule_ei: false,

@@ -28,6 +28,7 @@ use crate::{
     io::Io,
     mbc::{self, MBC},
     ppu::Ppu,
+    sdl::Renderer,
 };
 
 /// Gameboy wram size.
@@ -53,12 +54,12 @@ pub struct Mmu {
 
 impl Mmu {
     /// Create new wram.
-    pub fn new(rom: &[u8], debug: crate::debug::Debug) -> Self {
+    pub fn new(rom: &[u8], debug: crate::debug::Debug, renderer: Renderer) -> Self {
         tracing::info!("initializing mmu");
         let mut mmu = Self {
             wram: array::from_fn(|_| rand::random()),
             hram: array::from_fn(|_| rand::random()),
-            ppu: Ppu::new(),
+            ppu: Ppu::new(renderer),
             apu: Apu::new(),
             mbc: mbc::load_cartridge(rom),
             io: Io::new(),

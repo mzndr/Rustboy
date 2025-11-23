@@ -21,10 +21,13 @@ impl Cpu {
         let mnemonic = decode_instruction(opcode);
         let pc = self.registers.pc;
         let pc_mem = self.read_u16_at_pc();
-        tracing::Span::current().record(
-            "c",
-            format!("PC: {pc:0>4x} (PC):{pc_mem:0>4x} {opcode:0>2x}: {mnemonic}"),
-        );
+
+        // TODO: Figure out how to use record_all lmfao
+        tracing::Span::current().record("pc", format!("{pc:0>4x}"));
+        tracing::Span::current().record("pc_mem", format!("{pc_mem:0>4x}"));
+        tracing::Span::current().record("op", format!("{opcode:0>2x}"));
+        tracing::Span::current().record("mnemonic", format!("{mnemonic}"));
+
         if self.schedule_ei {
             self.schedule_ei = false;
             self.interrupt_master_enable = true;

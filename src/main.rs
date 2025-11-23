@@ -56,8 +56,18 @@ fn main() {
         return;
     }
 
-    let renderer = sdl::Renderer::new(sdl::Config::default());
+    let sdl_ctx = sdl2::init().unwrap();
+    let mut event_pump = sdl_ctx.event_pump().unwrap();
+    let renderer = sdl::Renderer::new(sdl::Config::default(), &sdl_ctx).unwrap();
 
-    let mut gb = Gameboy::new(&rom, args.into());
-    gb.run();
+    let mut gb = Gameboy::new(&rom, renderer, args.into());
+    // TODO: remove callback in favor of threading
+    gb.run(|| {
+        for event in event_pump.poll_iter() {
+            match event {
+                sdl2::event::Event::Quit { .. } => std::process::exit(0),
+                _ => {}
+            }
+        }
+    });
 }

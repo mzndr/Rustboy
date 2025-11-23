@@ -4,7 +4,7 @@
 //! Start   End     Description                        Notes
 //! 8000    9FFF    8 KiB Video RAM (VRAM)             In CGB mode, switchable bank 0/1
 
-use crate::cpu::interrupt::Interrupt;
+use crate::{cpu::interrupt::Interrupt, sdl::Renderer};
 
 /// VRAM size.
 pub const VRAM_SIZE: usize = 0x2000;
@@ -36,7 +36,7 @@ pub enum State {
     VBlank,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct Ppu {
     /// Video Memory.
     vram: [u8; VRAM_SIZE],
@@ -51,6 +51,8 @@ pub struct Ppu {
     sprite_buffer: Vec<Sprite>,
 
     t_cycle: u16,
+
+    renderer: Renderer,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -96,7 +98,7 @@ impl Default for Sprite {
 }
 
 impl Ppu {
-    pub fn new() -> Self {
+    pub fn new(renderer: Renderer) -> Self {
         tracing::info!("initializing ppu");
         Self {
             vram: [0; VRAM_SIZE],
@@ -105,6 +107,7 @@ impl Ppu {
             t_cycle: 0,
             state: State::OAMSearch,
             sprite_buffer: Vec::with_capacity(10),
+            renderer,
         }
     }
 
@@ -183,7 +186,6 @@ impl Ppu {
         for i in 0..19 {
             if let Some(sprite) = self.oam_load_sprite(i) {
                 self.sprite_buffer.push(sprite);
-                //tracing::warn!("{}", self.sprite_buffer.len());
             }
         }
     }

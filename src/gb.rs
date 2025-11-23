@@ -3,7 +3,7 @@ use std::{
     time::{self, Duration, Instant},
 };
 
-use crate::{cpu::Cpu, Args};
+use crate::{cpu::Cpu, sdl::Renderer, Args};
 
 /// Default gameboy clock speed.
 const DEFAULT_CLOCK_SPEED: f32 = 4100f32 / 4f32;
@@ -28,17 +28,25 @@ pub struct Gameboy {
 }
 
 impl Gameboy {
-    pub fn new(rom: &[u8], cfg: Config) -> Self {
+    pub fn new(rom: &[u8], renderer: Renderer, cfg: Config) -> Self {
         Self {
-            cpu: Cpu::new(rom, crate::debug::Debug::new(rom, cfg.gb_doctor_enable)),
+            cpu: Cpu::new(
+                rom,
+                renderer,
+                crate::debug::Debug::new(rom, cfg.gb_doctor_enable),
+            ),
             cfg,
         }
     }
 
-    pub fn run(&mut self) {
+    pub fn run<F>(&mut self, mut callback: F)
+    where
+        F: FnMut(),
+    {
         loop {
             let start = time::Instant::now();
             self.cpu.cycle();
+            callback();
             Self::sleep_till_next_cycle(start, self.cfg.uncap_clock_speed);
         }
     }
